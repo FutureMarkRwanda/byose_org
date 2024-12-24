@@ -1,10 +1,10 @@
 // eslint-disable-next-line no-unused-vars
 import React from 'react';
-import Header from "../components/Header.jsx";
-import Video from "../components/Video.jsx";
+import Header from "./Header.jsx";
+import Video from "./Video.jsx";
 const bgImage = " /assests/images/undraw_join_6quk.svg";
 import {BiSolidQuoteAltRight} from "react-icons/bi";
-function Home() {
+function Introduction() {
     return (
         <div
             className={`w-full bg-gray-100 text-gray-950 flex flex-col gap-3 p-2 container mx-auto bg-no-repeat bg-right-top`}
@@ -43,4 +43,4 @@ function Home() {
     );
 }
 
-export default Home;
+export default Introduction;

@@ -24,3 +24,27 @@ export  const servicesAndProducts = [
         position:`left`
     }
 ]
+
+export const news = [
+    {
+        id: 11,
+        title:`50+ Best creative website themes & templates`,
+        description:`Lorem ipsum dolor sit amet pretium consectetur adipiscing elit. Lorem consectetur adipiscing elit.`,
+        link:``,
+        image:`https://cdn.tailgrids.com/1.0/assets/images/cards/card-01/image-01.jpg`
+    },
+    {
+        id: 12,
+        title:`The ultimate UX and UI guide to card design`,
+        description:`Lorem ipsum dolor sit amet pretium consectetur adipiscing elit. Lorem consectetur adipiscing elit.`,
+        link:`#`,
+        image:`https://cdn.tailgrids.com/1.0/assets/images/cards/card-01/image-02.jpg`
+    },
+    {
+        id: 13,
+        title:`Creative Card Component designs graphic elements`,
+        description:`Lorem ipsum dolor sit amet pretium consectetur adipiscing elit. Lorem consectetur adipiscing elit.`,
+        link:`#`,
+        image:`https://cdn.tailgrids.com/1.0/assets/images/cards/card-01/image-03.jpg`
+    }
+]

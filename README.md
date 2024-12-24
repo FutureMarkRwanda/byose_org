@@ -18,8 +18,8 @@
 │   │   ├── CallToAction.js    # CTA buttons
 │   │   └── EventCard.js       # For displaying individual events
 │   ├── /pages                 # Pages for different sections of the website
-│   │   ├── Home.js            # Homepage
-│   │   ├── AboutUs.js         # About Us page
+│   │   ├── Introduction.js            # Homepage
+│   │   ├── About.js         # About Us page
 │   │   ├── Programs.js        # Programs/Services page
 │   │   ├── NewsEvents.js      # News & Events page
 │   │   ├── GetInvolved.js     # Get Involved page
@@ -66,8 +66,8 @@
         - `ServiceCard.js`: A component for displaying each key service, such as the E-commerce platform.
         - `CallToAction.js`: Displays CTA buttons for actions like "Get Involved."
     - **/pages**: Each page corresponds to a major section on the website.
-        - `Home.js`: The homepage with the banner, mission statement, key services, etc.
-        - `AboutUs.js`: The About Us page with mission & vision, history, leadership, etc.
+        - `Introduction.js`: The homepage with the banner, mission statement, key services, etc.
+        - `About.js`: The About Us page with mission & vision, history, leadership, etc.
         - `Programs.js`: The Programs/Services page, detailing E-commerce, ASER, and Educational platforms.
         - `NewsEvents.js`: Displays news, events, and blogs.
         - `GetInvolved.js`: Explains how users can get involved (volunteering, donations, partnerships).
