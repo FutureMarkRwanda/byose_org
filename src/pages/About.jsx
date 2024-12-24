@@ -4,7 +4,6 @@ import Introduction from "../components/Introduction.jsx";
 import Programs from "../components/Programs.jsx";
 import Action from "../components/Action.jsx";
 import News from "../components/News.jsx";
-import Footer from "../components/Footer.jsx";
 
 function About() {
     return (
@@ -13,7 +12,6 @@ function About() {
             <Programs/>
             <Action/>
             <News/>
-            <Footer/>
         </div>
     );
 }

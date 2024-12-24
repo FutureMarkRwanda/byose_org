@@ -9,7 +9,7 @@ function Header() {
     };
 
     return (
-        <nav className="border-gray-200 bg-gray-950  md:container w-[95%] md:mx-auto md:rounded-3xl bg-opacity-95 rounded shadow-xl fixed z-30">
+        <nav className="border-gray-200 bg-gray-950 mt-8  md:container w-[95%] md:mx-auto ml-3 md:rounded-3xl bg-opacity-95 rounded shadow-xl fixed z-30">
             <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
                 <a href="/" className="flex items-center space-x-3 rtl:space-x-reverse">
                     <img src="/assests/icons/Logo03.svg" className="h-8" alt="Flowbite Logo" />
@@ -19,7 +19,7 @@ function Header() {
                 <div className="flex md:order-2">
                     <button
                         type="button"
-                        className="md:hidden text-gray-400 hover:bg-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-700 rounded-lg text-sm p-2.5 me-1"
+                        className="md:hidden text-gray-400 hover:bg-gray-600 focus:outline-none focus:ring-4 focus:ring-gray-700 rounded-lg text-sm p-2.5 me-1"
                         onClick={toggleMenu}
                     >
                         <svg
@@ -60,7 +60,7 @@ function Header() {
                         <li>
                             <a
                                 href="#"
-                                className="block py-2 px-3 rounded md:p-0 md:hover:text-[#38A368] text-white hover:bg-gray-700 hover:text-white md:hover:bg-transparent border-gray-700"
+                                className="block py-2 px-3 rounded md:p-0 md:hover:text-[#38A368] text-white  hover:bg-gray-700 hover:text-white md:hover:bg-transparent border-gray-700"
                             >
                                 About
                             </a>

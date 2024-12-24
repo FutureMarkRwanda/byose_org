@@ -7,15 +7,15 @@ function ServiceCard({service,className}) {
     return (
         <div className={`px-4 bg-white mb-8 py-8 rounded-3xl mx-auto container lg:max-w-screen-xl md:px-24 lg:px-8 ${className}`}>
             {/* eslint-disable-next-line react/prop-types */}
-            <div className={`grid md:grid-cols-2 grid-cols-1 gap-2 items-center  w-full mb-10 text-gray-700  justify-between lg:${service.position==='right'?'flex-row-reverse':'flex-row'}`}>
+            <div className={`grid md:grid-cols-2 grid-cols-1 gap-2 items-center  w-full mb-10  justify-between lg:${service.position==='right'?'flex-row-reverse':'flex-row'}`}>
                 {/* eslint-disable-next-line react/prop-types */}
                 <div className={`mb-16 lg:mb-0 lg:max-w-lg lg:pr-5 md:${service.position==='left'?'order-1 justify-start':'order-2 justify-end'} `}>
                     <div className="max-w-xl mb-6">
-                        <h2 className="font-sans text-3xl sm:mt-0 mt-6 font-bold tracking-tight text-gray-800 sm:text-4xl sm:leading-none max-w-lg mb-6">
+                        <h2 className="font-sans text-3xl sm:mt-0 mt-6 font-bold tracking-tight sm:text-4xl sm:leading-none max-w-lg mb-6">
                             {/* eslint-disable-next-line react/prop-types */}
                             <TitleColor text={service.title}/>
                         </h2>
-                        <p className="md:text-lg text-lg">
+                        <p className="md:text-lg text-lg text-gray-600">
                             {/* eslint-disable-next-line react/prop-types */}
                             {service.description}
                         </p>

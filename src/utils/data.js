@@ -48,3 +48,31 @@ export const news = [
         image:`https://cdn.tailgrids.com/1.0/assets/images/cards/card-01/image-03.jpg`
     }
 ]
+
+export const products = [
+    {
+        id: 21,
+        name:`PresenceEye Pro`,
+        link:``,
+        image:`https://cdn.tailgrids.com/1.0/assets/images/cards/card-01/image-01.jpg`
+    },
+    {
+        id: 22,
+        name:`PresenceEye Dual`,
+        link:`#`,
+        image:`https://cdn.tailgrids.com/1.0/assets/images/cards/card-01/image-02.jpg`
+    },
+    {
+        id: 23,
+        name:`AI class`,
+        link:`#`,
+        image:`https://cdn.tailgrids.com/1.0/assets/images/cards/card-01/image-03.jpg`
+    },
+    {
+        id: 24,
+        name:`Robotics Class`,
+        link:`#`,
+        image:`https://cdn.tailgrids.com/1.0/assets/images/cards/card-01/image-03.jpg`
+    }
+]
+

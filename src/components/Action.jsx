@@ -22,7 +22,7 @@ function Action({state}) {
                     and <a href={`#`}
                            className={`font-semibold italic bg-slate-300 p-1 rounded-md`}>B-Tech Labs—bring</a> education,
                         commerce, and cutting-edge technology together to create a smarter future for everyone.
-                        <button className={`block text-white active:scale-110 m-1 p-3 rounded-md font-medium bg-gradient-to-tr from-[#195C51] via-gray-900  to-[#195C51] hover:bg-gradient-to-tl hover:from-[#195C51] hover:via-gray-900 hover:to-[#195C51] `}>
+                        <button className={`block text-white active:scale-110 m-1 p-3 rounded-full font-medium bg-gradient-to-tr from-[#195C51] via-gray-900  to-[#195C51] hover:bg-gradient-to-tl hover:from-[#195C51] hover:via-gray-900 hover:to-[#195C51] `}>
                             Learn More
                         </button>
                     </span>

@@ -1,6 +1,5 @@
 // eslint-disable-next-line no-unused-vars
 import React from 'react';
-import Header from "./Header.jsx";
 import Video from "./Video.jsx";
 const bgImage = " /assests/images/undraw_join_6quk.svg";
 import {BiSolidQuoteAltRight} from "react-icons/bi";
@@ -12,10 +11,9 @@ function Introduction() {
                 backgroundImage: `url(${bgImage})`,
             }}
         >
-            <Header/>
-            <div>
+            <div className={`md:mb-24 mb-2` }>
                 <div
-                    className="custom_container flex flex-col md:max-w-[60%] gap-3 p-5 pt-32 bg-gray-100 text-gray-800 rounded-xl bg-opacity-90">
+                    className="custom_container flex flex-col md:max-w-[60%] gap-3 p-5  text-gray-800 rounded-xl bg-opacity-90">
                     <h1 className="fade-in md:text-4xl font-bold">
                         Welcome to <span className={`bg-clip-text text-transparent bg-gradient-to-tr from-[#38A368] via-gray-950 to-[#38A368]`}>BYOSE</span>
                     </h1>
