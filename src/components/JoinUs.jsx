@@ -5,7 +5,7 @@ import Video from "./Video.jsx";
 
 function JoinUs() {
     return (
-        <div className="container mx-auto">
+        <div className="container mx-auto mt-24">
             {/*<h1 className={`text-center mb-10 font-semibold md:w-[60%] w-[90%] mx-auto md:text-4xl text-2xl`}>We believe*/}
             {/*    in innovation that empowers everyone to <TitleColor text={"Use"}/> and <TitleColor*/}
             {/*        text={"Create"}/> smarter solutions</h1>*/}

@@ -4,6 +4,7 @@ import Video from "./Video.jsx";
 
 function Banner() {
     return (
+    <div className="bg-gray-100">
         <div className="container mx-auto py-10">
             <div className={`flex md:flex-row flex-col gap-4 justify-between align-middle`}>
                 <div className={`md:max-w-[40%] max-w-[90%] flex flex-col justify-center align-middle items-center`}>
@@ -29,6 +30,7 @@ function Banner() {
                 </div>
             </div>
         </div>
+    </div>
     );
 }
 

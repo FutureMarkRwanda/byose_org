@@ -5,8 +5,8 @@ import {news} from "../utils/data.js";
 // eslint-disable-next-line no-unused-vars,react/prop-types
 function News({status}) {
     return (
-        <div className={`text-gray-950`}>
-            <section className="p-4 pt-20 lg:pt-[120px] pb-10 lg:pb-20 bg-gray-100">
+        <div className={`text-gray-950 bg-gray-100`}>
+            <section className="p-4 pt-20 lg:pt-[120px] pb-10 lg:pb-20 ">
                 <h2 className={`container mx-auto text-start font-bold pb-5`}>LATEST NEWS</h2>
                 <div className="container mx-auto ">
                     <div className="flex flex-wrap -mx-4">

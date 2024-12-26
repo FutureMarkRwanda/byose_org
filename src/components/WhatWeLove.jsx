@@ -3,6 +3,7 @@ import React from 'react';
 
 function WhatWeLove() {
     return (
+    <div className={`bg-gray-100`}>
         <div className={`container mx-auto py-12 flex-col`}>
             <div className={`md:w-[60%] w-[90%] mx-auto pb-6`}>
                 <h1 className={`mx-auto text-center font-bold py-6 md:text-4xl text-2xl`}>We love to make great things, things that matter.</h1>
@@ -42,6 +43,7 @@ function WhatWeLove() {
                 </div>
             </div>
         </div>
+    </div>
     );
 }
 

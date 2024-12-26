@@ -7,7 +7,7 @@ import News from "../components/News.jsx";
 
 function About() {
     return (
-        <div className={`flex flex-col bg-gray-100 gap-2`}>
+        <div className={`flex flex-col gap-2`}>
             <Introduction/>
             <Programs/>
             <Action/>

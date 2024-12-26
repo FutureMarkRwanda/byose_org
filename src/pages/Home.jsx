@@ -6,6 +6,7 @@ import WhatWeLove from "../components/WhatWeLove.jsx";
 import OurNumbers from "../components/OurNumbers.jsx";
 import JoinUs from "../components/JoinUs.jsx";
 import TitleColor from "../components/TitleColor.jsx";
+import FAQs from "../components/FAQs.jsx";
 
 function Home() {
     return (
@@ -19,6 +20,7 @@ function Home() {
             <SimpleStore/>
             <WhatWeLove/>
             <OurNumbers/>
+            <FAQs/>
             <JoinUs/>
         </div>
     );

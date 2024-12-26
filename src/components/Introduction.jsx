@@ -6,14 +6,14 @@ import {BiSolidQuoteAltRight} from "react-icons/bi";
 function Introduction() {
     return (
         <div
-            className={`w-full bg-gray-100 text-gray-950 flex flex-col gap-3 p-2 container mx-auto bg-no-repeat bg-right-top`}
+            className={`w-full  text-gray-950 flex flex-col gap-3 p-2 container mx-auto bg-no-repeat bg-right-top`}
             style={{
                 backgroundImage: `url(${bgImage})`,
             }}
         >
             <div className={`md:mb-24 mb-2` }>
                 <div
-                    className="custom_container flex flex-col md:max-w-[60%] gap-3 p-5  text-gray-800 rounded-xl bg-opacity-90">
+                    className="custom_container flex flex-col md:max-w-[60%] gap-3 p-5  bg-white  text-gray-800 rounded-xl bg-opacity-90">
                     <h1 className="fade-in md:text-4xl font-bold">
                         Welcome to <span className={`bg-clip-text text-transparent bg-gradient-to-tr from-[#38A368] via-gray-950 to-[#38A368]`}>BYOSE</span>
                     </h1>

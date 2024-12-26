@@ -76,3 +76,86 @@ export const products = [
     }
 ]
 
+export const faqs = [
+    {
+        question: "Lorem ipsum dolor sit amet?",
+        answer: [
+            "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque sed nulla porttitor, porttitor arcu ut, dictum augue.",
+            "Vestibulum consequat in urna in bibendum. Praesent sed magna risus. Nunc elementum in mauris ac pharetra.",
+        ],
+    },
+    {
+        question: "Curabitur viverra dictum justo?",
+        answer: [
+            "Nunc ac efficitur sapien. Mauris eu lectus odio. Mauris ac erat tortor.",
+            "Nulla consectetur commodo justo. Pellentesque eget ornare quam.",
+        ],
+    },
+    {
+        question: "Vestibulum consequat in urna?",
+        answer: [
+            "Praesent non ornare tellus, eget vulputate tellus. Donec luctus non sapien sed semper.",
+            "Pellentesque sodales metus non semper luctus.",
+        ],
+    },
+];
+export const team = [
+    {
+        id: 111,
+        name:"Jean Doe",
+        role:"Founder, Chairman and Chief Executive Officer",
+        image:"https://static.vecteezy.com/system/resources/previews/048/378/864/non_2x/a-young-happy-pretty-smiling-professional-business-woman-free-photo.jpg"
+    },
+    {
+        id: 111,
+        name:"Jean Doe",
+        role:"Founder, Chairman and Chief Executive Officer",
+        image:"https://static.vecteezy.com/system/resources/previews/048/378/864/non_2x/a-young-happy-pretty-smiling-professional-business-woman-free-photo.jpg"
+    },
+    {
+        id: 111,
+        name:"Jean Doe",
+        role:"Founder, Chairman and Chief Executive Officer",
+        image:"https://static.vecteezy.com/system/resources/previews/048/378/864/non_2x/a-young-happy-pretty-smiling-professional-business-woman-free-photo.jpg"
+    },
+    {
+        id: 111,
+        name:"Jean Doe",
+        role:"Founder, Chairman and Chief Executive Officer",
+        image:"https://static.vecteezy.com/system/resources/previews/048/378/864/non_2x/a-young-happy-pretty-smiling-professional-business-woman-free-photo.jpg"
+    },
+    {
+        id: 111,
+        name:"Jean Doe",
+        role:"Founder, Chairman and Chief Executive Officer",
+        image:"https://static.vecteezy.com/system/resources/previews/048/378/864/non_2x/a-young-happy-pretty-smiling-professional-business-woman-free-photo.jpg"
+    },
+    {
+        id: 111,
+        name:"Jean Doe",
+        role:"Founder, Chairman and Chief Executive Officer",
+        image:"https://static.vecteezy.com/system/resources/previews/048/378/864/non_2x/a-young-happy-pretty-smiling-professional-business-woman-free-photo.jpg"
+    }
+]
+
+export // Sample data for the values
+const values = [
+    {
+        title: "We are committed.",
+        description:
+            "Conversion angel investor entrepreneur first mover advantage. Handshake infographic mass market crowdfunding iteration.",
+        image: "/assests/images/Committed_eiam.svg", // Replace with actual image URLs
+    },
+    {
+        title: "We are responsible.",
+        description:
+            "Conversion angel investor entrepreneur first mover advantage. Handshake infographic mass market crowdfunding iteration.",
+        image: "/assests/images/undraw_certificate_71gt.svg",
+    },
+    {
+        title: "We aim for progress.",
+        description:
+            "Conversion angel investor entrepreneur first mover advantage. Handshake infographic mass market crowdfunding iteration.",
+        image: "/assests/images/undraw_in-progress_cdfz.svg",
+    },
+];

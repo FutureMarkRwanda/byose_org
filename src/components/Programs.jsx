@@ -4,7 +4,7 @@ import ServiceCard from "./ServiceCard.jsx";
 import {servicesAndProducts} from "../utils/data.js";
 function Programs() {
     return (
-        <div id={`services`} className={`flex flex-col gap-2 p-4`}>
+        <div id={`services`} className={`flex flex-col gap-2 bg-gray-100 md:py-20 py-16 p-6`}>
             <h2 className={`text-center font-bold`}>EXPANDING POSSIBILITIES</h2>
             <h1 className={` text-center font-bold`}>Blending AI and Robotics into Daily Life</h1>
             {servicesAndProducts.map((product) => (

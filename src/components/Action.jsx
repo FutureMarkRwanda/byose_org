@@ -4,7 +4,7 @@ import React from 'react';
 // eslint-disable-next-line react/prop-types,no-unused-vars
 function Action({state}) {
     return (
-        <div id={`action`} className={`flex flex-col md:p-6 gap-2 text-gray-900 p-4 bg-white`}>
+        <div id={`action`} className={`flex flex-col md:p-6 gap-2 text-gray-900  bg-white md:pt-20 p-4`}>
             <h1 className={` text-center font-bold md:mb-14`}>Making Life Simpler and Smarter for Everyone</h1>
             {/*<h2 className={`text-center font-bold`}>EXPANDING POSSIBILITIES</h2>*/}
             <div className={`container md:px-6 mx-auto grid md:grid-cols-2 gap-2`}>
