@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { useLocation } from 'react-router-dom'; // Import useLocation hook
+import { useLocation } from 'react-router-dom';
+import {LuMessageCircleQuestion} from "react-icons/lu"; // Import useLocation hook
 
 function Header() {
     const [menuOpen, setMenuOpen] = useState(false);
@@ -95,10 +96,10 @@ function Header() {
                         </li>
                         <li>
                             <a
-                                href="/news"
-                                className={`block py-2 px-3 rounded md:p-0 md:hover:text-[#38A368] ${getActiveClass('/news')}`}
+                                href="/contact"
+                                className={`block flex text-wrap gap-3  py-2 px-3 rounded md:p-0 md:hover:text-[#38A368] ${getActiveClass('/contact')}`}
                             >
-                                News
+                                Get in Touch<LuMessageCircleQuestion size={20} />
                             </a>
                         </li>
                     </ul>

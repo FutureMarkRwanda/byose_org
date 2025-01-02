@@ -9,6 +9,9 @@ import WhoWeAre from "./pages/WhoWeAre.jsx";
 import { Route, Routes} from 'react-router-dom';
 import MainPage from "./pages/MainPage.jsx";
 import useUpdateTitle from "./hooks/useUpdateTitle.jsx";
+import ContactUs from "./pages/ContactUs.jsx";
+import NotFound from "./pages/NotFound.jsx";
+import PresenceEye from "./pages/PresenceEye.jsx";
 
 function App() {
     const titleMap = {
@@ -34,6 +37,9 @@ function App() {
                         <Route index element={<About/>}/>
                         <Route path="/home" element={<Home/>}/>
                         <Route path="/we-are" element={<WhoWeAre/>}/>
+                        <Route path="/contact" element={<ContactUs/>}/>
+                        <Route path="/presence-eye" element={<PresenceEye/>}/>
+                        <Route path="*" element={<NotFound />} />
                     </Route>
                   </Routes>
           </div>
