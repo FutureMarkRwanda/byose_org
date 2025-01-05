@@ -18,7 +18,7 @@ const image = " /assests/images/wave-t-haikei.svg";
 function App() {
     const titleMap = {
         "/": "About BYOSE",
-        "/#services": "Services at BYOSE",
+        "/services": "Services at BYOSE",
         "/home": "Home - BYOSE ",
         "/contact": "Contact Us BYOSE",
         "/news": "New & Blog BYOSE",
