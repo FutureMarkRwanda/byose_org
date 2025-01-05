@@ -8,6 +8,7 @@ import Home from "./pages/Home.jsx";
 import WhoWeAre from "./pages/WhoWeAre.jsx";
 import { Route, Routes} from 'react-router-dom';
 import MainPage from "./pages/MainPage.jsx";
+// eslint-disable-next-line no-unused-vars
 import useUpdateTitle from "./hooks/useUpdateTitle.jsx";
 import ContactUs from "./pages/ContactUs.jsx";
 import NotFound from "./pages/NotFound.jsx";
@@ -17,16 +18,11 @@ const image = " /assests/images/wave-t-haikei.svg";
 
 function App() {
     const titleMap = {
-        "/": "About BYOSE",
-        "/services": "Services at BYOSE",
-        "/home": "Home - BYOSE ",
-        "/contact": "Contact Us BYOSE",
+        "/#services": "Services at BYOSE",
         "/news": "New & Blog BYOSE",
-        "/presence-eye": "PresenceEye BYOSE",
         "/b-academy": "B-Academy",
         "/b-store": "B-Store",
         "/b-tech-labs": "B-Tech Labs",
-        "/we-are": "Who We Are",
         "/signup": "Create Account BYOSE",
         "/login": "Login BYOSE",
     };
