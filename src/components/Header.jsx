@@ -19,7 +19,7 @@ function Header() {
     return (
         <nav className="border-gray-200 bg-gray-950 mt-8 md:container w-[95%] md:mx-auto ml-3 md:rounded-3xl bg-opacity-95 rounded shadow-xl fixed z-30">
             <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
-                <a href="/" className="flex items-center space-x-3 rtl:space-x-reverse">
+                <a href="/home" className="flex items-center space-x-3 rtl:space-x-reverse">
                     <img src="/assests/icons/Logo03.svg" className="h-8" alt="Flowbite Logo" />
                     <span className="self-center text-2xl font-semibold whitespace-nowrap text-white">BYOSE</span>
                 </a>

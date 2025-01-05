@@ -13,22 +13,22 @@ function WhatWeLove() {
                 <div className="grid grid-cols-6 col-span-2   md:gap-8 gap-4 p-4  ">
                     <div className=" overflow-hidden rounded-xl col-span-3 max-h-[14rem]">
                         <img className="h-full w-full object-cover "
-                             src="https://images.unsplash.com/photo-1517487881594-2787fef5ebf7?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=735&q=80"
+                             src="https://www.imec-int.com/_next/image?url=https%3A%2F%2Fdrupal.imec-int.com%2Fsites%2Fdefault%2Ffiles%2F2022-01%2Frobot.jpg&w=3840&q=75"
                              alt=""/>
                     </div>
                     <div className=" overflow-hidden rounded-xl col-span-3 max-h-[14rem]">
                         <img className="h-full w-full object-cover  "
-                             src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1399&q=80"
+                             src="https://assets.skyfilabs.com/playto/blog-images/robotics-for-beginners-v3.webp"
                              alt=""/>
                     </div>
                     <div className=" overflow-hidden rounded-xl col-span-2 max-h-[10rem]">
                         <img className="h-full w-full object-cover "
-                             src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80"
+                             src="https://pioneeracademics.com/wp-content/uploads/2023/07/DIY-electronic-kit-for-robotics-competition.png"
                              alt=""/>
                     </div>
                     <div className=" overflow-hidden rounded-xl col-span-2 max-h-[10rem]">
                         <img className="h-full w-full object-cover "
-                             src="https://images.unsplash.com/photo-1503602642458-232111445657?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80"
+                             src="https://engineering.case.edu/sites/default/files/styles/page_image/public/robot-mantis067.jpg?itok=_1I59H7T"
                              alt=""/>
                     </div>
                     <div className="relative overflow-hidden rounded-xl col-span-2 max-h-[10rem]">
@@ -37,7 +37,7 @@ function WhatWeLove() {
                             10+
                         </div>
                         <img className="h-full w-full object-cover "
-                             src="https://images.unsplash.com/photo-1560393464-5c69a73c5770?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=765&q=80"
+                             src="https://acity.edu.gh/study/images/ACITY-Robotic.webp"
                              alt=""/>
                     </div>
                 </div>

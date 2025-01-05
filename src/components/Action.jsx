@@ -17,13 +17,15 @@ function Action({state}) {
                     From smart home automation to advanced robotics,
                     we design solutions that simplify routines, save energy, and empower communities.
                     Our platforms—
-                    <a href={`#`} className={`font-semibold italic bg-slate-300 p-1 rounded-md`}>B-Academy</a>,
-                    <a href={`#`} className={`font-semibold italic bg-slate-300 p-1 rounded-md`}>B-Store</a>,
-                    and <a href={`#`}
+                    <a href={`/b-academy`} className={`font-semibold italic bg-slate-300 p-1 rounded-md`}>B-Academy</a>,
+                    <a href={`/b-store`} className={`font-semibold italic bg-slate-300 p-1 rounded-md`}>B-Store</a>,
+                    and <a href={`/b-tech-labs`}
                            className={`font-semibold italic bg-slate-300 p-1 rounded-md`}>B-Tech Labs—bring</a> education,
                         commerce, and cutting-edge technology together to create a smarter future for everyone.
-                        <button className={`block text-white active:scale-110 m-1 p-3 rounded-full font-medium bg-gradient-to-tr from-[#195C51] via-gray-900  to-[#195C51] hover:bg-gradient-to-tl hover:from-[#195C51] hover:via-gray-900 hover:to-[#195C51] `}>
+                        <button className={`block my-4`}>
+                        <a href={`/presence-eye`} className={` text-white active:scale-110  p-3 rounded-full font-medium bg-gradient-to-tr from-[#195C51] via-gray-900  to-[#195C51] hover:bg-gradient-to-tl hover:from-[#195C51] hover:via-gray-900 hover:to-[#195C51] `}>
                             Learn More
+                        </a>
                         </button>
                     </span>
                 </p>

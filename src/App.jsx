@@ -12,18 +12,23 @@ import useUpdateTitle from "./hooks/useUpdateTitle.jsx";
 import ContactUs from "./pages/ContactUs.jsx";
 import NotFound from "./pages/NotFound.jsx";
 import PresenceEye from "./pages/PresenceEye.jsx";
+const image = " /assests/images/wave-t-haikei.svg";
+
 
 function App() {
     const titleMap = {
         "/": "About BYOSE",
-        "/home": "Home-BYOSE ",
-        "/contact": "Contact Us-BYOSE",
-        "/news": "New & Blog-BYOSE",
-        "/presence-eye": "PresenceEye Us-BYOSE",
+        "/#services": "Services at BYOSE",
+        "/home": "Home - BYOSE ",
+        "/contact": "Contact Us BYOSE",
+        "/news": "New & Blog BYOSE",
+        "/presence-eye": "PresenceEye BYOSE",
         "/b-academy": "B-Academy",
         "/b-store": "B-Store",
         "/b-tech-labs": "B-Tech Labs",
         "/we-are": "Who We Are",
+        "/signup": "Create Account BYOSE",
+        "/login": "Login BYOSE",
     };
     useUpdateTitle(titleMap);
   return (
@@ -31,7 +36,8 @@ function App() {
           <div className={`container mx-auto`}>
             <Header/>
           </div>
-          <div className={`min-h-[66vh] pt-32`}>
+          <div className={`min-h-[66vh]`}>
+              <div className={`h-[8rem] bg-cover bg-no-repeat`} style={{ backgroundImage: `url(${image})` }} ></div>
                   <Routes>
                     <Route exact path="/" element={<MainPage/>}>
                         <Route index element={<About/>}/>

@@ -12,10 +12,10 @@ function NotFound() {
                     {/* eslint-disable-next-line react/no-unescaped-entities */}
                     <p className="mt-2 text-sm text-gray-600 ">Sorry, we couldn't find this page&nbsp;
                         {/* eslint-disable-next-line react/no-unescaped-entities */}
-                        you're looking for.</p>
+                        you're looking for. <strong>Could still be in progress.</strong></p>
                 </div>
                 <div className="mt-2">
-                    <a href="/"
+                    <a href="/home"
                        className="text-white hover:scale-105 active:scale-125 bg-gradient-to-tr from-[#195C51] via-gray-900  to-[#195C51] inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md  focus:outline-none focus:ring-2 focus:ring-offset-2 ">
                         <svg className="mr-2 -ml-1 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"

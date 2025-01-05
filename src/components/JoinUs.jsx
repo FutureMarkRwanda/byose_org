@@ -20,11 +20,11 @@ function JoinUs() {
                             Join Byose community and unlock a world of possibilities. As a member, you'll gain exclusive access to innovative tools, personalized solutions, and a network of like-minded individuals driving their own journeys forward.
                         </p>
                         <div className={`py-5`}>
-                            <a href={`#`}
+                            <a href={`/signup`}
                                className={`text-white active:scale-110 m-1 p-3 px-4 rounded-full font-medium bg-gradient-to-tr from-[#195C51] via-gray-900  to-[#195C51] hover:bg-gradient-to-tl hover:from-[#195C51] hover:via-gray-900 hover:to-[#195C51] `}>
                                 Join now
                             </a>
-                            <a href={`#`} target="_blank" rel="noopener noreferrer"
+                            <a href={`/contact`} target="_blank" rel="noopener noreferrer"
                                className="inline-block py-2 px-7 active:scale-110 text-base text-body-color font-medium hover:text-gray-700 transition ">
                                 Get in Touch→
                             </a>

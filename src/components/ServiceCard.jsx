@@ -21,7 +21,8 @@ function ServiceCard({service,className}) {
                         </p>
                     </div>
                     <div className='space-x-4'>
-                        <a href={`#`} className="text-neutral-800  text-lg font-medium inline-flex items-center">
+                        {/* eslint-disable-next-line react/prop-types */}
+                        <a href={service.link} className="text-neutral-800  text-lg font-medium inline-flex items-center">
                             <span> more →</span>
                         </a>
                     </div>

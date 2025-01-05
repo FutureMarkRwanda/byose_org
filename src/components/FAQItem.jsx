@@ -28,7 +28,7 @@ export default function FAQItem({ question, answer, isOpen, onClick }) {
                 <div className="p-3">
                     {/* eslint-disable-next-line react/prop-types */}
                     {answer.map((text, index) => (
-                        <p key={index} className="text-gray-700 mb-3 fade-in">
+                        <p key={index} className="text-gray-700 mb-3 fade-in md:w-3/5 w-full">
                             {text}
                         </p>
                     ))}

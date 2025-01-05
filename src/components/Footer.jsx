@@ -27,12 +27,12 @@ function Footer() {
                         <p className="font-semibold text-gray-800 dark:text-white">Quick Link</p>
 
                         <div className="flex flex-col items-start mt-5 space-y-2">
-                            <a href="#"
+                            <a href="/home"
                                className="text-gray-600 transition-colors duration-300 dark:text-gray-300 dark:hover:text-[#65E4A3] hover:underline hover:text-[#38A368]">Home</a>
-                            <a href="#"
+                            <a href="/we-are"
                                className="text-gray-600 transition-colors duration-300 dark:text-gray-300 dark:hover:text-[#65E4A3] hover:underline hover:text-[#38A368]">Who
                                 We Are</a>
-                            <a href="#"
+                            <a href="/"
                                className="text-gray-600 transition-colors duration-300 dark:text-gray-300 dark:hover:text-[#65E4A3] hover:underline hover:text-[#38A368]">Our
                                 Philosophy</a>
                         </div>
@@ -42,15 +42,13 @@ function Footer() {
                         <p className="font-semibold text-gray-800 dark:text-white">Industries</p>
 
                         <div className="flex flex-col items-start mt-5 space-y-2">
-                            <a href="#"
-                               className="text-gray-600 transition-colors duration-300 dark:text-gray-300 dark:hover:text-[#65E4A3] hover:underline hover:text-[#38A368]">Retail
-                                & E-Commerce</a>
-                            <a href="#"
+                            <a
+                               className="text-gray-600 transition-colors duration-300 dark:text-gray-300 dark:hover:text-[#65E4A3] hover:underline hover:text-[#38A368]">Commerce</a>
+                            <a
                                className="text-gray-600 transition-colors duration-300 dark:text-gray-300 dark:hover:text-[#65E4A3] hover:underline hover:text-[#38A368]">Information
                                 Technology</a>
-                            <a href="#"
-                               className="text-gray-600 transition-colors duration-300 dark:text-gray-300 dark:hover:text-[#65E4A3] hover:underline hover:text-[#38A368]">Finance
-                                & Insurance</a>
+                            <a href="https://b-academy.vercel.app"
+                               className="text-gray-600 transition-colors duration-300 dark:text-gray-300 dark:hover:text-[#65E4A3] hover:underline hover:text-[#38A368]">E Courses</a>
                         </div>
                     </div>
                 </div>
@@ -58,7 +56,7 @@ function Footer() {
                 <hr className="my-6 border-gray-200 md:my-8 dark:border-gray-700"/>
 
                     <div className="flex items-center justify-between">
-                        <a href="/" className="flex items-center space-x-3 rtl:space-x-reverse">
+                        <a href="/home" className="flex items-center space-x-3 rtl:space-x-reverse">
                             <img src="/assests/icons/Logo03.svg" className="h-8" alt="Flowbite Logo"/>
                             <span
                                 className="self-center text-2xl font-semibold whitespace-nowrap text-white">BYOSE</span>
