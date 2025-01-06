@@ -13,7 +13,7 @@ function Home() {
     return (
         <div>
             <Helmet>
-                <title>Home | BYOSE</title>
+                <title>BYOSE</title>
                 <meta name="description" content="Discover BYOSE, where we build innovative AI and robotics solutions, offer educational platforms, and deliver smart automation services." />
                 <meta name="robots" content="index, follow" />
             </Helmet>
