@@ -10,7 +10,7 @@ function About() {
     return (
         <div className={`flex flex-col gap-2`}>
             <Helmet>
-                <title>About BYOSE</title>
+                <title>BYOSE</title>
                 <meta name="description" content="Learn more about our awesome services." />
                 <meta name="robots" content="index, follow" />
             </Helmet>
