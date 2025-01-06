@@ -129,7 +129,7 @@ export const team = [
     },
     {
         id: 114,
-        name:"Uwase Seminega Vaness",
+        name:"Uwase Seminega Vanessa",
         role:"Director of B-Tech Labs",
         image:defaultAvatar
     },
