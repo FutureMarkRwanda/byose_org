@@ -60,7 +60,7 @@ export const products = [
         id: 22,
         name:`PresenceEye Dual`,
         link:`/b-store?q=presence-eye-dual`,
-        image:`https://www.jiomart.com/images/product/original/rvybttcnah/econe-shockproof-metal-body-4-socket-4-switch-6-amp-10-amp-power-extension-board-extension-cords-surge-protector-with-3-core-copper-wire-and-extra-fuse-4-4-mtr-pack-of-2-product-images-orvybttcnah-p597557991-0-202301140310.jpg?im=Resize=(420,420)`
+        image:`https://res.cloudinary.com/ddsojj7zo/image/upload/v1737309233/byose%20org%20site/gsgyn6yojnpzt8ayn4pv.png`
     },
     {
         id: 23,
