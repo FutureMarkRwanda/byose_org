@@ -26,7 +26,7 @@ function Banner() {
                     </div>
                 </div>
                 <div className={`flex justify-end`}>
-                    <Video url={`https://www.youtube.com/watch?v=hXHWf-Ac4dY`}/>
+                    <Video url={`https://www.youtube.com/watch?v=79Joly2-FBk`}/>
                 </div>
             </div>
         </div>
