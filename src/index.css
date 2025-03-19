@@ -139,7 +139,7 @@ h1 {
 /* src/presentation.css */
 
 /* Custom cursor styling */
-.custom-cursor {
+.custom-cursor-presence-eye{
   cursor: url('/assests/icons/blueLogo.svg') 20 20 , auto;
 }
 
@@ -238,8 +238,7 @@ h1 {
 }
 
 .feature-item {
-  opacity: 0;
-  animation: slideEntrance 0.5s ease forwards;
+  animation: fadeInUp 1s ease-in-out;
 }
 
 .feature-item:nth-child(1) {
@@ -261,10 +260,53 @@ h1 {
 .feature-item:nth-child(5) {
   animation-delay: 1.5s;
 }
+.feature-item {
+  animation: fadeInUp 1s ease-in-out;
+}
 
 .feature-item:nth-child(6) {
-  animation-delay: 1.8s;
+  animation-delay: 0.3s;
 }
+
+.feature-item:nth-child(7) {
+  animation-delay: 0.6s;
+}
+
+.feature-item:nth-child(8) {
+  animation-delay: 0.9s;
+}
+
+.feature-item:nth-child(9) {
+  animation-delay: 1.2s;
+}
+
+.feature-item:nth-child(10) {
+  animation-delay: 1.5s;
+}
+.feature-item {
+  animation: fadeInUp 1s ease-in-out;
+}
+
+.feature-item:nth-child(11) {
+  animation-delay: 0.3s;
+}
+
+.feature-item:nth-child(12) {
+  animation-delay: 0.6s;
+}
+
+.feature-item:nth-child(13) {
+  animation-delay: 0.9s;
+}
+
+.feature-item:nth-child(14) {
+  animation-delay: 1.2s;
+}
+
+.feature-item:nth-child(15) {
+  animation-delay: 1.5s;
+}
+
 /* Text block fade-in sequence */
 .fade-in-sequence > * {
   opacity: 0;

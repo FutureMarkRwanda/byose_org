@@ -22,6 +22,12 @@ import Presence_eye_p1_s6 from "./slides_cards/Presence_eye_p1_s6.jsx";
 import Presence_eye_p1_s7 from "./slides_cards/Presence_eye_p1_s7.jsx";
 import Presence_eye_p1_s8 from "./slides_cards/Presence_eye_p1_s8.jsx";
 import Presence_eye_p1_s9 from "./slides_cards/Presence_eye_p1_s9.jsx";
+import Presence_eye_p1_s10 from "./slides_cards/Presence_eye_p1_s10.jsx";
+import Presence_eye_p1_s11 from "./slides_cards/Presence_eye_p1_s11.jsx";
+import Presence_eye_p1_s12 from "./slides_cards/Presence_eye_p1_s12.jsx";
+import Presence_eye_p1_s0 from "./slides_cards/Presence_eye_p1_s0.jsx";
+import Presence_eye_p1_s3_P2 from "./slides_cards/Presence_eye_p1_s3_P2.jsx";
+import Presence_eye_p1_s7_P0 from "./slides_cards/Presence_eye_p1_s7_P0.jsx";
 // Custom theme with professional colors and styling
 const theme = {
     colors: {
@@ -29,19 +35,18 @@ const theme = {
         secondary: '#50E3C2',
         tertiary: '#F5A623',
         quaternary: '#1F2D3D',
-        background: '#F9FAFC',
-        background1: '#E3F2FD', // Light blue
-        background2: '#F1F8E9', // Soft green
-        background3: '#FFF3E0', // Warm beige
-        background4: '#ECEFF1', // Cool gray
-        background5: '#FBE9E7', // Gentle peach
-        background6: '#EDE7F6', // Soft lavender
-        background7: '#FAFAFA', // Near white
-        background8: '#263238', // Dark slate for contrast
-        background9: '#37474F', // Muted dark gray
-        background10: '#1B1B1B', // Deep black for high contrast
-        background11: '#370926', //Dark purple
-
+        darkBackground1: '#16222E', // Darker slate blue-gray
+        darkBackground2: '#0F1721', // Almost black with blue tint
+        darkBackground3: '#19212C', // Muted charcoal blue
+        darkBackground4: '#111822', // Deep night blue
+        darkBackground5: '#0E131B', // Shadow navy
+        darkBackground6: '#141E29', // Dark stormy blue
+        darkBackground7: '#101A26', // Midnight ocean
+        darkBackground8: '#0C1118', // Pure deep black with a cool tint
+        darkBackground9: '#1A242F', // Slightly muted deep blue-gray
+        darkBackground10: '#121922', // Heavy dusk shade
+        darkBackground11: '#19232E', // Steel gray with blue undertone
+        darkBackground12: '#0B121A', // Blackened navy
     },
     fonts: {
         header: '"Montserrat", "Helvetica Neue", Helvetica, Arial, sans-serif',
@@ -82,14 +87,6 @@ const Presentation = () => {
         }
     };
 
-    // Custom cursor style added through CSS
-    useEffect(() => {
-        document.body.classList.add('custom-cursor');
-
-        return () => {
-            document.body.classList.remove('custom-cursor');
-        };
-    }, []);
 
     return (
         <div ref={containerRef} className="presentation-container z-30">
@@ -113,16 +110,29 @@ const Presentation = () => {
                 <Presence_eye_p1_s2/>
                 {/* Introducing Presence Eye Lite*/}
                 <Presence_eye_p1_s3/>
+                <Presence_eye_p1_s3_P2/>
                 {/* Gesture Control Slide */}
                 <Presence_eye_p1_s4/>
                 {/*    */}
                 <Presence_eye_p1_s5/>
-            {/*    */}
+                {/*    */}
+                <Presence_eye_p1_s7_P0/>
+                {/*    */}
                 <Presence_eye_p1_s6/>
-            {/*    */}
+
                 <Presence_eye_p1_s7/>
+
                 <Presence_eye_p1_s8/>
+
                 <Presence_eye_p1_s9/>
+
+                <Presence_eye_p1_s10/>
+
+                <Presence_eye_p1_s11/>
+
+                <Presence_eye_p1_s12/>
+
+                <Presence_eye_p1_s0/>
             </Deck>
         </div>
     );

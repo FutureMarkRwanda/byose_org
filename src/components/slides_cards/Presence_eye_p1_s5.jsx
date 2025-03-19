@@ -1,23 +1,50 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {Box, FlexBox, Grid, Heading, Slide, Text} from "spectacle";
+import {getTextColor} from "../../utils/helper.js";
 
 function PresenceEyeP1S5() {
+
+    const featureItems = [
+        { color: "#273B09", text: "1", title: "Power Direct" },
+        { color: "#84732B", text: "2", title: "SmartCharge" },
+        { color: "#E98A15", text: "3", title: "B-Bot Assist" },
+        { color: "#5A2328", text: "4", title: "Advanced Control" },
+    ];
+
+// Add dynamically calculated textColor
+    const updatedFeatureItems = featureItems.map(item => ({
+        ...item,
+        textColor: getTextColor(item.color)
+    }));
     return (
-        <Slide backgroundColor="background10">
-            <FlexBox height="100%" flexDirection="column" alignItems="center" justifyContent="center">
-                <Grid gridTemplateColumns="repeat(2, 1fr)" className={"gap-5 feature-list "} width="80%" height="80%" >
-                    <Box width="100%" height="100%" backgroundColor="#58A4B0" borderRadius="3px" display="flex" alignItems="center" justifyContent="center" className={"feature-item"}>
-                        <Text color="white">1</Text>
-                    </Box>
-                    <Box width="100%" height="100%" backgroundColor="#84732B" borderRadius="3px" display="flex" alignItems="center" justifyContent="center" className={"feature-item"}>
-                        <Text color="white">2</Text>
-                    </Box>
-                    <Box width="100%" height="100%" backgroundColor="#9D6381" borderRadius="3px" display="flex" alignItems="center" justifyContent="center" className={"feature-item"}>
-                        <Text color="white">3</Text>
-                    </Box>
-                    <Box width="100%" height="100%" backgroundColor="#28965A" borderRadius="3px" display="flex" alignItems="center" justifyContent="center" className={"feature-item"}>
-                        <Text color="black">4</Text>
-                    </Box>
+        <Slide backgroundColor="darkBackground1">
+            <FlexBox height="100%" flexDirection="column" alignItems="center" justifytitle="center">
+                <Grid
+                    gridTemplateColumns="repeat(2, 1fr)"
+                    className="gap-5 feature-list relative"
+                    width="80%"
+                    height="80%"
+                >
+                    {updatedFeatureItems
+                        .map(({ color, text, textColor = "white",title }, index) => (
+                        <Box
+                            key={index}
+                            width="100%"
+                            height="100%"
+                            backgroundColor={color}
+                            borderRadius="3px"
+                            display="flex"
+                            alignItems="center"
+                            justifytitle="center"
+                            className="feature-item  transition-transform duration-300 hover:scale-110 hover:z-10 hover:shadow-lg relative"
+                            style={{ transformOrigin: "center" }}
+                        >
+                            <FlexBox height={"100%"} flexDirection="column"  justifyContent="between" alignItems="start">
+                                <Text fontWeight={"bold"} fontSize={"h1"} color={textColor}>{text}</Text>
+                                <Text fontWeight={"bold"} fontSize={"h2"} color={textColor}>{title}</Text>
+                            </FlexBox>
+                        </Box>
+                    ))}
                 </Grid>
             </FlexBox>
         </Slide>

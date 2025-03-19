@@ -1,10 +1,10 @@
 // eslint-disable-next-line no-unused-vars
 import React from 'react';
-import { Box, FlexBox, Heading, Slide, Text, Image } from "spectacle";
+import {Box, FlexBox, Heading, Image, Slide, Text} from "spectacle";
 
-function PresenceEyeP1S1() {
+function PresenceEyeP1S12() {
     return (
-        <Slide backgroundImage="linear-gradient(45deg, #4A90E2 0%, #50E3C2 100%)">
+        <Slide backgroundColor="#003366">
             <FlexBox height="100%" flexDirection="column" alignItems="center" justifyContent="center">
                 <Box className="slide-entrance-delayed">
                     <FlexBox alignItems="center" className="slide-entrance-delayed-2">
@@ -19,4 +19,4 @@ function PresenceEyeP1S1() {
     );
 }
 
-export default PresenceEyeP1S1;
+export default PresenceEyeP1S12;

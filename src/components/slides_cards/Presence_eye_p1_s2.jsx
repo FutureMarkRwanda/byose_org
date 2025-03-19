@@ -3,7 +3,7 @@ import {Box, FlexBox, Heading, Image, Slide, Text} from "spectacle";
 
 function PresenceEyeP1S2() {
     return (
-        <Slide backgroundColor="background">
+        <Slide backgroundImage="linear-gradient(45deg, #DFF3E4 0%, #F0F6F6 100%)">
             <FlexBox height="100%" flexDirection="column"  justifyContent="center" padding="0 10%">
                 <Heading fontSize="h1" color="#38A368" className="slide-zoom-in">
                     <FlexBox alignItems="center">

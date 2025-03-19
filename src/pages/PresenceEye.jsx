@@ -1,9 +1,18 @@
 // eslint-disable-next-line no-unused-vars
-import React from 'react';
+import React, {useEffect} from 'react';
 import {Helmet} from "react-helmet";
 import {Outlet} from "react-router-dom";
 
 function PresenceEye() {
+
+    // Custom cursor style added through CSS
+    useEffect(() => {
+        document.body.classList.add('custom-cursor-presence-eye');
+
+        return () => {
+            document.body.classList.remove('custom-cursor-presence-eye');
+        };
+    }, []);
     return (
         <div className="min-h-full flex flex-col justify-center items-center">
             <Helmet>
@@ -23,10 +32,6 @@ function PresenceEye() {
                 <a href="/home"
                    className="border-2 border-gray-800 text-black font-bold py-3 px-6 rounded ">Home</a>
             </div>
-            {/*<div className="h-[50vh] w-[50vw]">*/}
-            {/*    <PresenceEyePresentation/>*/}
-            {/*</div>*/}
-            {/*<PresenceEyePrivacyPolicy/>*/}
             <Outlet/>
         </div>
     );
