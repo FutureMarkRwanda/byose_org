@@ -1,7 +1,7 @@
 // eslint-disable-next-line no-unused-vars
 import React from 'react';
 import {Helmet} from "react-helmet";
-import PresenceEyePrivacyPolicy from "./PresenceEyePrivacyPolicy.jsx";
+import {Outlet} from "react-router-dom";
 
 function PresenceEye() {
     return (
@@ -23,7 +23,11 @@ function PresenceEye() {
                 <a href="/home"
                    className="border-2 border-gray-800 text-black font-bold py-3 px-6 rounded ">Home</a>
             </div>
-            <PresenceEyePrivacyPolicy/>
+            {/*<div className="h-[50vh] w-[50vw]">*/}
+            {/*    <PresenceEyePresentation/>*/}
+            {/*</div>*/}
+            {/*<PresenceEyePrivacyPolicy/>*/}
+            <Outlet/>
         </div>
     );
 }

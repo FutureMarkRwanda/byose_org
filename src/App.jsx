@@ -12,6 +12,8 @@ import useUpdateTitle from "./hooks/useUpdateTitle.jsx";
 import ContactUs from "./pages/ContactUs.jsx";
 import NotFound from "./pages/NotFound.jsx";
 import PresenceEye from "./pages/PresenceEye.jsx";
+import PresenceEyePrivacyPolicy from "./components/PresenceEyePrivacyPolicy.jsx";
+import PresenceEyePresentation from "./components/PresenceEyePresentation.jsx";
 const image = " /assests/images/wave-t-haikei.svg";
 
 
@@ -44,7 +46,10 @@ function App() {
                         <Route path="/home" element={<Home/>}/>
                         <Route path="/we-are" element={<WhoWeAre/>}/>
                         <Route path="/contact" element={<ContactUs/>}/>
-                        <Route path="/presence-eye" element={<PresenceEye/>}/>
+                        <Route path="/presence-eye" element={<PresenceEye/>}>
+                            <Route index element={<PresenceEyePrivacyPolicy/>}/>
+                            <Route path="/presence-eye/presents" element={<PresenceEyePresentation/>}/>
+                        </Route>
                         <Route path="*" element={<NotFound />} />
                     </Route>
                   </Routes>
