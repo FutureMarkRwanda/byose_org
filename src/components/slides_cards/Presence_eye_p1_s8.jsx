@@ -17,7 +17,7 @@ function PresenceEyeP1S8() {
                     </Box>
                     <div className="relative w-full h-full feature-item">
                         <Image
-                            src="../../assests/images/manual_plug.png"
+                            src="../../assests/images/gesture.png"
                             alt="PresenceEye Logo"
                             width="500px"
                             className="absolute top-0 right-[5rem] rotate-12 mr-2 transition-transform duration-300 hover:rotate-0 hover:scale-150"

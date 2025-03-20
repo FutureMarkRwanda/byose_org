@@ -1,25 +1,17 @@
 import React from 'react';
-import {Box, FlexBox, Heading, Slide, Text} from "spectacle";
+import {Box, FlexBox, Heading, Image, Slide, Text} from "spectacle";
 
 function PresenceEyeP1S0() {
     return (
-        <Slide backgroundColor="background">
-            <FlexBox height="100%" flexDirection="column" alignItems="flex-start" justifyContent="center" padding="0 10%">
-                <Heading fontSize="h1" color="quaternary" className="slide-fade-right">
-                    B-Bot
-                </Heading>
-                <Box width="100%" className="text-block">
-                    <Text fontSize="text" color="quaternary" margin="8px 0">
-                        In the last year, B-Bot was essential and highly appreciated by many users.
-                    </Text>
-                    <Text fontSize="text" color="quaternary" margin="8px 0">
-                        Our customers asked if we could improve user interactions.
-                    </Text>
-                    <Text fontSize="text" color="quaternary" margin="8px 0">
-                        Now, configure it directly through our mobile app!
-                    </Text>
-                </Box>
-            </FlexBox>
+        <Slide backgroundColor="white">
+            <div className="relative w-full h-full feature-item items-center flex justify-center">
+                <Image
+                    src="../../assests/images/output2.png"
+                    alt="PresenceEye Logo"
+                    width="80%"
+                    className=" rotate-12 mr-2 transition-transform duration-300 hover:rotate-0 hover:scale-150"
+                />
+            </div>
         </Slide>
     );
 }

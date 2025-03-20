@@ -28,6 +28,8 @@ import Presence_eye_p1_s12 from "./slides_cards/Presence_eye_p1_s12.jsx";
 import Presence_eye_p1_s0 from "./slides_cards/Presence_eye_p1_s0.jsx";
 import Presence_eye_p1_s3_P2 from "./slides_cards/Presence_eye_p1_s3_P2.jsx";
 import Presence_eye_p1_s7_P0 from "./slides_cards/Presence_eye_p1_s7_P0.jsx";
+import Presence_eye_p1_s7_P1 from "./slides_cards/Presence_eye_p1_s7_P1.jsx";
+import Image01 from "./slides_cards/Image01.jsx";
 // Custom theme with professional colors and styling
 const theme = {
     colors: {
@@ -111,12 +113,14 @@ const Presentation = () => {
                 {/* Introducing Presence Eye Lite*/}
                 <Presence_eye_p1_s3/>
                 <Presence_eye_p1_s3_P2/>
+                <Presence_eye_p1_s7_P0/>
+                <Presence_eye_p1_s7_P1/>
                 {/* Gesture Control Slide */}
                 <Presence_eye_p1_s4/>
+                <Image01/>
                 {/*    */}
                 <Presence_eye_p1_s5/>
                 {/*    */}
-                <Presence_eye_p1_s7_P0/>
                 {/*    */}
                 <Presence_eye_p1_s6/>
 
