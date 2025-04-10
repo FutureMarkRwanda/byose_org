@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { sections } from "../utils/data.js";
+import { sections } from "../../utils/data.js";
 import { IoIosArrowBack } from 'react-icons/io';
 import { FiFileText } from 'react-icons/fi';
 

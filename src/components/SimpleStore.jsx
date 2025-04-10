@@ -1,7 +1,7 @@
 // eslint-disable-next-line no-unused-vars
 import React from 'react';
 import ProductCard from "./ProductCard.jsx";
-import {products} from "../utils/data.js";
+import {highlight_products} from "../utils/data.js";
 import {GiCardPickup} from "react-icons/gi";
 import {TbTruckDelivery} from "react-icons/tb";
 import {MdOutlineAssistant, MdOutlineSchool} from "react-icons/md";
@@ -12,7 +12,7 @@ function SimpleStore() {
         <div className={`bg-white py-4 pb-14 flex flex-col gap-14`}>
             <h1 className={`text-center font-bold py-6 md:text-4xl text-2xl`}>Grab Yours Across BYOSE</h1>
             <div className={`container mx-auto justify-between py-6 flex md:flex-row flex-col gap-4 `}>
-                {products.map((product) => (
+                {highlight_products.map((product) => (
                     <ProductCard key={product.id} product={product} />
                 ))}
             </div>

@@ -32,7 +32,7 @@ function JoinUs() {
                     </div>
                 </div>
                 <div className={`flex justify-end`}>
-                    <Video url={`https://www.youtube.com/watch?v=MnjP2a9vs0s`}/>
+                    <Video url={`https://www.youtube.com/watch?v=MnjP2a9vs0s`} no_auto={true}/>
                 </div>
             </div>
         </div>

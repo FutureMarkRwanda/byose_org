@@ -49,32 +49,59 @@ export const news = [
     }
 ]
 
-export const products = [
-    {
-        id: 21,
-        name:`PresenceEye Pro`,
-        link:`/b-store?q=presence-eye-pro`,
-        image:`https://m.media-amazon.com/images/I/61e3BKcF9YL.jpg`
-    },
+export const highlight_products = [
     {
         id: 22,
-        name:`PresenceEye Dual`,
+        name:`Presence Eye Lite`,
         link:`/b-store?q=presence-eye-dual`,
         image:`https://res.cloudinary.com/ddsojj7zo/image/upload/v1737309233/byose%20org%20site/gsgyn6yojnpzt8ayn4pv.png`
+    },
+    {
+        id: 24,
+        name:`B-BOT`,
+        link:`/b-store?q=presence-eye-dual`,
+        image:`https://polytech.com.gr/wp-content/uploads/2024/06/R1R2R4_600x420.png`
+    },
+    {
+        id: 21,
+        name:`CyberSecurity Class`,
+        link:`https://b-academy.com/cybersecurity-class`,
+        image:`https://datos-insights.com/wp-content/uploads/2023/07/what-we-offer_cybersecurity.jpg`
     },
     {
         id: 23,
         name:`AI class`,
         link:`https://b-academy.com/ai`,
         image:`https://ichef.bbci.co.uk/ace/standard/1024/cpsprodpb/14202/production/_108243428_gettyimages-871148930.jpg`
-    },
-    {
-        id: 24,
-        name:`Robotics Class`,
-        link:`https://b-academy.com/robotics`,
-        image:`https://polytech.com.gr/wp-content/uploads/2024/06/R1R2R4_600x420.png`
     }
 ]
+
+export const  products= [
+]
+
+export const app_images = [
+    "https://res.cloudinary.com/ddsojj7zo/image/upload/v1744280469/byose%20org%20site/eumzw49pfv6fieyip24x.png",
+    "https://res.cloudinary.com/ddsojj7zo/image/upload/v1744280468/byose%20org%20site/zsfaxex0b5amlkiooixq.png",
+    "https://res.cloudinary.com/ddsojj7zo/image/upload/v1744280468/byose%20org%20site/tn2l2ka5ma9neskyuelr.png",
+    "https://res.cloudinary.com/ddsojj7zo/image/upload/v1744287717/byose%20org%20site/nfsd669g0418flysiqgf.png",
+    "https://res.cloudinary.com/ddsojj7zo/image/upload/v1744287718/byose%20org%20site/cgejrpoa1u1jafd1kuwg.png",
+    "https://res.cloudinary.com/ddsojj7zo/image/upload/v1744287718/byose%20org%20site/e9qlcnrexfwv1lt8s2ok.png",
+    "https://res.cloudinary.com/ddsojj7zo/image/upload/v1744287718/byose%20org%20site/pnpxguknjffuns35nrho.png",
+    "https://res.cloudinary.com/ddsojj7zo/image/upload/v1744287718/byose%20org%20site/sdvlgkzw52z0fgkon5ny.png",
+    "https://res.cloudinary.com/ddsojj7zo/image/upload/v1744287718/byose%20org%20site/dmqqw1lh4xlmzegmsoeh.png",
+    "https://res.cloudinary.com/ddsojj7zo/image/upload/v1744287718/byose%20org%20site/e1ve6yat5wzut0qdfirk.png",
+    "https://res.cloudinary.com/ddsojj7zo/image/upload/v1744287719/byose%20org%20site/anbmkgh8ot88nhbbmndu.png",
+    "https://res.cloudinary.com/ddsojj7zo/image/upload/v1744287719/byose%20org%20site/cfcz4p5mwvfbadjygirb.png",
+    "https://res.cloudinary.com/ddsojj7zo/image/upload/v1744287719/byose%20org%20site/ylb6odsy7mdhjuexnq43.png",
+    "https://res.cloudinary.com/ddsojj7zo/image/upload/v1744287719/byose%20org%20site/jjkmhdcu39wvqchd1xvu.png",
+    "https://res.cloudinary.com/ddsojj7zo/image/upload/v1744287719/byose%20org%20site/tzmuuvfybj2j919sseg6.png",
+    "https://res.cloudinary.com/ddsojj7zo/image/upload/v1744287719/byose%20org%20site/tzmuuvfybj2j919sseg6.png",
+    "https://res.cloudinary.com/ddsojj7zo/image/upload/v1744287719/byose%20org%20site/tvjb3jzokran3hrfslgs.png",
+    "https://res.cloudinary.com/ddsojj7zo/image/upload/v1744287720/byose%20org%20site/lkr44tuvflpichq4vjef.png",
+    "https://res.cloudinary.com/ddsojj7zo/image/upload/v1744287720/byose%20org%20site/tsi36ehqqn5mtzyf3rec.png",
+    "https://res.cloudinary.com/ddsojj7zo/image/upload/v1744287720/byose%20org%20site/gk0k7bwemn9rekfxnvgl.png",
+    "https://res.cloudinary.com/ddsojj7zo/image/upload/v1744287720/byose%20org%20site/pdcb1jh4spvq9zhqyhud.png",
+];
 
 export const faqs = [
     {

@@ -18,6 +18,7 @@ function PresenceEyeP1S5() {
     }));
     return (
         <Slide backgroundColor="darkBackground1">
+            <h2 className={`font-bold text-white`}>Packed with Amazing Features</h2>
             <FlexBox height="100%" flexDirection="column" alignItems="center" justifytitle="center">
                 <Grid
                     gridTemplateColumns="repeat(2, 1fr)"

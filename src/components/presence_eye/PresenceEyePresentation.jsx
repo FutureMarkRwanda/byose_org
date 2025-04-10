@@ -12,24 +12,24 @@ import {
     // eslint-disable-next-line no-unused-vars
     Image
 } from 'spectacle';
-import {BsFullscreen} from "react-icons/bs";
-import Presence_eye_p1_s1 from "./slides_cards/Presence_eye_p1_s1.jsx";
-import Presence_eye_p1_s2 from "./slides_cards/Presence_eye_p1_s2.jsx";
-import Presence_eye_p1_s3 from "./slides_cards/Presence_eye_p1_s3.jsx";
-import Presence_eye_p1_s4 from "./slides_cards/Presence_eye_p1_s4.jsx";
-import Presence_eye_p1_s5 from "./slides_cards/Presence_eye_p1_s5.jsx";
-import Presence_eye_p1_s6 from "./slides_cards/Presence_eye_p1_s6.jsx";
-import Presence_eye_p1_s7 from "./slides_cards/Presence_eye_p1_s7.jsx";
-import Presence_eye_p1_s8 from "./slides_cards/Presence_eye_p1_s8.jsx";
-import Presence_eye_p1_s9 from "./slides_cards/Presence_eye_p1_s9.jsx";
-import Presence_eye_p1_s10 from "./slides_cards/Presence_eye_p1_s10.jsx";
-import Presence_eye_p1_s11 from "./slides_cards/Presence_eye_p1_s11.jsx";
-import Presence_eye_p1_s12 from "./slides_cards/Presence_eye_p1_s12.jsx";
-import Presence_eye_p1_s0 from "./slides_cards/Presence_eye_p1_s0.jsx";
-import Presence_eye_p1_s3_P2 from "./slides_cards/Presence_eye_p1_s3_P2.jsx";
-import Presence_eye_p1_s7_P0 from "./slides_cards/Presence_eye_p1_s7_P0.jsx";
-import Presence_eye_p1_s7_P1 from "./slides_cards/Presence_eye_p1_s7_P1.jsx";
-import Image01 from "./slides_cards/Image01.jsx";
+import {BsEye, BsFullscreen} from "react-icons/bs";
+import Presence_eye_p1_s1 from "../slides_cards/Presence_eye_p1_s1.jsx";
+import Presence_eye_p1_s2 from "../slides_cards/Presence_eye_p1_s2.jsx";
+import Presence_eye_p1_s3 from "../slides_cards/Presence_eye_p1_s3.jsx";
+import Presence_eye_p1_s4 from "../slides_cards/Presence_eye_p1_s4.jsx";
+import Presence_eye_p1_s5 from "../slides_cards/Presence_eye_p1_s5.jsx";
+import Presence_eye_p1_s6 from "../slides_cards/Presence_eye_p1_s6.jsx";
+import Presence_eye_p1_s7 from "../slides_cards/Presence_eye_p1_s7.jsx";
+import Presence_eye_p1_s8 from "../slides_cards/Presence_eye_p1_s8.jsx";
+import Presence_eye_p1_s9 from "../slides_cards/Presence_eye_p1_s9.jsx";
+import Presence_eye_p1_s10 from "../slides_cards/Presence_eye_p1_s10.jsx";
+import Presence_eye_p1_s11 from "../slides_cards/Presence_eye_p1_s11.jsx";
+import Presence_eye_p1_s12 from "../slides_cards/Presence_eye_p1_s12.jsx";
+import Presence_eye_p1_s0 from "../slides_cards/Presence_eye_p1_s0.jsx";
+import Presence_eye_p1_s3_P2 from "../slides_cards/Presence_eye_p1_s3_P2.jsx";
+import Presence_eye_p1_s7_P0 from "../slides_cards/Presence_eye_p1_s7_P0.jsx";
+import Presence_eye_p1_s7_P1 from "../slides_cards/Presence_eye_p1_s7_P1.jsx";
+import Image01 from "../slides_cards/Image01.jsx";
 // Custom theme with professional colors and styling
 const theme = {
     colors: {
@@ -89,11 +89,22 @@ const Presentation = () => {
         }
     };
 
+    const  toggleMore = ()=>{
+
+    }
+
 
     return (
         <div ref={containerRef} className="presentation-container z-30">
             <button
                 className="fullscreen-button"
+                onClick={toggleMore}
+                aria-label="Toggle Fullscreen"
+            >
+                <BsEye size={24} />
+            </button>
+            <button
+                className="fullscreen-button !right-[6rem]"
                 onClick={handleFullScreen}
                 aria-label="Toggle Fullscreen"
             >
@@ -107,17 +118,21 @@ const Presentation = () => {
                 transitionEffect={(index) => transitions[index % transitions.length]}
             >
                 {/* Welcome Slide */}
-                <Presence_eye_p1_s1/>
+                {/*<Presence_eye_p1_s1/>*/}
                 {/*B-Bot Speech*/}
-                <Presence_eye_p1_s2/>
+                {/*<Presence_eye_p1_s2/>*/}
                 {/* Introducing Presence Eye Lite*/}
-                <Presence_eye_p1_s3/>
-                <Presence_eye_p1_s3_P2/>
-                <Presence_eye_p1_s7_P0/>
-                <Presence_eye_p1_s7_P1/>
+
+                {/*<Presence_eye_p1_s3/>*/}
+                {/*<Presence_eye_p1_s3_P2/>*/}
+                {/*<Presence_eye_p1_s7_P0/>*/}
+                {/*<Presence_eye_p1_s7_P1/>*/}
                 {/* Gesture Control Slide */}
+
+                <Presence_eye_p1_s12/>
+
                 <Presence_eye_p1_s4/>
-                <Image01/>
+                {/*<Image01/>*/}
                 {/*    */}
                 <Presence_eye_p1_s5/>
                 {/*    */}
@@ -130,13 +145,13 @@ const Presentation = () => {
 
                 <Presence_eye_p1_s9/>
 
-                <Presence_eye_p1_s10/>
+                {/*<Presence_eye_p1_s10/>*/}
 
                 <Presence_eye_p1_s11/>
 
                 <Presence_eye_p1_s12/>
 
-                <Presence_eye_p1_s0/>
+                {/*<Presence_eye_p1_s0/>*/}
             </Deck>
         </div>
     );

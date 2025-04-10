@@ -3,7 +3,7 @@ import React from "react";
 import ReactPlayer from "react-player/youtube";
 
 // eslint-disable-next-line react/prop-types
-function CustomYouTubePlayer({url}) {
+function CustomYouTubePlayer({url,no_auto}) {
     return (
         <div
             className="flex items-center justify-center bg-gray-900 p-2 rounded-3xl shadow-lg max-h-[60vh] min-h-[60vh] md:w-[55vw] mx-auto my-6"
@@ -16,7 +16,7 @@ function CustomYouTubePlayer({url}) {
                 <ReactPlayer
                     className="react-player"
                     url={url}
-                    playing={true}
+                    playing={!no_auto}
                     controls={true}
                     loop={true}
                     width="100%"
