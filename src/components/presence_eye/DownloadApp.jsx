@@ -34,43 +34,67 @@ function DownloadApp() {
         switch (platform) {
             case 'android':
                 return {
-                    icon: <FaAndroid className="mr-2" />,
+                    icon: <FaAndroid className="mr-2"  size={26}/>,
                     text: "Download for your Android",
-                    url: "/downloads/android",
-                    available: true
+                    url: "https://apkpure.com/presence-eye/com.presenceeye.app",
+                    available: true,
+                    apps:[
+                        {
+                            name: "Presence Eye",
+                            url: "https://apkpure.com/presence-eye/com.presenceeye.app",
+                            icon: ""
+                        },
+                        {
+                            name: "Charge My Device",
+                            url: "https://apkpure.com/charge-my-device/com.charge_my_device.app",
+                            icon: ""
+                        }
+                    ]
                 };
-            case 'ios':
-                return {
-                    icon: <FaApple className="mr-2" />,
-                    text: "Download for your iPhone",
-                    url: "/downloads/ios",
-                    available: true
-                };
-            case 'windows':
-                return {
-                    icon: <FaWindows className="mr-2" />,
-                    text: "Download for Windows",
-                    url: "/downloads/windows",
-                    available: true
-                };
+            // case 'ios':
+            //     return {
+            //         icon: <FaApple className="mr-2" />,
+            //         text: "Download for your iPhone",
+            //         url: "/downloads/ios",
+            //         available: true
+            //     };
+            // case 'windows':
+            //     return {
+            //         icon: <FaWindows className="mr-2" />,
+            //         text: "Download for Windows",
+            //         url: "/downloads/windows",
+            //         available: true
+            //     };
             case 'linux':
                 return {
-                    icon: <FaLinux className="mr-2" />,
+                    icon: <FaLinux className="mr-2" size={26} />,
                     text: "Download for Linux",
                     url: "/downloads/linux",
-                    available: true
+                    available: true,
+                    apps:[
+                        {
+                            name: "Presence Eye",
+                            url: "https://github.com/FutureMarkRwanda/presence-eye-rpm-repo#presence-eye-rpm-repository",
+                            icon: ""
+                        },
+                        {
+                            name: "Charge My Device",
+                            url: "https://github.com/FutureMarkRwanda/charge-my-device-rpm-repo?tab=readme-ov-file#charge-my-device-rpm-repository",
+                            icon: ""
+                        }
+                    ]
                 };
-            case 'mac':
-                return {
-                    icon: <FaApple className="mr-2" />,
-                    text: "Download for macOS",
-                    url: "/downloads/mac",
-                    available: true
-                };
+            // case 'mac':
+            //     return {
+            //         icon: <FaApple className="mr-2" />,
+            //         text: "Download for macOS",
+            //         url: "/downloads/mac",
+            //         available: true
+            //     };
             default:
                 return {
                     icon: <BiError className="mr-2" />,
-                    text: "We're still working on it",
+                    text: "We're still perfecting it to bring you the best experience. In the meantime, please access it on other devices like Android.\n",
                     url: "/downloads/notify",
                     available: false
                 };
@@ -85,19 +109,22 @@ function DownloadApp() {
                 <h1 className="text-start mb-10 font-semibold mx-auto md:text-4xl text-2xl">
                     Control Your Home Anytime, Anywhere
                 </h1>
-                <p className="text-start md:w-4/5 w-full py-6">
+                <p className="text-start md:w-4/5 w-full py-6 md:text-2xl text-xl">
                     Take control of your smart home from anywhere with our intuitive app. Manage power, temperature, lights, and more with just a few taps. Experience the future of home automation today!
                 </p>
 
-                <div className="py-5 space-y-4">
+                <div className="p-5 flex md:flex-row flex-col gap-1.5">
                     {platformContent.available ? (
-                        <a
-                            href={platformContent.url}
-                            className="flex items-center justify-center md:justify-start text-white active:scale-110 p-3 px-6 rounded-full font-medium bg-gradient-to-tr from-teal-700 via-gray-900 to-teal-700 hover:bg-gradient-to-tl hover:from-teal-700 hover:via-gray-900 hover:to-teal-700 max-w-xs"
-                        >
-                            {platformContent.icon}
-                            {platformContent.text}
-                        </a>
+                        platformContent.apps.map((platform, index) => (
+                            <a key={index}
+                                href={platform.url}
+                               target="_blank"
+                                className="flex items-center justify-center md:justify-start text-white active:scale-110 p-3 px-6 rounded-full font-medium bg-gradient-to-tr from-teal-700 via-gray-900 to-teal-700 hover:bg-gradient-to-tl hover:from-teal-700 hover:via-gray-900 hover:to-teal-700 max-w-xs"
+                            >
+                                {platformContent.icon}
+                                {platform.name}
+                            </a>
+                        ))
                     ) : (
                         <div className="flex flex-col space-y-3">
                             <div className="flex items-center text-amber-600 font-medium">

@@ -4,9 +4,10 @@ import TitleColor from "../TitleColor.jsx";
 import { useSpring, animated } from 'react-spring';
 import ImageSlider from "../ImageSlider.jsx";
 import DownloadApp from "./DownloadApp.jsx";
+import {presence_eye_lite_images} from "../../utils/data.js";
 
 
-// eslint-disable-next-line react/prop-types
+// eslint-disable-next-line no-unused-vars,react/prop-types
 function PresenceEyeLatest({ className = "" }) {
     const neonGlow = useSpring({
         from: { textShadow: '0 0 10px #fff' },
@@ -17,25 +18,24 @@ function PresenceEyeLatest({ className = "" }) {
         loop: true,
     });
 
-
     return (
     <>
         <div className={`w-full md:grid md:grid-cols-2 p-4 pb-[8rem]`}>
-            <ImageSlider image_size={`object-cover`}/>
+            <ImageSlider className={`h-[50vh]`} image_size={`object-cover`} images={presence_eye_lite_images}/>
             <div className={`py-8 px-6`}>
                 <h1 className={`text-start mb-10 font-semibold mx-auto md:text-4xl text-2xl`}>
                     Presence Eye <TitleColor text={"Lite"}/>
                 </h1>
-                <p className={`text-start md:w-[80%] w-full py-6`}>
+                <p className={`text-start md:w-[80%] w-full py-6 md:text-2xl text-xl`}>
                     Choose the perfect fit for your home, with customizable colors and options. Place your order today, or <a href="/contact-us">contact us</a> for more details!
                 </p>
                 <div className={`py-5`}>
                     <a href={`/presence-eye/lite/presents`} className={`text-white active:scale-110 m-1 p-3 px-4 rounded-full font-medium bg-gradient-to-tr from-[#195C51] via-gray-900  to-[#195C51] hover:bg-gradient-to-tl hover:from-[#195C51] hover:via-gray-900 hover:to-[#195C51] `}>
                         Order now
                     </a>
-                    <a href={`/presence-eye/presents`} target="_blank" rel="noopener noreferrer" className="inline-block py-2 px-7 active:scale-110 text-base text-body-color font-medium hover:text-gray-700 transition ">
-                        Take a closer Look
-                    </a>
+                    {/*<a href={`/presence-eye/presents`} target="_blank" rel="noopener noreferrer" className="inline-block py-2 px-7 active:scale-110 text-base text-body-color font-medium hover:text-gray-700 transition ">*/}
+                    {/*    Take a closer Look*/}
+                    {/*</a>*/}
                     <a href={`/presence-eye/presents`} target="_blank" rel="noopener noreferrer" className="inline-block py-2 px-7 active:scale-110 text-base text-body-color font-medium hover:text-gray-700 transition ">
                         Read more →
                     </a>

@@ -282,3 +282,11 @@ We encourage users to review this section regularly to stay informed about how w
 We are committed to addressing your concerns promptly and ensuring transparency in how we handle your data.`,
     },
 ];
+
+
+export const  presence_eye_lite_images = [
+    "https://res.cloudinary.com/ddsojj7zo/image/upload/v1744394231/byose%20org%20site/qaox9t0df1fvf8gmi1hz.jpg",
+    "https://res.cloudinary.com/ddsojj7zo/image/upload/v1744394231/byose%20org%20site/ryhy443e1h8ncuywqngf.jpg",
+    "https://res.cloudinary.com/ddsojj7zo/image/upload/v1744394231/byose%20org%20site/kkal5da8rmhhbb7enrlc.jpg",
+    "https://res.cloudinary.com/ddsojj7zo/image/upload/v1744394231/byose%20org%20site/rpbsamoaw88lsm4r219d.jpg"
+]
