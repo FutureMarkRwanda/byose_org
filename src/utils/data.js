@@ -4,7 +4,7 @@ export  const servicesAndProducts = [
         title:`B-Academy`,
         description:`Empowering young minds with cutting-edge skills in AI and robotics. B-Academy is an educational platform designed to inspire and train high school students in emerging technologies. We provide hands-on learning experiences, project-based curriculums, and mentorship to prepare the innovators of tomorrow. Start your journey with us and be part of Rwanda's tech revolution!`,
         image:`https://www.sysmex.co.id/wp-content/uploads/sites/19/2020/11/Sysmex-Academy-Online.jpg`,
-        link:`https://b-academy.vercel.app`,
+        link:`https://academy.byose.info`,
         position:`left`
     },
     {
@@ -15,14 +15,14 @@ export  const servicesAndProducts = [
         link:`/b-tech-labs`,
         position:`right`
     },
-    {
-        id: 3,
-        title:`B-Store`,
-        description:`Your gateway to innovation! B-Store is our e-commerce platform offering BYOSE’s top-notch products and services. From intelligent gadgets to digital solutions, we connect local vendors and global customers with ease. Whether you're looking to simplify your life with tech or support local businesses, B-Store has got you covered.`,
-        image:`https://cms.nvctrading.com/app/uploads/2017/12/online-shopping.jpg`,
-        link:`/b-store`,
-        position:`left`
-    }
+    // {
+    //     id: 3,
+    //     title:`B-Store`,
+    //     description:`Your gateway to innovation! B-Store is our e-commerce platform offering BYOSE’s top-notch products and services. From intelligent gadgets to digital solutions, we connect local vendors and global customers with ease. Whether you're looking to simplify your life with tech or support local businesses, B-Store has got you covered.`,
+    //     image:`https://cms.nvctrading.com/app/uploads/2017/12/online-shopping.jpg`,
+    //     link:`/b-store`,
+    //     position:`left`
+    // }
 ]
 
 export const news = [
@@ -53,25 +53,25 @@ export const highlight_products = [
     {
         id: 22,
         name:`Presence Eye Lite`,
-        link:`/b-store?q=presence-eye-dual`,
+        link:`https://www.byose.info/presence-eye`,
         image:`https://res.cloudinary.com/ddsojj7zo/image/upload/v1737309233/byose%20org%20site/gsgyn6yojnpzt8ayn4pv.png`
     },
     {
         id: 24,
         name:`B-BOT`,
-        link:`/b-store?q=presence-eye-dual`,
+        link:`https://www.byose.info`,
         image:`https://polytech.com.gr/wp-content/uploads/2024/06/R1R2R4_600x420.png`
     },
     {
         id: 21,
         name:`CyberSecurity Class`,
-        link:`https://b-academy.com/cybersecurity-class`,
+        link:`https://academy.byose.info`,
         image:`https://datos-insights.com/wp-content/uploads/2023/07/what-we-offer_cybersecurity.jpg`
     },
     {
         id: 23,
         name:`AI class`,
-        link:`https://b-academy.com/ai`,
+        link:`https://academy.byose.info/`,
         image:`https://ichef.bbci.co.uk/ace/standard/1024/cpsprodpb/14202/production/_108243428_gettyimages-871148930.jpg`
     }
 ]
