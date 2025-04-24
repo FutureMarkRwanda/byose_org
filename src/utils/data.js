@@ -139,7 +139,7 @@ export const team = [
     {
         id: 112,
         name:"Manzi C Prince",
-        role:"Founder,President ,Global Affairs",
+        role:"Founder,President",
         image:defaultAvatar
     },
     {
@@ -162,8 +162,14 @@ export const team = [
     },
     {
         id: 115,
-        name:"Ganza Danny Mike",
+        name:"NKUNDABAGENZI Bruce",
         role:"B-Academy",
+        image:defaultAvatar
+    },
+    {
+        id: 115,
+        name:"NKUNDABAGENZI Bruce",
+        role:"Global Affairs",
         image:defaultAvatar
     }
 ]
