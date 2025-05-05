@@ -163,12 +163,12 @@ export const team = [
     {
         id: 115,
         name:"NKUNDABAGENZI Bruce",
-        role:"B-Academy",
+        role:"...",
         image:defaultAvatar
     },
     {
         id: 115,
-        name:"NKUNDABAGENZI Bruce",
+        name:"GANWA Anne Laure",
         role:"Global Affairs",
         image:defaultAvatar
     }
