@@ -23,6 +23,14 @@ function Home() {
                         text={"Create"}/> smarter solutions</h1>
             </div>
             <Banner/>
+            <amp-ad width="100vw" height="320"
+                    type="adsense"
+                    data-ad-client="ca-pub-9387926512029806"
+                    data-ad-slot="8963292190"
+                    data-auto-format="rspv"
+                    data-full-width="">
+                <div overflow=""></div>
+            </amp-ad>
             <SimpleStore/>
             <WhatWeLove/>
             <OurNumbers/>
