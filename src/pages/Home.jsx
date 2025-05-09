@@ -12,11 +12,6 @@ import {Helmet} from "react-helmet";
 function Home() {
     return (
         <div>
-            <Helmet>
-                <title>Home | BYOSE</title>
-                <meta name="description" content="Discover BYOSE, where we build innovative AI and robotics solutions, offer educational platforms, and deliver smart automation services." />
-                <meta name="robots" content="index, follow" />
-            </Helmet>
             <div className={`w-full bg-white p-8`}>
                 <h1 className={`text-center mb-10 font-semibold md:w-[60%] w-[90%] mx-auto md:text-4xl text-2xl`}>We
                     believe in innovation that empowers everyone to <TitleColor text={"Use"}/> and <TitleColor

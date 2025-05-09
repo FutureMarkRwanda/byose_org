@@ -43,11 +43,6 @@ function ContactUs() {
 
     return (
         <section className="text-gray-600 body-font relative bg-no-repeat" style={{ backgroundImage: `url(${image})` }}>
-            <Helmet>
-                <title>Contact Us | BYOSE</title>
-                <meta name="description" content="Get in touch with BYOSE for inquiries, collaborations, or support. We're here to help you build solutions." />
-                <meta name="robots" content="index, follow" />
-            </Helmet>
             <div className="max-w-2xl lg:max-w-4xl mx-auto text-center">
                 <h1 className="text-3xl font-extrabold text-gray-900">Visit Us</h1>
                 <p className="mt-4 text-lg text-gray-500">
