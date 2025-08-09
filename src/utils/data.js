@@ -134,7 +134,8 @@ export const team = [
         id: 111,
         name:"HIRWA Rukundo Hope",
         role:"Founder, Chairman and Chief Executive Officer",
-        image:defaultAvatar
+        image:defaultAvatar,
+        link:""
     },
     {
         id: 112,

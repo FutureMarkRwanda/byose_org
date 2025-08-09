@@ -22,7 +22,6 @@ function PresenceEye() {
                     PresenceEye<br/><br/><TitleColor text={"Because Your Home Deserves Intelligence."}/>
                 </h1>
             </div>
-            <PresenceEyeLatest/>
             <Outlet/>
         </div>
     );

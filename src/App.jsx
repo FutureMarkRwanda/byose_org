@@ -14,6 +14,7 @@ import NotFound from "./pages/NotFound.jsx";
 import PresenceEye from "./pages/PresenceEye.jsx";
 import PresenceEyePrivacyPolicy from "./components/presence_eye/PresenceEyePrivacyPolicy.jsx";
 import PresenceEyePresentation from "./components/presence_eye/PresenceEyePresentation.jsx";
+import PresenceEyeLatest from "./components/presence_eye/PresenceEyeLatest.jsx";
 const image = " /assests/images/wave-t-haikei.svg";
 
 
@@ -47,7 +48,7 @@ function App() {
                         <Route path="/we-are" element={<WhoWeAre/>}/>
                         <Route path="/contact" element={<ContactUs/>}/>
                         <Route path="/presence-eye" element={<PresenceEye/>}>
-                            {/*<Route index element={<PresenceEyePrivacyPolicy/>}/>*/}
+                            <Route index element={<PresenceEyeLatest/>}/>
                             <Route path="/presence-eye/terms-policy" element={<PresenceEyePrivacyPolicy/>}/>
                             <Route path="/presence-eye/presents" element={<PresenceEyePresentation/>}/>
                         </Route>
