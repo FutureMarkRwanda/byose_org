@@ -134,7 +134,6 @@ export const team = [
         id: 111,
         name:"HIRWA Rukundo Hope",
         role:"Founder, Chairman and Chief Executive Officer",
-        image:defaultAvatar,
         images:[
             "https://res.cloudinary.com/ddsojj7zo/image/upload/v1754763441/1754763066006.1754763035188.IMG_20250101_135521_129_miibyu.jpg",
             "https://res.cloudinary.com/ddsojj7zo/image/upload/v1754763539/DSC_2357_ascwmr.jpg",
@@ -148,7 +147,6 @@ export const team = [
         id: 112,
         name:"Manzi Prince Christian ",
         role:"Co-Founder,President",
-        image:defaultAvatar,
         images:[
             "https://res.cloudinary.com/ddsojj7zo/image/upload/v1750082623/075526660.jpg",
             "https://res.cloudinary.com/ddsojj7zo/image/upload/v1754750240/prince1_ntwniy.jpg",
@@ -156,17 +154,17 @@ export const team = [
             "https://res.cloudinary.com/ddsojj7zo/image/upload/v1754750240/prince2_nbpppw.jpg"
         ],
         more: "",
+        color: "bg-[#050505]",
         link: "manzi-prince-christian"
     },
-    // {
-    //     id: 113,
-    //     name:"Mugisha Shami Innocent",
-    //     role:"Chief Strategy Officer",
-    //     image:defaultAvatar,
-    //     images:[],
-    //     more: "",
-    //     link: "#mugisha-shami-innocent"
-    // },
+    {
+        id: 113,
+        name:"Mugisha Shami Innocent",
+        role:"Chief Strategy Officer",
+        images:[defaultAvatar],
+        more: "",
+        link: "#mugisha-shami-innocent"
+    },
     {
         id: 112,
         name:"MURANGWA Shami Yanice",
@@ -178,6 +176,7 @@ export const team = [
             "https://res.cloudinary.com/ddsojj7zo/image/upload/v1754750241/yanice2_b58irp.jpg"
         ],
         more: "",
+        color: "bg-[#f3f3e7]",
         link: "murangwa-shami-innocent"
     },
     // {
