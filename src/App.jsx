@@ -15,6 +15,10 @@ import PresenceEye from "./pages/PresenceEye.jsx";
 import PresenceEyePrivacyPolicy from "./components/presence_eye/PresenceEyePrivacyPolicy.jsx";
 import PresenceEyePresentation from "./components/presence_eye/PresenceEyePresentation.jsx";
 import PresenceEyeLatest from "./components/presence_eye/PresenceEyeLatest.jsx";
+import OurStory from "./components/OurStory.jsx";
+import Team from "./components/Team.jsx";
+import OurValues from "./components/OurValues.jsx";
+import Portfolio from "./pages/Portfolio.jsx";
 const image = " /assests/images/wave-t-haikei.svg";
 
 
@@ -45,7 +49,10 @@ function App() {
                     <Route exact path="/" element={<MainPage/>}>
                         <Route index element={<About/>}/>
                         <Route path="/home" element={<Home/>}/>
-                        <Route path="/we-are" element={<WhoWeAre/>}/>
+                        <Route path="/we-are" element={<WhoWeAre/>}>
+                            <Route index element={<><OurStory/><Team/><OurValues/></>}/>
+                            <Route path={"/we-are/:name"} element={<Portfolio/>}/>
+                        </Route>
                         <Route path="/contact" element={<ContactUs/>}/>
                         <Route path="/presence-eye" element={<PresenceEye/>}>
                             <Route index element={<PresenceEyeLatest/>}/>

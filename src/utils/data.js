@@ -135,44 +135,69 @@ export const team = [
         name:"HIRWA Rukundo Hope",
         role:"Founder, Chairman and Chief Executive Officer",
         image:defaultAvatar,
-        link:""
+        images:[
+            "https://res.cloudinary.com/ddsojj7zo/image/upload/v1754763441/1754763066006.1754763035188.IMG_20250101_135521_129_miibyu.jpg",
+            "https://res.cloudinary.com/ddsojj7zo/image/upload/v1754763539/DSC_2357_ascwmr.jpg",
+            "https://res.cloudinary.com/ddsojj7zo/image/upload/v1754764105/1754763784477.1754763726819.IMG_20241228_150253_750_lz3npl.jpg",
+            "https://res.cloudinary.com/ddsojj7zo/image/upload/v1754764353/DSC_2006_hsidb0.jpg",
+        ],
+        more:"",
+        link:"hirwa-rukundo-hope",
     },
     {
         id: 112,
-        name:"Manzi C Prince",
-        role:"Founder,President",
-        image:defaultAvatar
+        name:"Manzi Prince Christian ",
+        role:"Co-Founder,President",
+        image:defaultAvatar,
+        images:[
+            "https://res.cloudinary.com/ddsojj7zo/image/upload/v1750082623/075526660.jpg",
+            "https://res.cloudinary.com/ddsojj7zo/image/upload/v1754750240/prince1_ntwniy.jpg",
+            "https://res.cloudinary.com/ddsojj7zo/image/upload/v1754750240/prince3_rmdlu1.jpg",
+            "https://res.cloudinary.com/ddsojj7zo/image/upload/v1754750240/prince2_nbpppw.jpg"
+        ],
+        more: "",
+        link: "manzi-prince-christian"
     },
+    // {
+    //     id: 113,
+    //     name:"Mugisha Shami Innocent",
+    //     role:"Chief Strategy Officer",
+    //     image:defaultAvatar,
+    //     images:[],
+    //     more: "",
+    //     link: "#mugisha-shami-innocent"
+    // },
     {
         id: 112,
-        name:"Ganza A Daniella",
-        role:"Executive Director",
-        image:defaultAvatar
+        name:"MURANGWA Shami Yanice",
+        role:"Head of Global Business Group",
+        image:defaultAvatar,
+        images:[
+            "https://res.cloudinary.com/ddsojj7zo/image/upload/v1754750241/yanice3_dmgn8w.jpg",
+            "https://res.cloudinary.com/ddsojj7zo/image/upload/v1754750241/yanice1_vqv5to.jpg",
+            "https://res.cloudinary.com/ddsojj7zo/image/upload/v1754750241/yanice2_b58irp.jpg"
+        ],
+        more: "",
+        link: "murangwa-shami-innocent"
     },
-    {
-        id: 113,
-        name:"Mugisha Shami Innocent",
-        role:"Director of B-Store",
-        image:defaultAvatar
-    },
-    {
-        id: 114,
-        name:"Uwase Seminega Vanessa",
-        role:"Director of B-Tech Labs",
-        image:defaultAvatar
-    },
-    {
-        id: 115,
-        name:"NKUNDABAGENZI Bruce",
-        role:"...",
-        image:defaultAvatar
-    },
-    {
-        id: 115,
-        name:"GANWA Anne Laure",
-        role:"Global Affairs",
-        image:defaultAvatar
-    }
+    // {
+    //     id: 114,
+    //     name:"Uwase Seminega Vanessa",
+    //     role:"Director of B-Tech Labs",
+    //     image:defaultAvatar
+    // },
+    // {
+    //     id: 115,
+    //     name:"NKUNDABAGENZI Bruce",
+    //     role:"...",
+    //     image:defaultAvatar
+    // },
+    // {
+    //     id: 115,
+    //     name:"GANWA Anne Laure",
+    //     role:"Global Affairs",
+    //     image:defaultAvatar
+    // }
 ]
 
 export // Sample data for the values
@@ -284,7 +309,7 @@ We encourage users to review this section regularly to stay informed about how w
         content: `If you have any questions, concerns, or requests regarding this privacy policy, you can contact us at:
 
 • Email: rw.byose@gmail.com
-• Website: byose.vercel.app
+• Website: www.byose.info
 
 We are committed to addressing your concerns promptly and ensuring transparency in how we handle your data.`,
     },

@@ -14,7 +14,7 @@ function Team() {
                 </p>
                 <div className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4`}>
                     {team.map(team => (
-                        <ProfileCard key={team.id} name={team.name} image={team.image} role={team.role} />
+                        <ProfileCard key={team.id} name={team.name} image={team.images[0]} role={team.role} link={team.link} />
                     ))}
                 </div>
             </div>

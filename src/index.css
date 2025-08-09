@@ -380,3 +380,115 @@ body, .scrollable-content {
 
 
 
+.MuiDataGrid-columnHeader,.MuiDataGrid-filler{
+  background-color: #030712 !important;
+}
+.MuiSvgIcon-root,.MuiDataGrid-menuIcon {
+  color: #ffffff !important;
+}
+
+h1,h2,h3,h4,h5,h6 {
+  font-weight:bolder;
+}
+
+.markdown-body {
+  /*background-color: #fff;*/
+  color: #24292e;
+  padding: 2px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  line-height: 1.6;
+  border-radius: 8px;
+}
+
+/* Tables */
+
+
+.markdown-body table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin: 20px 0;
+  border: 1px solid #d0d7de;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.markdown-body th,
+.markdown-body td {
+  padding: 12px;
+  border: 1px solid #d0d7de;
+  text-align: left;
+}
+
+.markdown-body th {
+  background-color: #f6f8fa;
+  font-weight: 600;
+}
+
+.markdown-body tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.markdown-body tr:nth-child(odd) {
+  background-color: #ffffff;
+}
+
+.markdown-body tr:hover {
+  background-color: #f1f8ff;
+}
+
+/* Code blocks */
+.markdown-body pre {
+  background-color: #f6f8fa;
+  padding: 1rem;
+  border-radius: 6px;
+  overflow-x: auto;
+  font-size: 0.9rem;
+}
+
+.markdown-body pre code {
+  background-color: transparent;
+  padding: 0;
+  color: #0a3069;
+  font-family: "Courier New", Courier, monospace;
+}
+
+.markdown-body code {
+  background-color: #f3f4f6;
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  font-family: "Courier New", Courier, monospace;
+  color: #0a3069;
+}
+
+/* Lists */
+.markdown-body ul {
+  list-style-type: disc;
+  padding-left: 1.5rem;
+}
+
+.markdown-body ol {
+  list-style-type: decimal;
+  padding-left: 1.5rem;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+
+/* Links */
+.markdown-body a {
+  color: #0969da;
+  text-decoration: none;
+}
+
+.markdown-body a:hover {
+  text-decoration: underline;
+}
+
+.markdown-body img{
+  max-width: 550px;
+}
+
+
+
+
+
