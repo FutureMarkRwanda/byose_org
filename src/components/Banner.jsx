@@ -16,10 +16,10 @@ function Banner() {
                             Start the new year with bold innovations and cutting-edge automation solutions from B-Tech Labs.
                         </p>
                         <div className={`py-5`}>
-                            <a href={`/b-store`} className={`text-white active:scale-110 m-1 p-3 px-4 rounded-full font-medium bg-gradient-to-tr from-[#195C51] via-gray-900  to-[#195C51] hover:bg-gradient-to-tl hover:from-[#195C51] hover:via-gray-900 hover:to-[#195C51] `}>
+                            <a href={`/presence-eye`} className={`text-white active:scale-110 m-1 p-3 px-4 rounded-full font-medium bg-gradient-to-tr from-[#195C51] via-gray-900  to-[#195C51] hover:bg-gradient-to-tl hover:from-[#195C51] hover:via-gray-900 hover:to-[#195C51] `}>
                                 Shop now
                             </a>
-                            <a href={`/presence-eye`} target="_blank" rel="noopener noreferrer" className="inline-block py-2 px-7 active:scale-110 text-base text-body-color font-medium hover:text-gray-700 transition ">
+                            <a href={`/presence-eye/presents?slideIndex=0&stepIndex=0`} target="_blank" rel="noopener noreferrer" className="inline-block py-2 px-7 active:scale-110 text-base text-body-color font-medium hover:text-gray-700 transition ">
                               Read more →
                             </a>
                         </div>

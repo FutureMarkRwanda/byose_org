@@ -39,7 +39,7 @@ export const ImageGallery = ({ images = [] }) => {
     <>
       {/* Gallery Preview Box */}
       <div
-        className="relative w-56 h-56 cursor-pointer group rounded-lg overflow-hidden bg-gray-100"
+        className="relative w-72 h-56 cursor-pointer group rounded-lg overflow-hidden bg-gray-100"
         onClick={openModal}
       >
         {/* Images Layout */}

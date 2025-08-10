@@ -92,3 +92,6 @@
     - `.gitignore`: Specifies files and folders to ignore in git version control.
 
 This directory structure will provide a solid foundation for building your website. Each section and feature is modular, making it easier to manage as the project scales or changes.
+
+
+---

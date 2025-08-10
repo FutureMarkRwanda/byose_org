@@ -40,7 +40,7 @@ function Portfolio() {
                         <h2 className="text-center text-lg font-medium">{teammate.role}</h2>
                     </div>
                     <div className="flex  flex-col justify-center items-center">
-                        <div className={`aspect-[16/9] w-full  flex justify-center items-center  ${teammate.color} bg-black rounded-2xl overflow-hidden`}>
+                        <div className={`aspect-[16/9] w-full  flex justify-center items-center  ${teammate.color}  bg-black  rounded-2xl overflow-hidden`}>
                           <img
                             src={teammate.images[0]}
                             alt={teammate.name}

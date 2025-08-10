@@ -19,6 +19,7 @@ import OurStory from "./components/OurStory.jsx";
 import Team from "./components/Team.jsx";
 import OurValues from "./components/OurValues.jsx";
 import Portfolio from "./pages/Portfolio.jsx";
+import BBot from "./pages/BBot.jsx";
 const image = " /assests/images/wave-t-haikei.svg";
 
 
@@ -49,6 +50,7 @@ function App() {
                     <Route exact path="/" element={<MainPage/>}>
                         <Route index element={<About/>}/>
                         <Route path="/home" element={<Home/>}/>
+                        <Route path="/b-bot" element={<BBot/>}/>
                         <Route path="/we-are" element={<WhoWeAre/>}>
                             <Route index element={<><OurStory/><Team/><OurValues/></>}/>
                             <Route path={"/we-are/:name"} element={<Portfolio/>}/>

@@ -12,7 +12,7 @@ export  const servicesAndProducts = [
         title:`B-Tech Labs`,
         description:`Where innovation comes to life. B-Tech Labs is the hub for BYOSE's groundbreaking projects and cutting-edge products. From AI-powered home automation to advanced robotics, we design and develop solutions that shape the future. Explore our latest innovations and join us on the journey to revolutionize technology`,
         image:`https://i.pinimg.com/550x/00/81/3e/00813e7a1a1c59a05f143695ace22c3b.jpg`,
-        link:`/b-tech-labs`,
+        link:`http://academy.byose.info/labs/byose`,
         position:`right`
     },
     // {
@@ -59,8 +59,8 @@ export const highlight_products = [
     {
         id: 24,
         name:`B-BOT`,
-        link:`https://www.byose.info`,
-        image:`https://polytech.com.gr/wp-content/uploads/2024/06/R1R2R4_600x420.png`
+        link:`/b-bot`,
+        image:`https://www.raspberrypi.com/app/uploads/2019/02/Robot-PA-Annotations.jpg`
     },
     {
         id: 21,
@@ -134,13 +134,58 @@ export const team = [
         id: 111,
         name:"HIRWA Rukundo Hope",
         role:"Founder, Chairman and Chief Executive Officer",
+        color: "bg-opacity-95",
         images:[
             "https://res.cloudinary.com/ddsojj7zo/image/upload/v1754763441/1754763066006.1754763035188.IMG_20250101_135521_129_miibyu.jpg",
             "https://res.cloudinary.com/ddsojj7zo/image/upload/v1754763539/DSC_2357_ascwmr.jpg",
             "https://res.cloudinary.com/ddsojj7zo/image/upload/v1754764105/1754763784477.1754763726819.IMG_20241228_150253_750_lz3npl.jpg",
             "https://res.cloudinary.com/ddsojj7zo/image/upload/v1754764353/DSC_2006_hsidb0.jpg",
         ],
-        more:"",
+        more:`
+        
+        
+HIRWA Rukundo Hope is the Founder, Chairman, and Chief Executive Officer of BYOSE, a technology startup committed to advancing robotics and embedded systems innovation in Africa. He leads BYOSE’s overall strategy, shaping its mission to develop intelligent automation, AI-powered robotics, and digital education solutions that empower people to build their own solutions everywhere.
+
+Driven by a passion for **Robotics and Embedded Systems**, Hope founded BYOSE to serve as both a research-driven innovation hub and a community platform for young tech enthusiasts. Under his leadership, BYOSE has introduced several flagship projects, including:
+
+* **BYOSE Academy([B-Academy](https://academy.byose.info/))** An online platform specializing in computer science and robotics education, with tools for class management, self-evaluation, and interactive robotics training.
+* **[Foreach Academy](http://foreach.byose.info/)** A complementary e-learning platform born from increasing demand for flexible and engaging online education.
+* **[PresenceEye](https://www.byose.info/presence-eye)** An AI-powered smart plug extension board for smart home automation and energy conservation, supported by companion apps ([*Presence-Eye*](https://www.byose.info/presence-eye/presents) and [*Charge-My-Device*](https://www.byose.info/presence-eye/presents?slideIndex=4&stepIndex=0)) on Android, Windows, and Linux.
+* **[B-Bot](https://www.byose.info/presence-eye/presents?slideIndex=5&stepIndex=0)**  A locally-developed smart assistant robot with Alexa-like capabilities, designed for voice interaction and task automation .
+
+Hope’s commitment to **Robotics and Embedded Systems** extends beyond BYOSE. He was invited as a mentor at WithinTech, where he guides aspiring innovators in robotics, IoT, and LEGO-based engineering. His personal research explores integrating smartphones into embedded systems as high-accuracy sensors for advanced applications.
+
+In addition to his startup work, Hope has led multiple community and academic initiatives: he completed the **iLead leadership program** by Maxwell, earned recognition in **PicoCTF** competitions, and served as Vice-Chairman of his school’s committee. At Rwanda Coding Academy, he led the Robotics Club’s operations and drove multiple embedded systems projects, including **Cryptavita**, an early warning system for natural hazards.
+
+Hope’s educational journey spans from nursery school to high school, where he specialized in Software Programming and Embedded Systems at **Rwanda Coding Academy**. He plans to continue his studies abroad, with a focus on robotics, AI, and embedded systems innovation.
+
+**HIRWA .R .H**
+ “Build your own solutions everywhere ,because innovation knows no boundaries.”
+
+
+### **More from HIRWA**
+
+**On BYOSE’s mission:**
+
+> “Africa’s potential in robotics and embedded systems is limitless. BYOSE exists to turn that potential into tangible solutions that improve lives.”
+
+**On technology and impact:**
+
+> “Smart living isn’t just about convenience it’s about creating intelligent tools that make our environments safer, more efficient, and more human-centered.”
+
+**On personal motivation:**
+
+> “From the moment I learned what a microcontroller could do, I knew I wanted to spend my life bridging imagination and reality through embedded systems.”
+
+---
+
+**Social Links:**
+
+* [GitHub](https://github.com/hrh2)
+* [Instagram](https://www.instagram.com/__.hirwa.__2/)
+
+        
+        `,
         link:"hirwa-rukundo-hope",
     },
     {
@@ -153,8 +198,43 @@ export const team = [
             "https://res.cloudinary.com/ddsojj7zo/image/upload/v1754750240/prince3_rmdlu1.jpg",
             "https://res.cloudinary.com/ddsojj7zo/image/upload/v1754750240/prince2_nbpppw.jpg"
         ],
-        more: "",
-        color: "bg-[#050505]",
+        more: `
+Manzi Prince Christian is the Co-Founder and President of BYOSE, where he plays a key role in shaping the company’s vision, overseeing organizational operations, and driving innovation across robotics, embedded systems, and digital platforms. As President, he ensures that BYOSE’s strategic goals are executed effectively while fostering a collaborative environment for young innovators.
+
+A talented developer and creative problem-solver, Prince is best known as the creator of **[NCDTV](ncdtv.net)**, a highly popular digital platform that has gained significant traction for its engaging content and technical execution. His success with [NCDTV](ncdtv.net) demonstrates his ability to conceptualize, build, and scale impactful digital solutions.
+
+At BYOSE, Prince contributes to the design and development of intelligent robotics systems, smart automation projects, and online educational platforms. He works closely with the CEO to ensure that the company’s projects such as **[B-Academy](https://academy.byose.info/)**, **[Foreach Academy](http://foreach.byose.info/)**, and **[PresenceEye](https://www.byose.info/presence-eye)** align with BYOSE’s mission to empower people to **build their own solutions everywhere**.
+
+Prince’s leadership is marked by his deep interest in leveraging technology to solve real-world problems, particularly in Africa’s emerging tech ecosystem. His background in software development and project leadership allows him to bridge the gap between technical innovation and community impact.
+
+**Manzi .C .P**
+“Technology is most powerful when it creates opportunities for people to shape their own future.”
+
+---
+
+### **More from Manzi**
+
+**On BYOSE’s vision:**
+
+> “Every project we launch is more than just code or hardware it’s a step toward a smarter, more connected Continent.”
+
+**On innovation:**
+
+> “The success of NCDTV showed me how ideas can grow beyond expectations when you focus on quality and user experience.”
+
+**On collaboration:**
+
+> “In BYOSE, innovation is a team sport. We build faster, better, and smarter because we trust each other’s strengths.”
+
+---
+
+**Social Links:**
+
+* [GitHub](https://github.com/manzi-chriss)
+* [Instagram](https://www.instagram.com/manzi___prince/)
+        
+        `,
+        color: "!bg-[#050505]",
         link: "manzi-prince-christian"
     },
     {
@@ -175,8 +255,21 @@ export const team = [
             "https://res.cloudinary.com/ddsojj7zo/image/upload/v1754750241/yanice1_vqv5to.jpg",
             "https://res.cloudinary.com/ddsojj7zo/image/upload/v1754750241/yanice2_b58irp.jpg"
         ],
-        more: "",
-        color: "bg-[#f3f3e7]",
+        more: `
+        
+MURANGWA Shami Yanice is the Head of BYOSE’s Global Business Group, where He leads strategic initiatives to expand the company’s presence and partnerships worldwide. A dynamic leader with a passion for communication, teamwork, and innovative thinking, Yanice brings a unique combination of business acumen and interpersonal skills to BYOSE’s leadership team.
+
+Before joining BYOSE, Yanice built an impressive track record of leadership in academic and extracurricular settings. He served as **President of the LAFABRICA Student Business Club** (2023–2024), **Vice-President of the PSSV Science Club** (2023–2024), and was recognized as the **Master of Ceremonies** for major school events during the 2023–2025 academic year. His ability to motivate others, manage teams, and execute high-impact projects has made his a trusted leader in diverse contexts.
+
+With a high school diploma in **Physics, Chemistry, and Mathematics (PCM)**, Yanice combines analytical thinking with a creative problem-solving approach. He is proficient in Microsoft Office, Canva, and scientific analysis tools
+
+At BYOSE, Yanice is responsible for identifying new markets, fostering global partnerships, and aligning business strategies with the company’s mission to make robotics, embedded systems, and smart technology solutions accessible worldwide. His work ensures that BYOSE’s innovations, such as **[B-Academy](https://academy.byose.info/)**, **[Foreach Academy](http://foreach.byose.info/)**,**[PresenceEye](https://www.byose.info/presence-eye)** and other **[Projects](/b-tech-labs)**, reach and impact communities across different regions.
+
+**Yanice .S .M**
+“Great solutions deserve a global stage — my role is to make sure the world knows about them.”
+
+        `,
+        color: "!bg-[#f2f2e6]",
         link: "murangwa-shami-innocent"
     },
     // {
