@@ -34,12 +34,12 @@ function Portfolio() {
                 className="bg-gray-100 bg-no-repeat bg-right-top flex h-[70vh]"
                 style={{ backgroundImage: `url(${image})` }}
             >
-                <div className="container mx-auto xl:grid xl:grid-cols-2 grid-cols-1 flex flex-col gap-4">
-                    <div className="flex flex-col justify-center gap-4 p-4">
+                <div className="container mx-auto xl:grid xl:grid-cols-2 grid-cols-1 flex flex-col gap-4 p-4">
+                    <div className="flex flex-col justify-center gap-4 p-4 bg-gray-100">
                         <h1 className="font-bold xl:text-5xl text-3xl text-center">{teammate.name}</h1>
                         <h2 className="text-center text-lg font-medium">{teammate.role}</h2>
                     </div>
-                    <div className="flex  flex-col justify-center items-center">
+                    <div className=" bg-gray-100 flex  flex-col justify-center items-center">
                         <div className={`aspect-[16/9] w-full  flex justify-center items-center  ${teammate.color}  bg-black  rounded-2xl overflow-hidden`}>
                           <img
                             src={teammate.images[0]}
