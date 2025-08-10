@@ -155,7 +155,7 @@ Driven by a passion for **Robotics and Embedded Systems**, Hope founded BYOSE to
 
 Hope’s commitment to **Robotics and Embedded Systems** extends beyond BYOSE. He was invited as a mentor at WithinTech, where he guides aspiring innovators in robotics, IoT, and LEGO-based engineering. His personal research explores integrating smartphones into embedded systems as high-accuracy sensors for advanced applications.
 
-In addition to his startup work, Hope has led multiple community and academic initiatives: he completed the **iLead leadership program** by Maxwell, earned recognition in **PicoCTF** competitions, and served as Vice-Chairman of his school’s committee. At Rwanda Coding Academy, he led the Robotics Club’s operations and drove multiple embedded systems projects, including **Cryptavita**, an early warning system for natural hazards.
+In addition to his startup work, Hope has led multiple community and academic initiatives: he completed the **[iLead leadership program](https://ilead-rw.vercel.app/)** by Maxwell, earned recognition in **PicoCTF** competitions, and served as Vice-Chairman of his school’s committee. At Rwanda Coding Academy, he led the Robotics Club’s operations and drove multiple embedded systems projects, including **[Cryptavita](http://www.cryptavita.life/)**, an early warning system for natural hazards.
 
 Hope’s educational journey spans from nursery school to high school, where he specialized in Software Programming and Embedded Systems at **Rwanda Coding Academy**. He plans to continue his studies abroad, with a focus on robotics, AI, and embedded systems innovation.
 
