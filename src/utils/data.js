@@ -241,9 +241,14 @@ Prince’s leadership is marked by his deep interest in leveraging technology to
         id: 113,
         name:"Mugisha Shami Innocent",
         role:"Chief Strategy Officer",
-        images:[defaultAvatar],
+        images:[
+            "https://res.cloudinary.com/ddsojj7zo/image/upload/v1754999837/WhatsApp_Image_2025-08-11_at_07.45.38_xtbwmg.jpg",
+            "https://res.cloudinary.com/ddsojj7zo/image/upload/v1754999837/WhatsApp_Image_2025-08-11_at_07.45.37_dsiayw.jpg",
+            "https://res.cloudinary.com/ddsojj7zo/image/upload/v1754999837/WhatsApp_Image_2025-08-11_at_07.45.382_y6x8od.jpg",
+            "https://res.cloudinary.com/ddsojj7zo/image/upload/v1754999836/WhatsApp_Image_2025-08-11_at_10.49.12_p1kfqy.jpg"
+        ],
         more: "",
-        link: "#mugisha-shami-innocent"
+        link: "mugisha-shami-innocent"
     },
     {
         id: 112,
