@@ -46,7 +46,7 @@ function DownloadApp() {
                         },
                         {
                             name: "Charge My Device",
-                            url: "https://apkpure.com/charge-my-device/com.charge_my_device.app",
+                            url: "https://d.apkpure.com/b/APK/com.charge_my_device.app?version=latest",
                             icon: ""
                         }
                     ]
