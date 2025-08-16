@@ -41,12 +41,7 @@ function DownloadApp() {
                     apps:[
                         {
                             name: "Presence Eye Latest",
-                            url: "https://www.dropbox.com/scl/fi/krl4tfbjsg5h5wj7r5ijc/presence-eye-v1.2.2.apk?rlkey=d0jm6xvtph7q8m4vdkiih4rx1&st=xee34lcs&dl=0",
-                            icon: ""
-                        },
-                        {
-                            name: "Presence Eye",
-                            url: "https://apkpure.com/presence-eye/com.presenceeye.app",
+                            url: "https://d.apkpure.com/b/APK/com.presence_eye?version=latest",
                             icon: ""
                         },
                         {
