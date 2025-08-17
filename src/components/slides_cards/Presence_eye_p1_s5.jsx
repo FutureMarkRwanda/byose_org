@@ -7,8 +7,8 @@ function PresenceEyeP1S5() {
     const featureItems = [
         { color: "#273B09", text: "1", title: "Power Direct" },
         { color: "#84732B", text: "2", title: "SmartCharge" },
-        { color: "#E98A15", text: "3", title: "B-Bot Assist" },
-        { color: "#5A2328", text: "4", title: "Advanced Control" },
+        // { color: "#E98A15", text: "3", title: "B-Bot Assist" },
+        { color: "#5A2328", text: "3", title: "Advanced Control" },
     ];
 
 // Add dynamically calculated textColor

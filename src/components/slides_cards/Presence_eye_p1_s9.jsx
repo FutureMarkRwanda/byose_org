@@ -3,11 +3,12 @@ import React from 'react';
 import { Box, FlexBox, Grid, Heading, Slide, Text } from "spectacle";
 
 const features = [
-    { icon: "📦", title: "Smart Delivery", description: "Send small items across rooms effortlessly." ,color:"",bg:"#880D1E"},
-    { icon: "🌐", title: "Private LAN", description: "B-Bot creates its own local network for seamless control." ,color:"",bg:"#7D4600"},
-    { icon: "🎥", title: "Vision Dashboard", description: "Live camera feed lets you see what B-Bot sees." ,color:"",bg:"#4464AD"},
-    { icon: "🎮", title: "Wearable Joystick", description: "Intuitive remote control for smooth navigation.",color:"",bg:"#3C6E71" },
-    { icon: "🛑", title: "Emergency Braking", description: "Built-in collision avoidance for safe movement.",color:"",bg:"#2E4057" },
+    // { icon: "📦", title: "Smart Delivery", description: "Send small items across rooms effortlessly." ,color:"",bg:"#880D1E"},
+    { icon: "📦", title: "Remote Control", description: "You Control Your Devices anywhere you could be in the world as long as you have internet." ,color:"",bg:"#880D1E"},
+    // { icon: "🌐", title: "Private LAN", description: "B-Bot creates its own local network for seamless control." ,color:"",bg:"#7D4600"},
+    // { icon: "🎥", title: "Vision Dashboard", description: "Live camera feed lets you see what B-Bot sees." ,color:"",bg:"#4464AD"},
+    // { icon: "🎮", title: "Wearable Joystick", description: "Intuitive remote control for smooth navigation.",color:"",bg:"#3C6E71" },
+    // { icon: "🛑", title: "Emergency Braking", description: "Built-in collision avoidance for safe movement.",color:"",bg:"#2E4057" },
     { icon: "⚡", title: "Auto-Recover Plugs", description: "Restores plug states after power loss.",color:"",bg:"#09814A" },
     { icon: "📶", title: "Smart Reconnect", description: "Automatically reconnects to the internet as it is available.",color:"",bg:"#656839" }
 ];

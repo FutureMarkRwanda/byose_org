@@ -141,13 +141,13 @@ const Presentation = () => {
 
                 <Presence_eye_p1_s7/>
 
-                <Presence_eye_p1_s8/>
 
                 <Presence_eye_p1_s9/>
 
                 {/*<Presence_eye_p1_s10/>*/}
 
                 <Presence_eye_p1_s11/>
+                <Presence_eye_p1_s8/>
 
                 <Presence_eye_p1_s12/>
 
