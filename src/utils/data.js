@@ -277,18 +277,18 @@ At BYOSE, Yanice is responsible for identifying new markets, fostering global pa
         color: "!bg-[#f2f2e6]",
         link: "murangwa-shami-innocent"
     },
-    {
-        id: 114,
-        name:"KWIZERA Teta Nancy",
-        role:"Director of B-Tech Labs",
-        color: "!bg-[#49170c]",
-        images:[
-            "https://res.cloudinary.com/ddsojj7zo/image/upload/v1755334309/WhatsApp_Image_2025-08-13_at_14.41.31_shkhxa.jpg",
-            "https://res.cloudinary.com/ddsojj7zo/image/upload/v1755334309/WhatsApp_Image_2025-08-13_at_14.38.34_tk2yrh.jpg"
-        ],
-        link: "kwizera-teta-nancy",
-        more: ``
-    },
+    // {
+    //     id: 114,
+    //     name:"KWIZERA Teta Nancy",
+    //     role:"Director of B-Tech Labs",
+    //     color: "!bg-[#49170c]",
+    //     images:[
+    //         "https://res.cloudinary.com/ddsojj7zo/image/upload/v1755334309/WhatsApp_Image_2025-08-13_at_14.41.31_shkhxa.jpg",
+    //         "https://res.cloudinary.com/ddsojj7zo/image/upload/v1755334309/WhatsApp_Image_2025-08-13_at_14.38.34_tk2yrh.jpg"
+    //     ],
+    //     link: "kwizera-teta-nancy",
+    //     more: ``
+    // },
     // {
     //     id: 115,
     //     name:"NKUNDABAGENZI Bruce",
