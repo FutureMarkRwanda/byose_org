@@ -2,8 +2,8 @@
 import React, {useEffect} from 'react';
 import {Helmet} from "react-helmet";
 import {Outlet} from "react-router-dom";
-import TitleColor from "../components/TitleColor.jsx";
-import PresenceEyeLatest from "../components/presence_eye/PresenceEyeLatest.jsx";
+import TitleColor from "../../components/TitleColor.jsx";
+import PresenceEyeLatest from "../../components/presence_eye/PresenceEyeLatest.jsx";
 
 function PresenceEye() {
 

@@ -1,13 +1,13 @@
 // eslint-disable-next-line no-unused-vars
 import React from 'react';
-import {Outlet} from "react-router-dom";
 
-function MainPage() {
+// eslint-disable-next-line no-unused-vars
+function SignIn(props) {
     return (
         <div>
-            <Outlet/>
+            <h1>Signin</h1>
         </div>
     );
 }
 
-export default MainPage;
+export default SignIn;

@@ -3,7 +3,7 @@ import React, { useRef, useState } from 'react';
 import { TbBrandGmail } from "react-icons/tb";
 import { FaFacebook, FaGithub, FaInstagram, FaWhatsapp } from "react-icons/fa";
 import emailjs from '@emailjs/browser';
-import {publicKey, viteemailserviceid, viteemailtemplate} from "../utils/variable.js";
+import {publicKey, viteemailserviceid, viteemailtemplate} from "../../utils/variable.js";
 import {Helmet} from "react-helmet";
 const image = " /assests/images/wave-haikei.svg";
 

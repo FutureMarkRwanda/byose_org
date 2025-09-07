@@ -1,12 +1,12 @@
 // eslint-disable-next-line no-unused-vars
 import React from 'react';
-import Banner from "../components/Banner.jsx";
-import SimpleStore from "../components/SimpleStore.jsx";
-import WhatWeLove from "../components/WhatWeLove.jsx";
-import OurNumbers from "../components/OurNumbers.jsx";
-import JoinUs from "../components/JoinUs.jsx";
-import TitleColor from "../components/TitleColor.jsx";
-import FAQs from "../components/FAQs.jsx";
+import Banner from "../../components/Banner.jsx";
+import SimpleStore from "../../components/SimpleStore.jsx";
+import WhatWeLove from "../../components/WhatWeLove.jsx";
+import OurNumbers from "../../components/OurNumbers.jsx";
+import JoinUs from "../../components/JoinUs.jsx";
+import TitleColor from "../../components/TitleColor.jsx";
+import FAQs from "../../components/FAQs.jsx";
 import {Helmet} from "react-helmet";
 
 function Home() {

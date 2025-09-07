@@ -1,9 +1,9 @@
 // eslint-disable-next-line no-unused-vars
 import React from 'react';
 import { useParams, useNavigate } from "react-router-dom";
-import { team } from "../utils/data.js";
-import { ImageGallery } from "../components/ImageGallery.jsx";
-import Markdown from "../components/Markdown.jsx";
+import { team } from "../../utils/data.js";
+import { ImageGallery } from "../../components/ImageGallery.jsx";
+import Markdown from "../../components/Markdown.jsx";
 import {IoReturnUpBack} from "react-icons/io5";
 
 const image = "/assests/images/wave-vr-haikei.svg";
