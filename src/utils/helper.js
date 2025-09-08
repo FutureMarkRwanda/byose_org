@@ -217,3 +217,22 @@ export function findObjectByKeyword(array, property, keyword) {
     return false;
   }) || null; // Return null if no match is found
 }
+
+
+export function generateYouTubeEmbedURL(url) {
+  try {
+    const parsedUrl = new URL(url);
+    const videoId = parsedUrl.searchParams.get('v');
+
+    if (!videoId) {
+      // throw new Error('Invalid YouTube URL: missing video ID');
+        return null;
+    }
+
+    // Construct the embed URL with desired parameters
+    return `https://www.youtube.com/embed/${videoId}?loop=1&autoplay=1&fs=0&controls=0&modestbranding=1&enablejsapi=1&mute=1&start=0&playlist=${videoId}`;
+  } catch (error) {
+    // console.error(error);
+    return null;
+  }
+}

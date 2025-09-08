@@ -446,22 +446,6 @@ const mv = {
       "__v": 0
     },
     {
-      "_id": "68bd505100d70f0057513c35",
-      "title": "F1 - GAHEZA",
-      "poster": "https://i.imgur.com/1hIeviO.jpeg",
-      "category": "action",
-      "description": "In the 1990s, Sonny Hayes was Formula 1's most promising driver until an accident on the track nearly ended his career. Thirty years later, the owner of a struggling Formula 1 team convinces Sonny to return to racing and become the best in the world. Driving alongside the team's hotshot rookie, Sonny soon learns that the road to redemption is not something you can travel alone.",
-      "streamingLinks": [
-        "https://tryzendm.com/0yjr08eczctb"
-      ],
-      "downloadLinks": [
-        "https://www.mediafire.com/file/vsb4cdr5x47yrvk/F1.MP4_1.mp4/file"
-      ],
-      "createdAt": "2025-09-07T09:28:49.598Z",
-      "updatedAt": "2025-09-07T09:28:49.598Z",
-      "__v": 0
-    },
-    {
       "_id": "68bd4f6800d70f0057513c33",
       "title": "I Know What You Did Last Summer - GAHEZA",
       "poster": "https://i.imgur.com/7BNAD1f.jpeg",

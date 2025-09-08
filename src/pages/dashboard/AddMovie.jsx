@@ -1,5 +1,5 @@
 import {useState} from "react";
-import {returnToken, sendData} from "../../utils/helper.js";
+import {generateYouTubeEmbedURL, returnToken, sendData} from "../../utils/helper.js";
 import {server} from "../../config/server_api.js";
 
 const MOVIE_TYPES = ["movie", "series"];
@@ -23,6 +23,7 @@ const initialMovieState = {
     title: "",
     poster: "",
     backdrop: "",
+    trailer_url: "",
     category: "",
     tags: [],
     movie_type: "movie",
@@ -179,6 +180,7 @@ export default function MovieCreatePage() {
             !form.title ||
             !form.poster ||
             !form.backdrop ||
+            !form.trailer_url ||
             !form.category ||
             !form.movie_type ||
             !form.description
@@ -230,6 +232,11 @@ export default function MovieCreatePage() {
         }
     };
 
+    const isValidYouTubeUrl = (url) => {
+        const pattern = /^(https?:\/\/)?(www\.)?(youtube\.com\/watch\?v=|youtu\.be\/)[\w\-]{11}$/;
+        return pattern.test(url);
+    };
+
     // --- Preview helpers ---
     const renderPreview = () => (
         <div className="w-full  bg-white rounded-lg shadow p-6 mx-auto mt-6 border border-blue-50">
@@ -238,12 +245,21 @@ export default function MovieCreatePage() {
                     <img
                         src={form.poster || "https://via.placeholder.com/150x220?text=Poster"}
                         alt="Poster"
-                        className="w-36 h-48 object-cover rounded-md border border-blue-100"
+                        className="w-48 h-48 object-cover rounded-md border border-blue-100"
                     />
                     <img
                         src={form.backdrop || "https://via.placeholder.com/150x60?text=Backdrop"}
                         alt="Backdrop"
-                        className="w-36 h-16 object-cover rounded-md border border-blue-100 mt-2"
+                        className="w-48 h-36 object-cover rounded-md border border-blue-100 mt-2"
+                    />
+                    <iframe
+                        src={`${generateYouTubeEmbedURL(form.trailer_url)||generateYouTubeEmbedURL("https://www.youtube.com/watch?v=GyAAYf-oUp8")}`}
+                        title="Movie Trailer"
+                        frameBorder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        referrerPolicy="strict-origin-when-cross-origin"
+                        allowFullScreen
+                        className="mt-2 h-36 w-48 border-none"
                     />
                 </div>
                 <div className="flex-1">
@@ -375,6 +391,24 @@ export default function MovieCreatePage() {
                                 required
                                 className="mt-1 w-full px-3 py-2 border border-blue-100 rounded focus:outline-none focus:ring focus:ring-blue-100 bg-blue-50"
                             />
+                        </div>
+                        <div className="flex-1">
+                            <input
+                                type="text"
+                                value={form.trailer_url}
+                                placeholder="https://www.youtube.com/watch?v=..."
+                                onChange={(e) => handleChange({target: {name: 'trailer_url', value: e.target.value}})}
+                                className={`w-full p-3 border-blue-100 rounded focus:outline-none focus:ring focus:ring-blue-100 bg-blue-50 ${
+                                    isValidYouTubeUrl(form.trailer_url)
+                                        ? 'border-gray-600 focus:border-indigo-500'
+                                        : 'border-red-500 focus:border-red-400'
+                                } focus:outline-none focus:ring-2 ${
+                                    isValidYouTubeUrl(form.trailer_url) ? 'focus:ring-indigo-500' : 'focus:ring-red-500'
+                                }`}
+                            />
+                            {!isValidYouTubeUrl(form.trailer_url) && (
+                                <p className="text-red-400 text-xs mt-1">Invalid YouTube URL format</p>
+                            )}
                         </div>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
