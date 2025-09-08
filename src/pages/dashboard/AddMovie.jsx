@@ -1,5 +1,6 @@
-import React, {useState} from "react";
+import {useState} from "react";
 import {returnToken, sendData} from "../../utils/helper.js";
+import {server} from "../../config/server_api.js";
 
 const MOVIE_TYPES = ["movie", "series"];
 const VERSION_LANGUAGES = ["en", "fr", "es", "rw", "de"];
@@ -120,48 +121,48 @@ export default function MovieCreatePage() {
     };
 
     const handleAddVersion = (epIdx) => {
-  setForm((prev) => {
-    const episodes = prev.episodes.map((ep, i) =>
-      i === epIdx
-        ? {
-            ...ep,
-            versions: [
-              ...ep.versions,
-              {
-                language: "en",
-                streamingLink: "",
-                downloadLink: "",
-                subtitles: [{ lang: "en", url: "" }]
-              }
-            ]
-          }
-        : ep
-    );
-    return { ...prev, episodes };
-  });
-};
+        setForm((prev) => {
+            const episodes = prev.episodes.map((ep, i) =>
+                i === epIdx
+                    ? {
+                        ...ep,
+                        versions: [
+                            ...ep.versions,
+                            {
+                                language: "en",
+                                streamingLink: "",
+                                downloadLink: "",
+                                subtitles: [{lang: "en", url: ""}]
+                            }
+                        ]
+                    }
+                    : ep
+            );
+            return {...prev, episodes};
+        });
+    };
 
 
     const handleAddSubtitle = (epIdx, vIdx) => {
-  setForm((prev) => {
-    const episodes = prev.episodes.map((ep, i) =>
-      i === epIdx
-        ? {
-            ...ep,
-            versions: ep.versions.map((v, j) =>
-              j === vIdx
-                ? {
-                    ...v,
-                    subtitles: [...v.subtitles, { lang: "en", url: "" }]
-                  }
-                : v
-            )
-          }
-        : ep
-    );
-    return { ...prev, episodes };
-  });
-};
+        setForm((prev) => {
+            const episodes = prev.episodes.map((ep, i) =>
+                i === epIdx
+                    ? {
+                        ...ep,
+                        versions: ep.versions.map((v, j) =>
+                            j === vIdx
+                                ? {
+                                    ...v,
+                                    subtitles: [...v.subtitles, {lang: "en", url: ""}]
+                                }
+                                : v
+                        )
+                    }
+                    : ep
+            );
+            return {...prev, episodes};
+        });
+    };
 
 
     const handleRemoveSubtitle = (epIdx, vIdx, sIdx) => {
@@ -214,14 +215,13 @@ export default function MovieCreatePage() {
             return;
         }
         setSubmitting(true);
-        const token = returnToken();
-        const url = "/api/movies"; // Adjust as needed
+        const url = server + "/movies"; // Adjust as needed
         const payload = {...form};
         // Remove season from episodes if movie type
         if (form.movie_type === "movie") {
             payload.episodes = payload.episodes.map(({season, ...rest}) => rest);
         }
-        const {error, data, message} = await sendData(url, payload, token);
+        const {error, data, message} = await sendData(url, payload, returnToken());
         setSubmitting(false);
         if (error) setApiError(error);
         else {
