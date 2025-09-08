@@ -20,6 +20,18 @@ import routes from "./routes.jsx";
 import Dashboard from "./pages/dashboard/Dashboard.jsx";
 import Landing from "./pages/home/Landing.jsx";
 import Auth from "./pages/auth/Auth.jsx";
+import {AuthProvider} from "./context/AuthContext.jsx";
+import ProtectedRoute from "./pages/auth/ProtectRoutes.jsx";
+
+function DashboardLayout() {
+  return (
+    <AuthProvider>
+      <ProtectedRoute>
+        <Dashboard />
+      </ProtectedRoute>
+    </AuthProvider>
+  );
+}
 
 function App() {
     const titleMap = {
@@ -56,8 +68,9 @@ function App() {
                     </Route>
                     <Route path="*" element={<NotFound/>}/>
                 </Route>
+
                 {/* Admin DashBoard */}
-                <Route path="/dashboard" element={<Dashboard/>}>
+                <Route path="/dashboard" element={<DashboardLayout />}>
                     {routes.map(
                         ({layout, pages}) =>
                             layout === "dashboard" &&

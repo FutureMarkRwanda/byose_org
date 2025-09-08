@@ -121,7 +121,7 @@ export async function patchData(url,data,token) {
 
 export function handleLogout(tokenName=null,pathName){
     localStorage.removeItem(tokenName||'movie-rw');
-    window.location = pathName||"/";
+    window.location = pathName||"/dashboard";
 }
 export function returnToken(tokenName){
     return localStorage.getItem(tokenName||'movie-rw');
@@ -138,8 +138,8 @@ export const decodeToken =() => {
     }
     try {
         const decoded = jwtDecode(token);
-        const { firstName, lastNAme, ...otherProperties } = decoded;
-        return { firstName, lastNAme, ...otherProperties };
+        const { firstName, lastName, ...otherProperties } = decoded;
+        return { firstName, lastName, ...otherProperties };
         // eslint-disable-next-line no-unused-vars
     } catch (error) {
         return null;

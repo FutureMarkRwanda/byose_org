@@ -6,6 +6,7 @@ function Statistics(props) {
     return (
         <div>
             <h1>Statistics</h1>
+            <p>Still under Development</p>
         </div>
     );
 }

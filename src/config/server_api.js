@@ -24,6 +24,4 @@ export const API_ENDPOINTS = {
     },
 };
 
-export const servers = {
-    default: default_api,
-};
+export const server = default_api

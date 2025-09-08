@@ -5,9 +5,11 @@ import {
     PencilSquareIcon
 } from "@heroicons/react/24/solid";
 import Statistics from "./pages/dashboard/Statistics.jsx";
-import SignIn from "./pages/dashboard/SignIn.jsx";
 import AddMovie from "./pages/dashboard/AddMovie.jsx";
 import EditMovie from "./pages/dashboard/EditMovie.jsx";
+import ResetPassword from "./pages/auth/ResetPassword.jsx";
+import Otp from "./pages/auth/otp.jsx";
+import SignIn from "./pages/auth/Sign-in.jsx";
 
 const icon = {
     className: "w-5 h-5 text-inherit",
@@ -44,15 +46,21 @@ export const routes = [
             {
                 icon: <ServerStackIcon {...icon} />,
                 name: "sign in",
-                path: "/auth/sign-in",
+                path: "/auth",
                 element: <SignIn/>,
             },
-            // {
-            //   icon: <RectangleStackIcon {...icon} />,
-            //   name: "sign up",
-            //   path: "/sign-up",
-            //   element: <SignUp />,
-            // },
+            {
+                icon: <ServerStackIcon {...icon} />,
+                name: "OTP Page",
+                path: "/auth/otp/:email",
+                element: <Otp/>,
+            },
+            {
+                icon: <ServerStackIcon {...icon} />,
+                name: "Reset password",
+                path: "/auth/reset-password",
+                element: <ResetPassword/>,
+            },
         ],
     },
 ];
