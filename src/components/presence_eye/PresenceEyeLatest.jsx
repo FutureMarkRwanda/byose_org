@@ -7,6 +7,7 @@ import DownloadApp from "./DownloadApp.jsx";
 import { presence_eye_lite_images } from "../../utils/data.js";
 import emailjs from "@emailjs/browser";
 import {publicKey, viteemailserviceid, viteemailtemplate} from "../../utils/variable.js";
+import Video from "../Video.jsx";
 
 // eslint-disable-next-line no-unused-vars,react/prop-types
 function PresenceEyeLatest({ className = "" }) {
@@ -125,6 +126,8 @@ function PresenceEyeLatest({ className = "" }) {
                     )}
                 </div>
             </div>
+
+            <Video url={"https://www.youtube.com/watch?v=DybOjpvrGY8"}/>
 
             <DownloadApp />
 

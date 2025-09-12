@@ -462,24 +462,6 @@ const mv = {
       "__v": 0
     },
     {
-      "_id": "68bd4ec300d70f0057513c31",
-      "title": "Tampipi - Erick Pro",
-      "poster": "https://i.imgur.com/7OSs5t3.jpeg",
-      "category": "drama",
-      "description": "A lonely seafarer's wife crosses paths with a meditation and love guru. When her husband returns, she is torn between the woman who satisfies her fantasies and the man she has always loved.",
-      "streamingLinks": [
-        "https://kravaxxa.com/l3e0algazptg",
-        "https://dumbalag.com/uo3aoh4qjsfl"
-      ],
-      "downloadLinks": [
-        "https://www.mediafire.com/file/5ufh2idi3evfffk/TAMPIPI_A_18_.mp4/file",
-        "https://www.mediafire.com/file/c4jnefpmsmw7c57/TAMPIPI_B_18_.mp4/file"
-      ],
-      "createdAt": "2025-09-07T09:22:11.431Z",
-      "updatedAt": "2025-09-07T09:22:11.431Z",
-      "__v": 0
-    },
-    {
       "_id": "68bac16e933f4ecfc3b3ca1a",
       "title": "Shadow Love SO1 - B THE GREAT",
       "poster": "https://i.imgur.com/eIxXqIa.jpeg",
@@ -715,22 +697,6 @@ const mv = {
       ],
       "createdAt": "2025-09-01T22:16:34.496Z",
       "updatedAt": "2025-09-01T22:16:34.496Z",
-      "__v": 0
-    },
-    {
-      "_id": "68b617313e090bc2fe59b0ad",
-      "title": "War of the Arrows - SANKRA",
-      "poster": "https://i.imgur.com/oJto9od.jpeg",
-      "category": "action",
-      "description": "After the death of their father, two siblings are raised by their father's best friend. However, when one gets kidnapped just before her wedding, the other rises against the Mongols.",
-      "streamingLinks": [
-        "https://dumbalag.com/74h75cc2sobj"
-      ],
-      "downloadLinks": [
-        "https://www.mediafire.com/file/dbaay4mgrrmizx0/Wars+Of+The+Arrows.mp4/file"
-      ],
-      "createdAt": "2025-09-01T21:59:13.463Z",
-      "updatedAt": "2025-09-01T21:59:13.463Z",
       "__v": 0
     },
     {
