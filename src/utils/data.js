@@ -3,7 +3,7 @@ export  const servicesAndProducts = [
         id: 1,
         title:`B-Academy`,
         description:`Empowering young minds with cutting-edge skills in AI and robotics. B-Academy is an educational platform designed to inspire and train high school students in emerging technologies. We provide hands-on learning experiences, project-based curriculums, and mentorship to prepare the innovators of tomorrow. Start your journey with us and be part of Rwanda's tech revolution!`,
-        image:`https://www.sysmex.co.id/wp-content/uploads/sites/19/2020/11/Sysmex-Academy-Online.jpg`,
+        images:['https://res.cloudinary.com/ddsojj7zo/image/upload/v1757949217/DSC_9450_z0b8cz.jpg','https://res.cloudinary.com/ddsojj7zo/image/upload/v1754763539/DSC_2357_ascwmr.jpg',"https://res.cloudinary.com/ddsojj7zo/image/upload/v1755334309/WhatsApp_Image_2025-08-13_at_14.38.34_tk2yrh.jpg"],
         link:`https://academy.byose.info`,
         position:`left`
     },
@@ -11,8 +11,8 @@ export  const servicesAndProducts = [
         id: 2,
         title:`B-Tech Labs`,
         description:`Where innovation comes to life. B-Tech Labs is the hub for BYOSE's groundbreaking projects and cutting-edge products. From AI-powered home automation to advanced robotics, we design and develop solutions that shape the future. Explore our latest innovations and join us on the journey to revolutionize technology`,
-        image:`https://i.pinimg.com/550x/00/81/3e/00813e7a1a1c59a05f143695ace22c3b.jpg`,
-        link:`http://academy.byose.info/labs/byose`,
+        images:[`https://i.pinimg.com/550x/00/81/3e/00813e7a1a1c59a05f143695ace22c3b.jpg`],
+        link:`https://academy.byose.info/labs/byose`,
         position:`right`
     },
     // {

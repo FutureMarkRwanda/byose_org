@@ -22,6 +22,7 @@ import Landing from "./pages/home/Landing.jsx";
 import Auth from "./pages/auth/Auth.jsx";
 import {AuthProvider} from "./context/AuthContext.jsx";
 import ProtectedRoute from "./pages/auth/ProtectRoutes.jsx";
+import BYOSE from "./pages/deck/BYOSE.jsx";
 
 function DashboardLayout() {
   return (
@@ -55,6 +56,7 @@ function App() {
                 <Route exact path="/" element={<Landing/>}>
                     <Route index element={<About/>}/>
                     <Route path="/home" element={<Home/>}/>
+                    <Route path="/deck.ppt" element={<BYOSE/>}/>
                     <Route path="/b-bot" element={<BBot/>}/>
                     <Route path="/we-are" element={<WhoWeAre/>}>
                         <Route index element={<><OurStory/><Team/><OurValues/></>}/>
