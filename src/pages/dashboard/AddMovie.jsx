@@ -13,7 +13,6 @@ const initialEpisode = (isSeries) => ({
         {
             language: "en",
             streamingLink: "",
-            downloadLink: "",
             subtitles: [{lang: "en", url: ""}]
         }
     ]
@@ -132,7 +131,6 @@ export default function MovieCreatePage() {
                             {
                                 language: "en",
                                 streamingLink: "",
-                                downloadLink: "",
                                 subtitles: [{lang: "en", url: ""}]
                             }
                         ]
@@ -198,7 +196,7 @@ export default function MovieCreatePage() {
             if (!ep.versions || !ep.versions.length)
                 return "Each video/episode must have at least one version.";
             for (const v of ep.versions) {
-                if (!v.language || !v.streamingLink || !v.downloadLink)
+                if (!v.language || !v.streamingLink )
                     return "Each version must have language, streaming link, and download link.";
             }
         }
@@ -312,7 +310,7 @@ export default function MovieCreatePage() {
                                                                 Stream
                                                             </a>
                                                             <a className="ml-2 text-teal-600 underline"
-                                                               href={v.downloadLink || "#"} target="_blank"
+                                                               href={v.streamingLink || "#"} target="_blank"
                                                                rel="noopener noreferrer">
                                                                 Download
                                                             </a>
@@ -541,8 +539,8 @@ export default function MovieCreatePage() {
                                 <div className="mt-3">
                                     <h4 className="font-semibold text-sm mb-1 text-indigo-700">Versions</h4>
                                     {ep.versions.map((v, vIdx) => (
-                                        <div className="border rounded p-2 mb-2 bg-blue-50 border-blue-100" key={vIdx}>
-                                            <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                                        <div className="border rounded p-2 mb-2 bg-blue-100 border-blue-100" key={vIdx}>
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                                                 <div>
                                                     <label className="text-xs font-semibold text-indigo-700">Language
                                                         *</label>
@@ -568,18 +566,6 @@ export default function MovieCreatePage() {
                                                         value={v.streamingLink}
                                                         onChange={(e) =>
                                                             handleVersionChange(epIdx, vIdx, "streamingLink", e.target.value)
-                                                        }
-                                                        required
-                                                        className="mt-1 w-full px-2 py-1 border border-blue-100 rounded bg-white"
-                                                    />
-                                                </div>
-                                                <div>
-                                                    <label className="text-xs font-semibold text-indigo-700">Download
-                                                        Link *</label>
-                                                    <input
-                                                        value={v.downloadLink}
-                                                        onChange={(e) =>
-                                                            handleVersionChange(epIdx, vIdx, "downloadLink", e.target.value)
                                                         }
                                                         required
                                                         className="mt-1 w-full px-2 py-1 border border-blue-100 rounded bg-white"
