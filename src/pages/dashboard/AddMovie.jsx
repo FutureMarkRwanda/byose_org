@@ -3,7 +3,7 @@ import {generateYouTubeEmbedURL, returnToken, sendData} from "../../utils/helper
 import {server} from "../../config/server_api.js";
 
 const MOVIE_TYPES = ["movie", "series"];
-const VERSION_LANGUAGES = ["en", "fr", "es", "rw", "de","org","chn","jp","in","ko"];
+const VERSION_LANGUAGES = ["rw","en", "fr", "es", "de","org","chn","jp","in","ko"];
 
 const initialEpisode = (isSeries) => ({
     season: isSeries ? "" : undefined,
