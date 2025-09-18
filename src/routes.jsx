@@ -31,12 +31,12 @@ export const routes = [
                 path: "/dashboard/add-movie",
                 element: <AddMovie/>,
             },
-            {
-                icon: <PencilSquareIcon {...icon} />,
-                name: "Edit Movie",
-                path: "/dashboard/edit-movie/:id",
-                element: <EditMovie/>,
-            },
+            // {
+            //     icon: <PencilSquareIcon {...icon} />,
+            //     name: "Edit Movie",
+            //     path: "/dashboard/edit-movie/:id",
+            //     element: <EditMovie/>,
+            // },
         ],
     },
     {

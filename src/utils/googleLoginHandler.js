@@ -4,7 +4,7 @@ import {setToken} from "./helper.js";
 
 export const handleGoogleLogin = async (googleToken, showNotification) => {
   try {
-    const res = await axios.post(`${server}/auth/google`, {
+    const res = await axios.post(`${server}/auth/google/admin`, {
       token: googleToken,
     });
 
