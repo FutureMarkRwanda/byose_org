@@ -2,14 +2,14 @@ import {
     HomeIcon,
     ServerStackIcon,
     VideoCameraIcon,
-    PencilSquareIcon
+    SquaresPlusIcon
 } from "@heroicons/react/24/solid";
 import Statistics from "./pages/dashboard/Statistics.jsx";
 import AddMovie from "./pages/dashboard/AddMovie.jsx";
-import EditMovie from "./pages/dashboard/EditMovie.jsx";
 import ResetPassword from "./pages/auth/ResetPassword.jsx";
 import Otp from "./pages/auth/otp.jsx";
 import SignIn from "./pages/auth/Sign-in.jsx";
+import CreatePost from "./pages/dashboard/CreatePost.jsx";
 
 const icon = {
     className: "w-5 h-5 text-inherit",
@@ -31,12 +31,12 @@ export const routes = [
                 path: "/dashboard/add-movie",
                 element: <AddMovie/>,
             },
-            // {
-            //     icon: <PencilSquareIcon {...icon} />,
-            //     name: "Edit Movie",
-            //     path: "/dashboard/edit-movie/:id",
-            //     element: <EditMovie/>,
-            // },
+            {
+                icon: <SquaresPlusIcon{...icon} />,
+                name: "Add Trends",
+                path: "/dashboard/add-post",
+                element: <CreatePost/>,
+            },
         ],
     },
     {

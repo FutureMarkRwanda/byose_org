@@ -1,4 +1,4 @@
-const default_api = import.meta.env.VITE_DEFAULT_SERVER_URL || 'http://localhost:5000';
+const default_api = import.meta.env.VITE_DEFAULT_SERVER_URL || 'http://localhost:5000/v1/api';
 
 // API endpoints
 export const API_ENDPOINTS = {

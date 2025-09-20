@@ -157,34 +157,6 @@ export  function combineFirstChars(sentence) {
     return initials.toUpperCase();
 }
 
-const awesomeSentences = [
-    "You did a fantastic job!",
-    "Well done on completing this topic!",
-    "Amazing effort!",
-    "Great job, keep it up!",
-    "Outstanding work!",
-    "Superb performance!",
-    "Excellent progress!",
-    "Impressive achievement!",
-    "Bravo, you nailed it!",
-    "Terrific, you did it!",
-    "You're incredible, well done!",
-    "Stellar work, keep shining!",
-    "Keep it up, you're doing great!",
-    "You're a star, fantastic effort!",
-    "Marvelous job!",
-    "Way to go, you rock!",
-    "Spectacular finish!",
-    "Exceptional work, keep going!",
-    "You nailed it, awesome job!",
-    "Phenomenal achievement!"
-];
-
-export const getRandomAwesomeSentence = () => {
-    const randomIndex = Math.floor(Math.random() * awesomeSentences.length);
-    return awesomeSentences[randomIndex];
-};
-
 
 export  function containsKeyWord(text, keyword) {
     if (typeof text !== "string"||typeof keyword !== "string") {
