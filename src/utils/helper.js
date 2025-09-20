@@ -80,7 +80,7 @@ export async function updateData(url,data,token) {
     }
 }
 
-export async function deleteData(url,data,token) {
+export async function deleteData(url,token) {
     try {
         axios.defaults.headers.common.Authorization = `Bearer ${token}`;
         const response = await axios.delete(url);
@@ -103,7 +103,7 @@ export async function deleteData(url,data,token) {
 export async function patchData(url,data,token) {
     try {
         axios.defaults.headers.common.Authorization = `Bearer ${token}`;
-        const response = await axios.patch(url);
+        const response = await axios.patch(url,data);
 
         return {data:response.data,message:response.data.message};
     } catch (error) {

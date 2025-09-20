@@ -10,6 +10,7 @@ import ResetPassword from "./pages/auth/ResetPassword.jsx";
 import Otp from "./pages/auth/otp.jsx";
 import SignIn from "./pages/auth/Sign-in.jsx";
 import CreatePost from "./pages/dashboard/CreatePost.jsx";
+import AdminMovies from "./pages/dashboard/AdminMovies.jsx";
 
 const icon = {
     className: "w-5 h-5 text-inherit",
@@ -23,7 +24,7 @@ export const routes = [
                 icon: <HomeIcon {...icon} />,
                 name: "dashboard",
                 path: "/dashboard",
-                element: <Statistics/>,
+                element: <AdminMovies/>,
             },
             {
                 icon: <VideoCameraIcon {...icon} />,
