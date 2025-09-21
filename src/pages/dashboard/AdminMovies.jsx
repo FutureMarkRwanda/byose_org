@@ -91,7 +91,7 @@ const AdminMovies = () => {
     const handleDeleteMovie = async (id) => {
         if (!window.confirm('Are you sure you want to delete this movie and its videos?')) return;
         try {
-            const result = await deleteData(`${server}/movies/${id}`, null, token);
+            const result = await deleteData(`${server}/movies/${id}`, token);
             if (result.error) {
                 showNotification(result.error, 'error');
             } else {
