@@ -23,6 +23,7 @@ import Auth from "./pages/auth/Auth.jsx";
 import {AuthProvider} from "./context/AuthContext.jsx";
 import ProtectedRoute from "./pages/auth/ProtectRoutes.jsx";
 import BYOSE from "./pages/deck/BYOSE.jsx";
+import Progress from "./components/presence_eye/PresenceEyeProgress.jsx";
 
 function DashboardLayout() {
   return (
@@ -67,6 +68,7 @@ function App() {
                         <Route index element={<PresenceEyeLatest/>}/>
                         <Route path="/presence-eye/terms-policy" element={<PresenceEyePrivacyPolicy/>}/>
                         <Route path="/presence-eye/presents" element={<PresenceEyePresentation/>}/>
+                        <Route path="/presence-eye/progress" element={<Progress/>}/>
                     </Route>
                     <Route path="*" element={<NotFound/>}/>
                 </Route>

@@ -1,4 +1,4 @@
-// src/Presentation.js
+// src/Progress.js
 // eslint-disable-next-line no-unused-vars
 import React, { useRef, useEffect } from 'react';
 import {
@@ -30,6 +30,10 @@ import Presence_eye_p1_s3_P2 from "../slides_cards/Presence_eye_p1_s3_P2.jsx";
 import Presence_eye_p1_s7_P0 from "../slides_cards/Presence_eye_p1_s7_P0.jsx";
 import Presence_eye_p1_s7_P1 from "../slides_cards/Presence_eye_p1_s7_P1.jsx";
 import Image01 from "../slides_cards/Image01.jsx";
+import PresenceEyeOverview from "../slides_cards/PresenceEyeOverview.jsx";
+import PresenceEyeRecents from "../slides_cards/PresenceEyeRecents.jsx";
+import PresenceEyeCurrentProgress from "../slides_cards/PresenceEyeCurrentProgress.jsx";
+import Deriverables from "../slides_cards/Deriverables.jsx";
 // Custom theme with professional colors and styling
 const theme = {
     colors: {
@@ -66,7 +70,7 @@ const theme = {
 // We'll cycle through them for visual variety
 const transitions = ['fade', 'slide', 'zoom', 'convex'];
 
-const Presentation = () => {
+const Progress = () => {
     const deckRef = useRef(null);
     const containerRef = useRef(null);
 
@@ -117,44 +121,16 @@ const Presentation = () => {
                 template={DefaultTemplate}
                 transitionEffect={(index) => transitions[index % transitions.length]}
             >
-                {/* Welcome Slide */}
-                {/*<Presence_eye_p1_s1/>*/}
-                {/*B-Bot Speech*/}
-                {/*<Presence_eye_p1_s2/>*/}
-                {/* Introducing Presence Eye Lite*/}
-
-                {/*<Presence_eye_p1_s3/>*/}
-                {/*<Presence_eye_p1_s3_P2/>*/}
-                {/*<Presence_eye_p1_s7_P0/>*/}
-                {/*<Presence_eye_p1_s7_P1/>*/}
-                {/* Gesture Control Slide */}
 
                 <Presence_eye_p1_s12/>
-
-                <Presence_eye_p1_s4/>
-                {/*<Image01/>*/}
-                {/*    */}
-                <Presence_eye_p1_s5/>
-                {/*    */}
-                {/*    */}
-                <Presence_eye_p1_s6/>
-
-                <Presence_eye_p1_s7/>
-
-
-                <Presence_eye_p1_s9/>
-
-                {/*<Presence_eye_p1_s10/>*/}
-
-                <Presence_eye_p1_s11/>
-                <Presence_eye_p1_s8/>
-
-                <Presence_eye_p1_s12/>
-
-                <Presence_eye_p1_s0/>
+                <PresenceEyeOverview/>
+                <PresenceEyeCurrentProgress/>
+                <PresenceEyeRecents/>
+                <Deriverables/>
+                <Presence_eye_p1_s12 text = {"The foundation of smarter living"}/>
             </Deck>
         </div>
     );
 };
 
-export default Presentation;
+export default Progress;

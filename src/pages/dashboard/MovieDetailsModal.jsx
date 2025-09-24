@@ -1,5 +1,5 @@
 // src/components/MovieDetailsModal.jsx
-import { useState, useEffect } from 'react';
+import { useState} from 'react';
 import VideosList from './VideosList';
 import {useNotification} from "../../context/NotificationContext.jsx";
 import {patchData, returnToken} from "../../utils/helper.js";
