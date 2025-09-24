@@ -15,11 +15,11 @@ function PresenceEyeCurrentProgress() {
                         </Text>
                         <Text  color="white" fontSize={"37px"} fontWeight="semibold">
                             Each plug offers 4 modes:
-                            <ul className={"pl-16"}>
-                                <li><b>Manual </b>– instant control from the app.</li>
-                                <li><b>Automatic </b>– prevents overcharging & phantom power loss (via “<b>Charge My Device</b>” integration).</li>
-                                <li><b>Timer </b>– set custom on/off schedules.</li>
-                                <li><b>Gesture/Voice</b> – accessibility through AI-driven voice commands (progress ongoing).</li>
+                            <ul type="triangle" className={"pl-16"}>
+                                <li>🔶<b className={"text-yellow-300 text-[40px]"}>Manual </b>– instant control from the app.</li>
+                                <li>🔶 <b className={"text-yellow-300 text-[40px]"}>Automatic </b>– prevents overcharging & phantom power loss (via “<b>Charge My Device</b>” integration).</li>
+                                <li>🔶<b className={"text-yellow-300 text-[40px]"}>Timer </b>– set custom on/off schedules.</li>
+                                <li>🔶<b className={"text-yellow-300 text-[40px]"}>Gesture/Voice</b> – accessibility through AI-driven voice commands (progress ongoing).</li>
                             </ul>
                         </Text>
                         <Text fontSize="h2" color="white" fontWeight="bold">
