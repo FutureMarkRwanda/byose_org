@@ -1,122 +1,118 @@
 
 import {jwtDecode} from "jwt-decode";
 import axios from "axios";
-
-
-export const getTextColor = (hex) => {
-    // Convert hex to RGB
-    const r = parseInt(hex.slice(1, 3), 16);
-    const g = parseInt(hex.slice(3, 5), 16);
-    const b = parseInt(hex.slice(5, 7), 16);
-
-    // Calculate luminance
-    const luminance = 0.2126 * (r / 255) + 0.7152 * (g / 255) + 0.0722 * (b / 255);
-
-    // If the color is dark, return a lighter contrasting color
-    if (luminance < 0.5) {
-        return `rgb(${r + 100 > 255 ? 255 : r + 130}, ${g + 100 > 255 ? 255 : g + 130}, ${b + 100 > 255 ? 255 : b + 130})`;
-    }
-    // If the color is light, return a darker contrasting color
-    else {
-        return `rgb(${r - 100 < 0 ? 0 : r - 120}, ${g - 100 < 0 ? 0 : g - 120}, ${b - 100 < 0 ? 0 : b - 120})`;
-    }
-};
-
+const API_KEY = import.meta.env.VITE_API_KEY; // load from Vite env
 
 export async function fetchData(url, token) {
-    try {
-        const response = await axios.get(url, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        });
-        return { data: response.data, message: response.data.message };
-    } catch (error) {
-        let errorMessage = "Server is down";
+  try {
+    const response = await axios.get(url, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "x-api-key": API_KEY,
+      },
+    });
+    return { data: response.data, message: response.data.message };
+  } catch (error) {
+    let errorMessage = "Server is down";
 
-        if (error.response && error.response.data && error.response.data.message) {
-            errorMessage = error.response.data.message;
-        } else if (error.message) {
-            errorMessage = error.message;
-        }
-
-        return { error: errorMessage, data: -1 };
+    if (error.response?.data?.message) {
+      errorMessage = error.response.data.message;
+    } else if (error.message) {
+      errorMessage = error.message;
     }
+
+    return { error: errorMessage, data: -1 };
+  }
 }
 
-export async function sendData(url,data,token) {
-    try {
-        axios.defaults.headers.common.Authorization = `Bearer ${token}`;
-        const response = await axios.post(url,data);
-        return {data:response.data,message:response.data.message};
-    } catch (error) {
-        let errorMessage = "Server is down";
+export async function sendData(url, data, token) {
+  try {
+    const response = await axios.post(url, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "x-api-key": API_KEY,
+      },
+    });
+    return { data: response.data, message: response.data.message };
+  } catch (error) {
+    let errorMessage = "Server is down";
 
-        if (error.response && error.response.data && error.response.data.message) {
-            errorMessage = error.response.data.message;
-        } else if (error.message) {
-            errorMessage = error.message;
-        }
-
-        return { error: errorMessage, data: -1 };
+    if (error.response?.data?.message) {
+      errorMessage = error.response.data.message;
+    } else if (error.message) {
+      errorMessage = error.message;
     }
+
+    return { error: errorMessage, data: -1 };
+  }
 }
 
-export async function updateData(url,data,token) {
-    try {
-        axios.defaults.headers.common.Authorization = `Bearer ${token}`;
-        const response = await axios.put(url,data);
-        return {data:response.data,message:response.data.message};
-    } catch (error) {
-        let errorMessage = "Server is down";
+export async function updateData(url, data, token) {
+  try {
+    const response = await axios.put(url, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "x-api-key": API_KEY,
+      },
+    });
+    return { data: response.data, message: response.data.message };
+  } catch (error) {
+    let errorMessage = "Server is down";
 
-        if (error.response && error.response.data && error.response.data.message) {
-            errorMessage = error.response.data.message;
-        } else if (error.message) {
-            errorMessage = error.message;
-        }
-
-        return { error: errorMessage, data: -1 };
+    if (error.response?.data?.message) {
+      errorMessage = error.response.data.message;
+    } else if (error.message) {
+      errorMessage = error.message;
     }
+
+    return { error: errorMessage, data: -1 };
+  }
 }
 
-export async function deleteData(url,token) {
-    try {
-        axios.defaults.headers.common.Authorization = `Bearer ${token}`;
-        const response = await axios.delete(url);
+export async function deleteData(url, token) {
+  try {
+    const response = await axios.delete(url, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "x-api-key": API_KEY,
+      },
+    });
 
-        return {data:response.data,message:response.data.message};
-    } catch (error) {
-        let errorMessage = "Server is down";
+    return { data: response.data, message: response.data.message };
+  } catch (error) {
+    let errorMessage = "Server is down";
 
-        if (error.response && error.response.data && error.response.data.message) {
-            errorMessage = error.response.data.message;
-        } else if (error.message) {
-            errorMessage = error.message;
-        }
-
-        return { error: errorMessage, data: -1 };
+    if (error.response?.data?.message) {
+      errorMessage = error.response.data.message;
+    } else if (error.message) {
+      errorMessage = error.message;
     }
+
+    return { error: errorMessage, data: -1 };
+  }
 }
 
+export async function patchData(url, data, token) {
+  try {
+    const response = await axios.patch(url, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "x-api-key": API_KEY,
+      },
+    });
 
-export async function patchData(url,data,token) {
-    try {
-        axios.defaults.headers.common.Authorization = `Bearer ${token}`;
-        const response = await axios.patch(url,data);
+    return { data: response.data, message: response.data.message };
+  } catch (error) {
+    let errorMessage = "Server is down";
 
-        return {data:response.data,message:response.data.message};
-    } catch (error) {
-        let errorMessage = "Server is down";
-
-        if (error.response && error.response.data && error.response.data.message) {
-            errorMessage = error.response.data.message;
-        } else if (error.message) {
-            errorMessage = error.message;
-        }
-
-        return { error: errorMessage, data: -1 };
+    if (error.response?.data?.message) {
+      errorMessage = error.response.data.message;
+    } else if (error.message) {
+      errorMessage = error.message;
     }
+
+    return { error: errorMessage, data: -1 };
+  }
 }
 
 export function handleLogout(tokenName=null,pathName){
@@ -208,3 +204,25 @@ export function generateYouTubeEmbedURL(url) {
     return null;
   }
 }
+
+
+
+export const getTextColor = (hex) => {
+    // Convert hex to RGB
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+
+    // Calculate luminance
+    const luminance = 0.2126 * (r / 255) + 0.7152 * (g / 255) + 0.0722 * (b / 255);
+
+    // If the color is dark, return a lighter contrasting color
+    if (luminance < 0.5) {
+        return `rgb(${r + 100 > 255 ? 255 : r + 130}, ${g + 100 > 255 ? 255 : g + 130}, ${b + 100 > 255 ? 255 : b + 130})`;
+    }
+    // If the color is light, return a darker contrasting color
+    else {
+        return `rgb(${r - 100 < 0 ? 0 : r - 120}, ${g - 100 < 0 ? 0 : g - 120}, ${b - 100 < 0 ? 0 : b - 120})`;
+    }
+};
+
