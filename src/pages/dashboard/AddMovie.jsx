@@ -12,8 +12,7 @@ const initialEpisode = (isSeries) => ({
     versions: [
         {
             language: "en",
-            streamingLink: "",
-            subtitles: [{lang: "en", url: ""}]
+            streamingLink: ""
         }
     ]
 });
@@ -111,14 +110,7 @@ export default function MovieCreatePage() {
         });
     };
 
-    // Handle subtitles
-    const handleSubtitleChange = (epIdx, vIdx, sIdx, field, value) => {
-        setForm((prev) => {
-            const episodes = [...prev.episodes];
-            episodes[epIdx].versions[vIdx].subtitles[sIdx][field] = value;
-            return {...prev, episodes};
-        });
-    };
+
 
     const handleAddVersion = (epIdx) => {
         setForm((prev) => {
@@ -130,8 +122,7 @@ export default function MovieCreatePage() {
                             ...ep.versions,
                             {
                                 language: "en",
-                                streamingLink: "",
-                                subtitles: [{lang: "en", url: ""}]
+                                streamingLink: ""
                             }
                         ]
                     }
@@ -142,35 +133,8 @@ export default function MovieCreatePage() {
     };
 
 
-    const handleAddSubtitle = (epIdx, vIdx) => {
-        setForm((prev) => {
-            const episodes = prev.episodes.map((ep, i) =>
-                i === epIdx
-                    ? {
-                        ...ep,
-                        versions: ep.versions.map((v, j) =>
-                            j === vIdx
-                                ? {
-                                    ...v,
-                                    subtitles: [...v.subtitles, {lang: "en", url: ""}]
-                                }
-                                : v
-                        )
-                    }
-                    : ep
-            );
-            return {...prev, episodes};
-        });
-    };
 
 
-    const handleRemoveSubtitle = (epIdx, vIdx, sIdx) => {
-        setForm((prev) => {
-            const episodes = [...prev.episodes];
-            episodes[epIdx].versions[vIdx].subtitles.splice(sIdx, 1);
-            return {...prev, episodes};
-        });
-    };
 
     // Basic client-side validation
     const validate = () => {
@@ -314,23 +278,6 @@ export default function MovieCreatePage() {
                                                                rel="noopener noreferrer">
                                                                 Download
                                                             </a>
-                                                        </div>
-                                                        <div>
-                                                            <span
-                                                                className="text-xs font-semibold text-blue-700">Subtitles:</span>
-                                                            <div className="flex gap-2 flex-wrap mt-1">
-                                                                {v.subtitles?.length
-                                                                    ? v.subtitles.map((s, sIdx) => (
-                                                                        <span key={sIdx}
-                                                                              className="bg-yellow-50 text-yellow-700 px-2 py-0.5 rounded">
-                                        {s.lang}: <a className="underline text-yellow-700" href={s.url || "#"}
-                                                     target="_blank" rel="noopener noreferrer">link</a>
-                                      </span>
-                                                                    ))
-                                                                    :
-                                                                    <span className="text-gray-400 text-xs">None</span>
-                                                                }
-                                                            </div>
                                                         </div>
                                                     </div>
                                                 ))}
@@ -579,45 +526,6 @@ export default function MovieCreatePage() {
                                             >
                                                 Remove Version
                                             </button>
-                                            <div className="mt-2">
-                                                <label
-                                                    className="text-xs font-semibold text-indigo-700">Subtitles</label>
-                                                {v.subtitles.map((s, sIdx) => (
-                                                    <div className="flex gap-2 items-center mt-1" key={sIdx}>
-                                                        <input
-                                                            style={{width: "80px"}}
-                                                            placeholder="Lang"
-                                                            value={s.lang}
-                                                            onChange={(e) =>
-                                                                handleSubtitleChange(epIdx, vIdx, sIdx, "lang", e.target.value)
-                                                            }
-                                                            className="px-2 py-1 border border-blue-100 rounded text-xs bg-white"
-                                                        />
-                                                        <input
-                                                            placeholder="URL"
-                                                            value={s.url}
-                                                            onChange={(e) =>
-                                                                handleSubtitleChange(epIdx, vIdx, sIdx, "url", e.target.value)
-                                                            }
-                                                            className="px-2 py-1 border border-blue-100 rounded text-xs bg-white"
-                                                        />
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => handleRemoveSubtitle(epIdx, vIdx, sIdx)}
-                                                            className="text-xs text-blue-400 hover:underline"
-                                                        >
-                                                            ×
-                                                        </button>
-                                                    </div>
-                                                ))}
-                                                <button
-                                                    type="button"
-                                                    onClick={() => handleAddSubtitle(epIdx, vIdx)}
-                                                    className="mt-1 text-xs text-indigo-700 hover:underline"
-                                                >
-                                                    Add Subtitle
-                                                </button>
-                                            </div>
                                         </div>
                                     ))}
                                     <button
