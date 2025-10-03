@@ -9,7 +9,6 @@ import {
 } from '../../utils/helper.js';
 import {useNotification} from '../../context/NotificationContext.jsx';
 import MovieDetailsModal from './MovieDetailsModal.jsx';
-import AddMovieModal from './AddMovieModal.jsx';
 import {server} from "../../config/server_api.js";
 
 const AdminMovies = () => {
@@ -35,7 +34,6 @@ const AdminMovies = () => {
         populate: 'true',
     });
     const [selectedMovie, setSelectedMovie] = useState(null);
-    const [showAddModal, setShowAddModal] = useState(false);
     const {showNotification} = useNotification();
     const token = returnToken();
 
@@ -110,7 +108,6 @@ const AdminMovies = () => {
 
     const handleCloseModal = () => {
         setSelectedMovie(null);
-        setShowAddModal(false);
         loadMovies();
     };
 
@@ -182,7 +179,6 @@ const AdminMovies = () => {
                 </select>
                 {/* Add Button */}
             <a
-                // onClick={() => setShowAddModal(true)}
                 href={"/dashboard/add-movie"}
                 className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
             >

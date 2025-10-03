@@ -2,15 +2,16 @@ import {
     HomeIcon,
     ServerStackIcon,
     VideoCameraIcon,
-    SquaresPlusIcon
+    SquaresPlusIcon,
+    ChartBarSquareIcon
 } from "@heroicons/react/24/solid";
-import Statistics from "./pages/dashboard/Statistics.jsx";
 import AddMovie from "./pages/dashboard/AddMovie.jsx";
 import ResetPassword from "./pages/auth/ResetPassword.jsx";
 import Otp from "./pages/auth/otp.jsx";
 import SignIn from "./pages/auth/Sign-in.jsx";
 import CreatePost from "./pages/dashboard/CreatePost.jsx";
 import AdminMovies from "./pages/dashboard/AdminMovies.jsx";
+import Feedbacks from "./pages/dashboard/Feedbacks.jsx";
 
 const icon = {
     className: "w-5 h-5 text-inherit",
@@ -25,6 +26,12 @@ export const routes = [
                 name: "dashboard",
                 path: "/dashboard",
                 element: <AdminMovies/>,
+            },
+            {
+                icon: <ChartBarSquareIcon {...icon} />,
+                name: "FeedBacks",
+                path: "/dashboard/feedbacks",
+                element: <Feedbacks/>,
             },
             {
                 icon: <VideoCameraIcon {...icon} />,
