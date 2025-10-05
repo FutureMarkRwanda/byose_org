@@ -1,9 +1,10 @@
 // eslint-disable-next-line no-unused-vars
-import React from 'react';
+import React, { Suspense, lazy } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { team } from "../../utils/data.js";
 import { ImageGallery } from "../../components/ImageGallery.jsx";
-import Markdown from "../../components/Markdown.jsx";
+const Markdown = lazy(() => import('../../components/Markdown.jsx'));
+
 import {IoReturnUpBack} from "react-icons/io5";
 
 const image = "/assests/images/wave-vr-haikei.svg";
@@ -53,7 +54,9 @@ function Portfolio() {
 
             {/* Markdown Section */}
             <div className="container mx-auto px-16 py-8">
-                <Markdown content={teammate.more} />
+                <Suspense fallback={<div>Loading...</div>}>
+                    <Markdown content={teammate.more} />
+                </Suspense>
             </div>
 
             {/* Gallery Section */}
