@@ -1,19 +1,20 @@
-// eslint-disable-next-line no-unused-vars
-import React from "react";
-import ReactMarkdown from "react-markdown";
-import "highlight.js/styles/github.css"; // Light mode version
-import "katex/dist/katex.min.css"; // Import KaTeX CSS
+import MarkdownIt from "markdown-it";
+import mk from "markdown-it-katex";
+import hljs from "markdown-it-highlightjs";
+import "katex/dist/katex.min.css";
+import "highlight.js/styles/github.css";
 
+export default function Markdown({ content }) {
+  const md = new MarkdownIt({ html: true, linkify: true, breaks: true })
+    .use(mk)
+    .use(hljs);
 
-// eslint-disable-next-line react/prop-types
-export default function Markdown({content}) {
-    return (
-        <div className="markdown-body md:text-2xl text-xl xl:w-[70%] mx-auto">
-            <ReactMarkdown
-                class="flex flex-col"
-            >
-                {content}
-            </ReactMarkdown>
-        </div>
-    );
+  const html = md.render(content || "");
+
+  return (
+    <div
+      className="markdown-body md:text-2xl text-xl xl:w-[70%] mx-auto"
+      dangerouslySetInnerHTML={{ __html: html }}
+    />
+  );
 }
