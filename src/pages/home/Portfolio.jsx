@@ -3,7 +3,7 @@ import React, { Suspense, lazy } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { team } from "../../utils/data.js";
 import { ImageGallery } from "../../components/ImageGallery.jsx";
-const Markdown = lazy(() => import('../../components/Markdown.jsx'));
+import Markdown from "../../components/Markdown.jsx";
 
 import {IoReturnUpBack} from "react-icons/io5";
 
@@ -54,9 +54,7 @@ function Portfolio() {
 
             {/* Markdown Section */}
             <div className="container mx-auto px-16 py-8">
-                <Suspense fallback={<div>Loading...</div>}>
-                    <Markdown content={teammate.more} />
-                </Suspense>
+                <Markdown content={teammate.more} />
             </div>
 
             {/* Gallery Section */}

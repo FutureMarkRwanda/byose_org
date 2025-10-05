@@ -7,16 +7,20 @@ import rehypeKatex from "rehype-katex";
 import "highlight.js/styles/github.css"; // Light mode version
 import "katex/dist/katex.min.css"; // Import KaTeX CSS
 import remarkGfm from "remark-gfm";
-import rehypeRaw from "rehype-raw";
+import rehypeSanitize from "rehype-sanitize";
 
 // eslint-disable-next-line react/prop-types
-export default function Markdown({ content }) {
+export default function Markdown({content}) {
     return (
         <div className="markdown-body md:text-2xl text-xl xl:w-[70%] mx-auto">
             <ReactMarkdown
                 class="flex flex-col"
-                remarkPlugins={[remarkGfm, remarkMath]} // Add remarkMath
-                rehypePlugins={[rehypeRaw,rehypeHighlight, rehypeKatex]} // Add rehypeKatex
+                remarkPlugins={[remarkGfm, remarkMath]}
+                rehypePlugins={[
+                    [rehypeSanitize], // ✅ Safe fallback for old iOS
+                    rehypeHighlight,
+                    rehypeKatex,
+                ]}
             >
                 {content}
             </ReactMarkdown>
