@@ -21,7 +21,7 @@ export default function Markdown({ content }) {
             const match = navigator.userAgent.match(/OS (\d+)_/);
             if (match) {
                 const iOSVersion = parseInt(match[1], 10);
-                return iOSVersion <= 15; // iOS 15 and below need lightweight mode
+                return iOSVersion <= 16; // iOS 15 and below need lightweight mode
             }
         }
 
