@@ -1,43 +1,22 @@
-import React, { useMemo } from "react";
+// eslint-disable-next-line no-unused-vars
+import React from "react";
 import ReactMarkdown from "react-markdown";
 import rehypeHighlight from "rehype-highlight";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
-import "highlight.js/styles/github.css";
-import "katex/dist/katex.min.css";
+import "highlight.js/styles/github.css"; // Light mode version
+import "katex/dist/katex.min.css"; // Import KaTeX CSS
 import remarkGfm from "remark-gfm";
+import rehypeRaw from "rehype-raw";
 
+// eslint-disable-next-line react/prop-types
 export default function Markdown({ content }) {
-    const needsLightweightMode = useMemo(() => {
-        if (typeof window === 'undefined') return false;
-
-        // Check for TV browsers
-        const isTVBrowser = /TV|SmartTV|AppleTV|GoogleTV|WebOS|Tizen|NetCast/i.test(navigator.userAgent);
-        if (isTVBrowser) return true;
-
-        // Check for iOS 15 and below
-        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-        if (isIOS) {
-            const match = navigator.userAgent.match(/OS (\d+)_/);
-            if (match) {
-                const iOSVersion = parseInt(match[1], 10);
-                return iOSVersion <= 16; // iOS 15 and below need lightweight mode
-            }
-        }
-
-        return false;
-    }, []);
-
-    if (!content) {
-        return null;
-    }
-
     return (
         <div className="markdown-body md:text-2xl text-xl xl:w-[70%] mx-auto">
             <ReactMarkdown
                 class="flex flex-col"
-                remarkPlugins={needsLightweightMode ? [remarkGfm] : [remarkGfm, remarkMath]}
-                rehypePlugins={needsLightweightMode ? [] : [rehypeHighlight, rehypeKatex]}
+                remarkPlugins={[remarkGfm, remarkMath]} // Add remarkMath
+                rehypePlugins={[rehypeRaw,rehypeHighlight, rehypeKatex]} // Add rehypeKatex
             >
                 {content}
             </ReactMarkdown>
