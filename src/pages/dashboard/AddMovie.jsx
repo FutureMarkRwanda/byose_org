@@ -357,7 +357,7 @@ export default function MovieCreatePage() {
                         </div>
                     </div>
                     <div>
-                        <label className="font-semibold text-blue-700">Tags or Genre</label>
+                        <label className="font-semibold text-blue-700">Tags or Genres</label>
                         <div className="flex gap-2">
                             <input
                                 value={tagInput}
@@ -395,7 +395,7 @@ export default function MovieCreatePage() {
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label className="font-semibold text-blue-700">Category(One of the Tags or genre) *</label>
+                            <label className="font-semibold text-blue-700">Category(One of the Tags or genres) *</label>
                             <input
                                 name="category"
                                 value={form.category}
