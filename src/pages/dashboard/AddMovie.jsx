@@ -356,9 +356,46 @@ export default function MovieCreatePage() {
                             )}
                         </div>
                     </div>
+                    <div>
+                        <label className="font-semibold text-blue-700">Tags or Genre</label>
+                        <div className="flex gap-2">
+                            <input
+                                value={tagInput}
+                                onChange={(e) => setTagInput(e.target.value)}
+                                onKeyDown={(e) => {
+                                    if (e.key === "Enter") {
+                                        e.preventDefault();
+                                        handleAddTag();
+                                    }
+                                }}
+                                placeholder="Action"
+                                className="w-full px-3 py-2 border border-blue-100 rounded focus:outline-none focus:ring focus:ring-blue-100 bg-blue-50"
+                            />
+                            <button
+                                type="button"
+                                onClick={handleAddTag}
+                                className="bg-yellow-50 text-yellow-700 px-4 py-2 rounded hover:bg-yellow-100"
+                            >
+                                Add
+                            </button>
+                        </div>
+                        <div className="flex gap-2 flex-wrap mt-2">
+                            {form.tags.map((tag, idx) => (
+                                <span key={tag}
+                                      className="bg-yellow-50 px-3 py-1 rounded-full text-xs text-yellow-700 flex items-center">
+                  {tag}
+                                    <button
+                                        type="button"
+                                        onClick={() => handleRemoveTag(idx)}
+                                        className="ml-2 text-yellow-600 hover:text-yellow-800"
+                                    >×</button>
+                </span>
+                            ))}
+                        </div>
+                    </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label className="font-semibold text-blue-700">Category *</label>
+                            <label className="font-semibold text-blue-700">Category(One of the Tags or genre) *</label>
                             <input
                                 name="category"
                                 value={form.category}
@@ -394,43 +431,6 @@ export default function MovieCreatePage() {
                             rows={3}
                             className="mt-1 w-full px-3 py-2 border border-blue-100 rounded focus:outline-none focus:ring focus:ring-blue-100 bg-blue-50"
                         />
-                    </div>
-                    <div>
-                        <label className="font-semibold text-blue-700">Tags</label>
-                        <div className="flex gap-2">
-                            <input
-                                value={tagInput}
-                                onChange={(e) => setTagInput(e.target.value)}
-                                onKeyDown={(e) => {
-                                    if (e.key === "Enter") {
-                                        e.preventDefault();
-                                        handleAddTag();
-                                    }
-                                }}
-                                placeholder="Add tag"
-                                className="w-full px-3 py-2 border border-blue-100 rounded focus:outline-none focus:ring focus:ring-blue-100 bg-blue-50"
-                            />
-                            <button
-                                type="button"
-                                onClick={handleAddTag}
-                                className="bg-yellow-50 text-yellow-700 px-4 py-2 rounded hover:bg-yellow-100"
-                            >
-                                Add
-                            </button>
-                        </div>
-                        <div className="flex gap-2 flex-wrap mt-2">
-                            {form.tags.map((tag, idx) => (
-                                <span key={tag}
-                                      className="bg-yellow-50 px-3 py-1 rounded-full text-xs text-yellow-700 flex items-center">
-                  {tag}
-                                    <button
-                                        type="button"
-                                        onClick={() => handleRemoveTag(idx)}
-                                        className="ml-2 text-yellow-600 hover:text-yellow-800"
-                                    >×</button>
-                </span>
-                            ))}
-                        </div>
                     </div>
                     {/* Episodes Section */}
                     <div className="bg-blue-50 rounded-lg p-4 border border-blue-100">
