@@ -395,7 +395,7 @@ export default function MovieCreatePage() {
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label className="font-semibold text-blue-700">Category(One of the Tags or genres) *</label>
+                            <label className="font-semibold text-blue-700">One of the Tags or genres *</label>
                             <input
                                 name="category"
                                 value={form.category}
