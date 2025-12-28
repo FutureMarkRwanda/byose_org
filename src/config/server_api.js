@@ -25,3 +25,4 @@ export const API_ENDPOINTS = {
 };
 
 export const server = default_api
+export const presence_server = import.meta.env.VITE_PRESENCE_EYE_SERVER_URL || 'http://localhost:5000'

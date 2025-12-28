@@ -12,6 +12,8 @@ import SignIn from "./pages/auth/Sign-in.jsx";
 import CreatePost from "./pages/dashboard/CreatePost.jsx";
 import AdminMovies from "./pages/dashboard/AdminMovies.jsx";
 import Feedbacks from "./pages/dashboard/Feedbacks.jsx";
+import PresenceEyeAdmin from "./pages/dashboard/PresenceEye.jsx";
+import { FaFilePowerpoint } from "react-icons/fa6";
 
 const icon = {
     className: "w-5 h-5 text-inherit",
@@ -26,6 +28,12 @@ export const routes = [
                 name: "dashboard",
                 path: "/dashboard",
                 element: <AdminMovies/>,
+            },
+            {
+                icon: <FaFilePowerpoint{...icon} />,
+                name: "Presence Eye",
+                path: "/dashboard/presence-eye",
+                element: <PresenceEyeAdmin/>,
             },
             {
                 icon: <ChartBarSquareIcon {...icon} />,

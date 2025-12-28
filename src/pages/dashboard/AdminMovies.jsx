@@ -1,8 +1,7 @@
 // src/pages/AdminMovies.jsx
-import React, {useState, useEffect} from 'react';
+import {useState, useEffect} from 'react';
 import {
     fetchData,
-    sendData,
     deleteData,
     returnToken,
     handleLogout,
@@ -35,7 +34,6 @@ const AdminMovies = () => {
     });
     const [selectedMovie, setSelectedMovie] = useState(null);
     const {showNotification} = useNotification();
-    const token = returnToken();
 
     const loadMovies = async () => {
         setIsLoading(true);
@@ -43,7 +41,7 @@ const AdminMovies = () => {
         try {
             const queryParams = new URLSearchParams(filters).toString();
             const url = server + `/movies?${queryParams}`;
-            const result = await fetchData(url, token);
+            const result = await fetchData(url, returnToken());
 
             if (result.error) {
                 showNotification(result.error, 'error');
@@ -89,7 +87,7 @@ const AdminMovies = () => {
     const handleDeleteMovie = async (id) => {
         if (!window.confirm('Are you sure you want to delete this movie and its videos?')) return;
         try {
-            const result = await deleteData(`${server}/movies/${id}`, token);
+            const result = await deleteData(`${server}/movies/${id}`, returnToken());
             if (result.error) {
                 showNotification(result.error, 'error');
             } else {
@@ -97,8 +95,7 @@ const AdminMovies = () => {
                 loadMovies();
             }
         } catch (err) {
-            console.error(err);
-            showNotification('Error deleting movie', 'error');
+            showNotification('Error deleting movie'+err.message, 'error');
         }
     };
 
@@ -111,20 +108,6 @@ const AdminMovies = () => {
         loadMovies();
     };
 
-    const handleAddMovie = async (newMovie) => {
-        try {
-            const result = await sendData(server + '/movies', newMovie, token);
-            if (result.error) {
-                showNotification(result.error, 'error');
-            } else {
-                showNotification('Movie added successfully', 'success');
-                handleCloseModal();
-            }
-        } catch (err) {
-            console.error(err);
-            showNotification('Error adding movie', 'error');
-        }
-    };
 
     return (
         <div className="container mx-auto p-4">
