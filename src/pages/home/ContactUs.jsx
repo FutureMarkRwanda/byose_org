@@ -5,7 +5,7 @@ import { FaFacebook, FaGithub, FaInstagram, FaWhatsapp } from "react-icons/fa";
 import emailjs from '@emailjs/browser';
 import {publicKey, viteemailserviceid, viteemailtemplate} from "../../utils/variable.js";
 import {Helmet} from "react-helmet";
-const image = " /assests/images/wave-haikei.svg";
+const image = " /assets/images/wave-haikei.svg";
 
 function ContactUs() {
     const form = useRef();

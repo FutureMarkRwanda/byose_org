@@ -57,7 +57,7 @@ function Footer() {
 
                     <div className="flex items-center justify-between">
                         <a href="/home" className="flex items-center space-x-3 rtl:space-x-reverse">
-                            <img src="/assests/icons/Logo03.svg" className="h-8" alt="Flowbite Logo"/>
+                            <img src="/assets/icons/Logo03.svg" className="h-8" alt="Flowbite Logo"/>
                             <span
                                 className="self-center text-2xl font-semibold whitespace-nowrap text-white">BYOSE</span>
                         </a>

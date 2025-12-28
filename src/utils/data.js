@@ -309,19 +309,19 @@ const values = [
         title: "We are committed.",
         description:
             "Conversion angel investor entrepreneur first mover advantage. Handshake infographic mass market crowdfunding iteration.",
-        image: "/assests/images/Committed_eiam.svg", // Replace with actual image URLs
+        image: "/assets/images/Committed_eiam.svg", // Replace with actual image URLs
     },
     {
         title: "We are responsible.",
         description:
             "Conversion angel investor entrepreneur first mover advantage. Handshake infographic mass market crowdfunding iteration.",
-        image: "/assests/images/undraw_certificate_71gt.svg",
+        image: "/assets/images/undraw_certificate_71gt.svg",
     },
     {
         title: "We aim for progress.",
         description:
             "Conversion angel investor entrepreneur first mover advantage. Handshake infographic mass market crowdfunding iteration.",
-        image: "/assests/images/undraw_in-progress_cdfz.svg",
+        image: "/assets/images/undraw_in-progress_cdfz.svg",
     },
 ];
 

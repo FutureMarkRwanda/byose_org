@@ -7,7 +7,7 @@ import Markdown from "../../components/Markdown.jsx";
 
 import {IoReturnUpBack} from "react-icons/io5";
 
-const image = "/assests/images/wave-vr-haikei.svg";
+const image = "/assets/images/wave-vr-haikei.svg";
 
 function Portfolio() {
     const { name } = useParams(); // get the name from request params

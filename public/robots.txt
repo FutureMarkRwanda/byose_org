@@ -1,10 +1,10 @@
 # Allow all crawlers
 User-agent: *
-Disallow:
-
+Allow: /favicon.ico
+Allow: /assets/
 # Block specific resources or paths (optional)
 Disallow: /static/
 Disallow: /admin/
 
 # Specify the location of your sitemap
-Sitemap: https://byose.vercel.app/sitemap.xml
+Sitemap: https://byose.info/sitemap.xml

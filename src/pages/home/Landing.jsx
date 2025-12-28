@@ -3,7 +3,7 @@ import React from "react";
 import {Outlet} from "react-router-dom";
 import Footer from "../../components/Footer.jsx";
 import Header from "../../components/Header.jsx";
-const image = "/assests/images/wave-t-haikei.svg";
+const image = "/assets/images/wave-t-haikei.svg";
 
 
 function Landing() {

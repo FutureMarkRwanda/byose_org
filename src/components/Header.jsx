@@ -20,7 +20,7 @@ function Header() {
         <nav className="border-gray-200 bg-gray-950 mt-8 md:container w-[95%] md:mx-auto ml-3 md:rounded-3xl bg-opacity-95 rounded shadow-xl fixed z-50">
             <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
                 <a href="/home" className="flex items-center space-x-3 rtl:space-x-reverse">
-                    <img src="/assests/icons/Logo03.svg" className="h-8" alt="Flowbite Logo" />
+                    <img src="/assets/icons/Logo03.svg" className="h-8" alt="Flowbite Logo" />
                     <span className="self-center text-2xl font-semibold whitespace-nowrap text-white">BYOSE</span>
                 </a>
                 <div className="flex md:order-2">

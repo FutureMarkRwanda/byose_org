@@ -1,6 +1,6 @@
 // eslint-disable-next-line no-unused-vars
 import React from 'react';
-const image = " /assests/images/wave-vr-haikei.svg";
+const image = " /assets/images/wave-vr-haikei.svg";
 
 function OurStory() {
     return (

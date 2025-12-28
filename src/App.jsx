@@ -37,18 +37,19 @@ function DashboardLayout() {
 
 function App() {
     const titleMap = {
-        "/": "About | BYOSE",
+        "/": "About | BYOSE Tech -Build Your Own Solutions Everywhere",
         "/services": "Services at BYOSE",
-        "/home": "Home | BYOSE ",
-        "/contact": "Contact Us | BYOSE",
-        "/news": "New & Blog | BYOSE",
-        "/presence-eye": "PresenceEye | BYOSE",
-        "/b-academy": "B-Academy | BYOSE ",
-        "/b-store": "B-Store | BYOSE",
-        "/b-tech-labs": "B-Tech Labs | BYOSE",
-        "/we-are": "Who We Are | BYOSE",
-        "/signup": "Create Account | BYOSE",
+        "/home": "Home | BYOSE Tech -Build Your Own Solutions Everywhere",
+        "/contact": "Contact Us | BYOSE Tech",
+        "/news": "New & Blog | BYOSE Tech",
+        "/presence-eye": "PresenceEye | BYOSE Tech",
+        "/b-academy": "B-Academy | BYOSE Tech",
+        "/b-store": "B-Store | BYOSE Tech",
+        "/b-tech-labs": "B-Tech Labs | BYOSE Tech",
+        "/we-are": "Who We Are | BYOSE Tech",
+        "/signup": "Create Account | BYOSE Tech",
         "/login": "Login | BYOSE",
+        "/dashboard": "DASHBOARD | BYOSE Tech",
     };
     useUpdateTitle(titleMap);
     return (

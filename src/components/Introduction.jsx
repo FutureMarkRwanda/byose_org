@@ -1,7 +1,7 @@
 // eslint-disable-next-line no-unused-vars
 import React from 'react';
 import Video from "./Video.jsx";
-const bgImage = " /assests/images/undraw_join_6quk.svg";
+const bgImage = " /assets/images/undraw_join_6quk.svg";
 import {BiSolidQuoteAltRight} from "react-icons/bi";
 function Introduction() {
     return (
