@@ -142,7 +142,7 @@ export const decodeToken =() => {
     }
 };
 
-export  function combineFirstChars(sentence) {
+export  function combineInitials(sentence) {
     // Split the sentence into words
     const words = sentence.split(' ');
 
@@ -225,4 +225,31 @@ export const getTextColor = (hex) => {
         return `rgb(${r - 100 < 0 ? 0 : r - 120}, ${g - 100 < 0 ? 0 : g - 120}, ${b - 100 < 0 ? 0 : b - 120})`;
     }
 };
+
+// Mostly in  Presence Eye Admin Portal
+
+export function formatDate(d) {
+    if (!d) return "—";
+    try {
+        const dt = new Date(d);
+        return dt.toLocaleDateString();
+    } catch {
+        return d;
+    }
+}
+
+export function getOwnerLabel(owner) {
+    if (!owner) return "—";
+    if (typeof owner === "string") return owner;
+    if (owner.email) return owner.email;
+    if (owner.firstName || owner.lastName) return `${owner.firstName || ""} ${owner.lastName || ""}`.trim();
+    return owner._id || "owner";
+}
+
+export function lastNChars(str, n) {
+  if (typeof str !== "string") return "";
+  if (typeof n !== "number" || n <= 0) return "";
+  return str.slice(-n);
+}
+
 
