@@ -7,7 +7,7 @@ const AddRemoteModal = ({ isOpen, onClose, onCreated }) => {
   const [hasHardware, setHasHardware] = useState(false);
   const [powered, setPowered] = useState('BYOSE Tech');
   const [manufacture, setManufacture] = useState('BYOSE Tech Labs');
-  const [version, setVersion] = useState('1.0.0');
+  const [version, setVersion] = useState('2.0.0');
   const [buttons, setButtons] = useState([{ buttonType: 'push' }]);
   const [loading, setLoading] = useState(false);
 

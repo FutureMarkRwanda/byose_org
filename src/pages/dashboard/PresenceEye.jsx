@@ -333,6 +333,16 @@ export default function PresenceEyeAdmin() {
         }
     }
 
+    const handleRemoteStatus = async (remote_id,isEnabled) =>{
+        try {
+            const {data, error: fetchErr} = await patchData(API.REMOTES+`/change-status/${remote_id}`,{isEnabled:!isEnabled} ,returnToken());
+            if (fetchErr) throw new Error(fetchErr);
+            window.location.reload();
+        }catch (error) {
+            showNotification(error.message, 'error');
+        }
+    }
+
     /* ---------- Render ---------- */
     return (
         <div className="p-6 bg-gray-50 min-h-screen text-gray-800">
@@ -848,7 +858,7 @@ export default function PresenceEyeAdmin() {
 
             {/* Switched ButtonModal to RemoteDetailsModal */}
             {selectedRemote && <RemoteDetailsModal remote={selectedRemote} onClose={() => setSelectedRemote(null)}
-                                            copyToClipboard={copyToClipboard} handleAddHadware={handleAddingHardware} handleTestingHardware={handleTestingHardware}/> }
+                                            copyToClipboard={copyToClipboard} handleAddHadware={handleAddingHardware} handleTestingHardware={handleTestingHardware} handleRemoteStatus={handleRemoteStatus}/> }
 
             {selectedExtension &&
                 <ExtensionModal extension={selectedExtension} onClose={() => setSelectedExtension(null)}
