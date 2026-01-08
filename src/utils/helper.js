@@ -1,148 +1,175 @@
-
 import {jwtDecode} from "jwt-decode";
 import axios from "axios";
+
 const API_KEY = import.meta.env.VITE_API_KEY; // load from Vite env
 
 export async function fetchData(url, token) {
-  try {
-    const response = await axios.get(url, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "x-api-key": API_KEY,
-      },
-    });
-    return { data: response.data, message: response.data.message };
-  } catch (error) {
-    let errorMessage = "Server is down";
+    try {
+        const response = await axios.get(url, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "x-api-key": API_KEY,
+            },
+        });
+        return {data: response.data, message: response.data.message};
+    } catch (error) {
+        let errorMessage = "Server is down";
 
-    if (error.response?.data?.message) {
-      errorMessage = error.response.data.message;
-    } else if (error.message) {
-      errorMessage = error.message;
+        if (error.response?.data?.message) {
+            errorMessage = error.response.data.message;
+        } else if (error.message) {
+            errorMessage = error.message;
+        }
+
+        return {error: errorMessage, data: -1};
     }
-
-    return { error: errorMessage, data: -1 };
-  }
 }
 
 export async function sendData(url, data, token) {
-  try {
-    const response = await axios.post(url, data, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "x-api-key": API_KEY,
-      },
-    });
-    return { data: response.data, message: response.data.message };
-  } catch (error) {
-    let errorMessage = "Server is down";
+    try {
+        const response = await axios.post(url, data, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "x-api-key": API_KEY,
+            },
+        });
+        return {data: response.data, message: response.data.message};
+    } catch (error) {
+        let errorMessage = "Server is down";
 
-    if (error.response?.data?.message) {
-      errorMessage = error.response.data.message;
-    } else if (error.message) {
-      errorMessage = error.message;
+        if (error.response?.data?.message) {
+            errorMessage = error.response.data.message;
+        } else if (error.message) {
+            errorMessage = error.message;
+        }
+
+        return {error: errorMessage, data: -1};
     }
-
-    return { error: errorMessage, data: -1 };
-  }
 }
 
+
 export async function updateData(url, data, token) {
-  try {
-    const response = await axios.put(url, data, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "x-api-key": API_KEY,
-      },
-    });
-    return { data: response.data, message: response.data.message };
-  } catch (error) {
-    let errorMessage = "Server is down";
+    try {
+        const response = await axios.put(url, data, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "x-api-key": API_KEY,
+            },
+        });
+        return {data: response.data, message: response.data.message};
+    } catch (error) {
+        let errorMessage = "Server is down";
 
-    if (error.response?.data?.message) {
-      errorMessage = error.response.data.message;
-    } else if (error.message) {
-      errorMessage = error.message;
+        if (error.response?.data?.message) {
+            errorMessage = error.response.data.message;
+        } else if (error.message) {
+            errorMessage = error.message;
+        }
+
+        return {error: errorMessage, data: -1};
     }
-
-    return { error: errorMessage, data: -1 };
-  }
 }
 
 export async function deleteData(url, token) {
-  try {
-    const response = await axios.delete(url, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "x-api-key": API_KEY,
-      },
-    });
+    try {
+        const response = await axios.delete(url, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "x-api-key": API_KEY,
+            },
+        });
 
-    return { data: response.data, message: response.data.message };
-  } catch (error) {
-    let errorMessage = "Server is down";
+        return {data: response.data, message: response.data.message};
+    } catch (error) {
+        let errorMessage = "Server is down";
 
-    if (error.response?.data?.message) {
-      errorMessage = error.response.data.message;
-    } else if (error.message) {
-      errorMessage = error.message;
+        if (error.response?.data?.message) {
+            errorMessage = error.response.data.message;
+        } else if (error.message) {
+            errorMessage = error.message;
+        }
+
+        return {error: errorMessage, data: -1};
     }
-
-    return { error: errorMessage, data: -1 };
-  }
 }
 
 export async function patchData(url, data, token) {
-  try {
-    const response = await axios.patch(url, data, {
+    try {
+        const response = await axios.patch(url, data, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "x-api-key": API_KEY,
+            },
+        });
+
+        return {data: response.data, message: response.data.message};
+    } catch (error) {
+        let errorMessage = "Server is down";
+
+        if (error.response?.data?.message) {
+            errorMessage = error.response.data.message;
+        } else if (error.message) {
+            errorMessage = error.message;
+        }
+
+        return {error: errorMessage, data: -1};
+    }
+}
+
+export async function getImageData(url, data, token) {
+    try {
+        const response = await axios.post(url, data, {
       headers: {
         Authorization: `Bearer ${token}`,
         "x-api-key": API_KEY,
+        "Content-Type": "application/json",
       },
+      responseType: "blob", // ⭐ Important for PNG or other binary data
     });
+        const blobUrl = URL.createObjectURL(response.data);
+        return {data: blobUrl, message:"success"};
+    } catch (error) {
+        let errorMessage = "Server is down";
 
-    return { data: response.data, message: response.data.message };
-  } catch (error) {
-    let errorMessage = "Server is down";
+        if (error.response?.data?.message) {
+            errorMessage = error.response.data.message;
+        } else if (error.message) {
+            errorMessage = error.message;
+        }
 
-    if (error.response?.data?.message) {
-      errorMessage = error.response.data.message;
-    } else if (error.message) {
-      errorMessage = error.message;
+        return {error: errorMessage, data: -1};
     }
-
-    return { error: errorMessage, data: -1 };
-  }
 }
 
-export function handleLogout(tokenName=null,pathName){
-    localStorage.removeItem(tokenName||'movie-rw');
-    window.location = pathName||"/dashboard";
-}
-export function returnToken(tokenName){
-    return localStorage.getItem(tokenName||'movie-rw');
+export function handleLogout(tokenName = null, pathName) {
+    localStorage.removeItem(tokenName || 'movie-rw');
+    window.location = pathName || "/dashboard";
 }
 
-export function setToken(token){
-    localStorage.setItem('movie-rw',token);
+export function returnToken(tokenName) {
+    return localStorage.getItem(tokenName || 'movie-rw');
 }
 
-export const decodeToken =() => {
+export function setToken(token) {
+    localStorage.setItem('movie-rw', token);
+}
+
+export const decodeToken = () => {
     const token = localStorage.getItem('movie-rw'); // Replace 'your_token_key' with the actual key used in local storage
     if (!token) {
         return null;
     }
     try {
         const decoded = jwtDecode(token);
-        const { firstName, lastName, ...otherProperties } = decoded;
-        return { firstName, lastName, ...otherProperties };
+        const {firstName, lastName, ...otherProperties} = decoded;
+        return {firstName, lastName, ...otherProperties};
         // eslint-disable-next-line no-unused-vars
     } catch (error) {
         return null;
     }
 };
 
-export  function combineInitials(sentence) {
+export function combineInitials(sentence) {
     // Split the sentence into words
     const words = sentence.split(' ');
 
@@ -154,8 +181,8 @@ export  function combineInitials(sentence) {
 }
 
 
-export  function containsKeyWord(text, keyword) {
-    if (typeof text !== "string"||typeof keyword !== "string") {
+export function containsKeyWord(text, keyword) {
+    if (typeof text !== "string" || typeof keyword !== "string") {
         throw new Error("The input must be a string");
     }
     return text.toLowerCase().includes(keyword);
@@ -170,41 +197,40 @@ export function shuffleArray(array) {
 }
 
 export function findObjectByKeyword(array, property, keyword) {
-  // Check if inputs are valid
-  if (!Array.isArray(array) || !property || typeof keyword !== 'string') {
-    return null;
-  }
-
-  // Find the first object where the specified property contains the keyword
-  return array.find(obj => {
-    // Ensure the object has the property and it's a string
-    if (obj && typeof obj[property] === 'string') {
-      // Case-insensitive search for the keyword
-      return obj[property].toLowerCase().includes(keyword.toLowerCase());
+    // Check if inputs are valid
+    if (!Array.isArray(array) || !property || typeof keyword !== 'string') {
+        return null;
     }
-    return false;
-  }) || null; // Return null if no match is found
+
+    // Find the first object where the specified property contains the keyword
+    return array.find(obj => {
+        // Ensure the object has the property and it's a string
+        if (obj && typeof obj[property] === 'string') {
+            // Case-insensitive search for the keyword
+            return obj[property].toLowerCase().includes(keyword.toLowerCase());
+        }
+        return false;
+    }) || null; // Return null if no match is found
 }
 
 
 export function generateYouTubeEmbedURL(url) {
-  try {
-    const parsedUrl = new URL(url);
-    const videoId = parsedUrl.searchParams.get('v');
+    try {
+        const parsedUrl = new URL(url);
+        const videoId = parsedUrl.searchParams.get('v');
 
-    if (!videoId) {
-      // throw new Error('Invalid YouTube URL: missing video ID');
+        if (!videoId) {
+            // throw new Error('Invalid YouTube URL: missing video ID');
+            return null;
+        }
+
+        // Construct the embed URL with desired parameters
+        return `https://www.youtube.com/embed/${videoId}?loop=1&autoplay=1&fs=0&controls=0&modestbranding=1&enablejsapi=1&mute=1&start=0&playlist=${videoId}`;
+    } catch (error) {
+        // console.error(error);
         return null;
     }
-
-    // Construct the embed URL with desired parameters
-    return `https://www.youtube.com/embed/${videoId}?loop=1&autoplay=1&fs=0&controls=0&modestbranding=1&enablejsapi=1&mute=1&start=0&playlist=${videoId}`;
-  } catch (error) {
-    // console.error(error);
-    return null;
-  }
 }
-
 
 
 export const getTextColor = (hex) => {
@@ -247,9 +273,17 @@ export function getOwnerLabel(owner) {
 }
 
 export function lastNChars(str, n) {
-  if (typeof str !== "string") return "";
-  if (typeof n !== "number" || n <= 0) return "";
-  return str.slice(-n);
+    if (typeof str !== "string") return "";
+    if (typeof n !== "number" || n <= 0) return "";
+    return str.slice(-n);
 }
 
+export const copyToClipboard = async (text, label = "copied" ,showNotification) => {
+        try {
+            await navigator.clipboard.writeText(String(text));
+            showNotification(`${label} copied to clipboard`)
+        } catch (err) {
+            showNotification('Failed to copy'+err.message);
+        }
+    };
 

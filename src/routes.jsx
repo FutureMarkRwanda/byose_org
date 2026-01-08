@@ -14,6 +14,8 @@ import AdminMovies from "./pages/dashboard/AdminMovies.jsx";
 import Feedbacks from "./pages/dashboard/Feedbacks.jsx";
 import PresenceEyeAdmin from "./pages/dashboard/PresenceEye.jsx";
 import { FaFilePowerpoint } from "react-icons/fa6";
+import {RiRemoteControlFill} from "react-icons/ri";
+import OnlineDevicesDashboard from "./pages/dashboard/OnlineDevicesDashboard.jsx";
 
 const icon = {
     className: "w-5 h-5 text-inherit",
@@ -34,6 +36,12 @@ export const routes = [
                 name: "Presence Eye",
                 path: "/dashboard/presence-eye",
                 element: <PresenceEyeAdmin/>,
+            },
+            {
+                icon: <RiRemoteControlFill {...icon} />,
+                name: "Live Buttons",
+                path: "/dashboard/presence-eye-buttons",
+                element: <OnlineDevicesDashboard/>,
             },
             {
                 icon: <ChartBarSquareIcon {...icon} />,

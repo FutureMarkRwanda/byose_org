@@ -1,5 +1,13 @@
 import React, {useEffect, useMemo, useState} from "react";
-import {combineInitials, fetchData, formatDate, getOwnerLabel, patchData, returnToken} from "../../utils/helper.js";
+import {
+    combineInitials,
+    copyToClipboard,
+    fetchData,
+    formatDate,
+    getOwnerLabel,
+    patchData,
+    returnToken
+} from "../../utils/helper.js";
 import {presence_server} from "../../config/server_api.js";
 import AddRemoteModal from "../../components/AddRemoteModal.jsx";
 import {useNotification} from "../../context/NotificationContext.jsx";
@@ -101,15 +109,6 @@ export default function PresenceEyeAdmin() {
 
     const handleRemoteCreated = () => {
         load();
-    };
-
-    const copyToClipboard = async (text, label = "copied") => {
-        try {
-            await navigator.clipboard.writeText(String(text));
-            showNotification(`${label} copied to clipboard`)
-        } catch (err) {
-            showNotification('Failed to copy'+err.message);
-        }
     };
 
     /* ---------- Filters & derived lists ---------- */
@@ -512,7 +511,7 @@ export default function PresenceEyeAdmin() {
                                                             className="text-sm text-gray-500">{formatDate(u.createdAt)}</div>
 
                                                         <div className="flex items-center justify-end gap-2">
-                                                            <button onClick={() => copyToClipboard(u._id, "User ID")}
+                                                            <button onClick={() => copyToClipboard(u._id, "User ID",showNotification)}
                                                                     className="px-2 py-1 text-xs rounded bg-gray-100 hover:bg-gray-200">
                                                                 Copy ID
                                                             </button>
@@ -674,7 +673,7 @@ export default function PresenceEyeAdmin() {
                                         <div>
                                             {filteredRemotes.map((r) => (
                                                 <div key={r._id}
-                                                     className="grid grid-cols-1 sm:grid-cols-11 gap-4 p-3 items-center border-b last:border-b-0">
+                                                     className={`grid grid-cols-1 sm:grid-cols-11 gap-4 p-3 items-center border-b last:border-b-0 ${r.state==='sold'&&'bg-red-100/50'} `}>
                                                     <div className="col-span-3">
                                                         <div className="font-medium text-sm">{r.serialNumber}</div>
                                                         <div className="text-xs text-gray-500">{r.manufacture}</div>
