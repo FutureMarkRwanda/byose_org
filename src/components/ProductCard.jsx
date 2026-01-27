@@ -1,19 +1,27 @@
-// eslint-disable-next-line no-unused-vars
 import React from 'react';
-import {MdDoubleArrow} from "react-icons/md";
+import { MdArrowForward } from "react-icons/md";
 
-// eslint-disable-next-line react/prop-types
-function ProductCard({product}) {
+function ProductCard({ product }) {
     return (
-        <div className="mx-auto px-5">
-            <div className="max-w-xs cursor-pointer rounded-lg bg-gray-100 p-2 shadow duration-150 hover:scale-105 hover:shadow-md">
-                     {/* eslint-disable-next-line react/prop-types */}
-                <img className="w-full rounded-lg object-cover object-center" src={product.image}
-                     alt="product"/>
-                {/* eslint-disable-next-line react/prop-types */}
-                <p className="my-4 pl-4 font-bold text-gray-800">{product.name}</p>
-                {/* eslint-disable-next-line react/prop-types */}
-                <a  href={product.link} target="_blank" rel="noopener noreferrer" className="flex inline-block py-2 px-7 active:scale-110 text-base text-body-color font-medium hover:text-[#195C51] transition ">Find Your Favorite <MdDoubleArrow size={25} /></a>
+        <div className="google-card p-4 flex flex-col h-full">
+            <div className="overflow-hidden rounded-2xl bg-gray-50 mb-6">
+                <img 
+                    className="w-full aspect-square object-contain transition-transform duration-500 hover:scale-110" 
+                    src={product.image}
+                    alt={product.name}
+                />
+            </div>
+            <div className="flex flex-col flex-grow">
+                <h3 className="text-xl font-bold text-[#333333] mb-4 px-2">{product.name}</h3>
+                <a  
+                    href={product.link} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="mt-auto group flex items-center justify-between py-3 px-4 rounded-xl bg-gray-50 hover:bg-[#195C51] hover:text-white transition-all font-medium text-[#195C51]"
+                >
+                    Explore Product
+                    <MdArrowForward className="transform group-hover:translate-x-1 transition-transform" size={20} />
+                </a>
             </div>
         </div>
     );

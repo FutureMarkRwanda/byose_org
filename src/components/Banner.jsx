@@ -1,36 +1,39 @@
-// eslint-disable-next-line no-unused-vars
 import React from 'react';
 import Video from "./Video.jsx";
 
 function Banner() {
     return (
-    <div className="bg-gray-100">
-        <div className="container mx-auto py-10">
-            <div className={`flex md:flex-row flex-col gap-4 justify-between align-middle`}>
-                <div className={`md:max-w-[40%] max-w-[90%] flex flex-col justify-center align-middle items-center`}>
-                    <div className={`px-8 flex flex-col gap-3 pt-12 `}>
-                        <h1 className={`md:text-3xl text-xl font-medium`}>
-                            Smart Living,<br/> Automate your space effortlessly with PresenceEye Pro.
-                        </h1>
-                        <p className={`md:text-xl text-xl font-normal`}>
-                            Start the new year with bold innovations and cutting-edge automation solutions from B-Tech Labs.
-                        </p>
-                        <div className={`py-5`}>
-                            <a href={`/presence-eye`} className={`text-white active:scale-110 m-1 p-3 px-4 rounded-full font-medium bg-gradient-to-tr from-[#195C51] via-gray-900  to-[#195C51] hover:bg-gradient-to-tl hover:from-[#195C51] hover:via-gray-900 hover:to-[#195C51] `}>
-                                Shop now
-                            </a>
-                            <a href={`/presence-eye/presents?slideIndex=0&stepIndex=0`} target="_blank" rel="noopener noreferrer" className="inline-block py-2 px-7 active:scale-110 text-base text-body-color font-medium hover:text-gray-700 transition ">
-                              Read more →
-                            </a>
-                        </div>
+        <div className="container mx-auto px-4">
+            <div className="grid lg:grid-cols-2 gap-12 items-center google-card p-8 md:p-16">
+                <div className="space-y-8">
+                    <div className="inline-block px-4 py-1 rounded-full bg-[#195C51]/10 text-[#195C51] text-sm font-bold uppercase tracking-widest">
+                        New Release: PresenceEye Pro
+                    </div>
+                    <h2 className="text-4xl md:text-5xl font-bold text-[#333333] leading-tight">
+                        Smart Living, Reimagined.
+                    </h2>
+                    <p className="text-lg text-gray-600 leading-relaxed">
+                        Automate your space effortlessly. Start the new year with bold innovations 
+                        and cutting-edge automation solutions from B-Tech Labs.
+                    </p>
+                    <div className="flex flex-wrap gap-4">
+                        <a href="/presence-eye" className="bg-[#195C51] text-white px-8 py-4 rounded-2xl font-bold hover:bg-[#0E3A32] shadow-lg transition-transform active:scale-95">
+                            Shop PresenceEye
+                        </a>
+                        <a href="/presence-eye/presents" className="px-8 py-4 rounded-2xl font-bold border-2 border-[#EDEDED] text-[#333333] hover:bg-gray-50 transition-colors">
+                            View Roadmap →
+                        </a>
                     </div>
                 </div>
-                <div className={`flex justify-end`}>
-                    <Video url={`https://www.youtube.com/watch?v=79Joly2-FBk`}/>
+                <div className="relative group ">
+                    {/* Futuristic Glow Effect behind video */}
+                    <div className="absolute -inset-4 bg-gradient-to-tr from-[#195C51] to-[#50E3C2] opacity-20 blur-3xl group-hover:opacity-30 transition-opacity"></div>
+                    <div className="relative rounded-3xl overflow-hidden ">
+                        <Video url="https://www.youtube.com/watch?v=79Joly2-FBk" />
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
     );
 }
 

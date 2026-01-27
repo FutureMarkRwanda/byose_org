@@ -1,23 +1,31 @@
-// eslint-disable-next-line no-unused-vars
 import React from 'react';
-const image = " /assets/images/wave-vr-haikei.svg";
 
 function OurStory() {
     return (
-        <div className={`bg-gray-100 bg-no-repeat bg-right-top flex`} style={{ backgroundImage: `url(${image})` }}>
-            <div className={`container mx-auto md:py-20 py-16 p-6 flex flex-col gap-4 `}>
-                <div className={`bg-gray-100 rounded-lg md:w-1/2 w-4/5 py-3`}>
-                    <h2 className={`text-start font-bold `}>OUR STORY</h2>
-                    <h1 className={` text-start font-bold md:text-4xl text-2xl `}>The Narrative That Defines Us</h1>
+        <section className="bg-white py-32">
+            <div className="container mx-auto px-6">
+                <div className="grid lg:grid-cols-2 gap-20 items-start">
+                    <div className="space-y-6 sticky top-32">
+                        <h2 className="text-[#195C51] font-bold uppercase tracking-[0.2em] text-sm">The Narrative</h2>
+                        <h1 className="text-4xl md:text-6xl font-bold text-[#333333]">A Journey of <br/>Calculated Risk.</h1>
+                        <div className="w-20 h-1 bg-[#195C51]"></div>
+                    </div>
+                    
+                    <div className="space-y-8 text-lg font-light text-gray-600 leading-loose italic border-l-2 border-[#F5F5F5] pl-8">
+                        <p>
+                            <span className="text-3xl font-bold text-[#195C51] not-italic">BYOSE</span> began with a simple question: Why wait for solutions when we can build them? What started as a small passion project in AI and robotics grew into a movement for localized innovation.
+                        </p>
+                        <p>
+                            We believe that technology shouldn't just be imported; it should be created where it's needed most. Our story is one of bridging the gap between imagination and hardware, turning microcontrollers and lines of code into tools for smarter living.
+                        </p>
+                        <p>
+                            Today, BYOSE stands as a hub for research, education, and development, committed to making "Made in Africa" synonymous with "High-End Intelligence."
+                        </p>
+                    </div>
                 </div>
-                <p className={`text-start pl-6 md:w-1/2 sm:w-2/3 text-gray-600 font-medium italic bg-gray-100 rounded-lg`}>
-                    <b>BYOSE</b> began with a vision to transform challenges into opportunities through innovation, creativity, and technology. Inspired by the belief that solutions to local and global problems can emerge from anyone, anywhere, BYOSE was founded to empower young innovators to build their own solutions. Starting as a small initiative driven by passion for AI and robotics, it grew into a platform that fosters learning, creativity, and technological advancement. With a focus on education, digital innovation, and cutting-edge projects, BYOSE strives to inspire and lead a new wave of innovation local and beyond.
-                </p>
             </div>
-        </div>
+        </section>
     );
 }
 
 export default OurStory;
-
-

@@ -1,108 +1,47 @@
-import React, { useState } from 'react';
-import { useLocation } from 'react-router-dom';
-import {LuMessageCircleQuestion} from "react-icons/lu"; // Import useLocation hook
+import React, { useState, useEffect } from 'react';
+import { useLocation, Link } from 'react-router-dom';
+import { LuMessageCircleQuestion } from "react-icons/lu";
 
 function Header() {
-    const [menuOpen, setMenuOpen] = useState(false);
-    const location = useLocation(); // Get the current location
+    const [scrolled, setScrolled] = useState(false);
+    const location = useLocation();
 
-    const toggleMenu = () => {
-        setMenuOpen(!menuOpen);
-    };
+    useEffect(() => {
+        const handleScroll = () => setScrolled(window.scrollY > 20);
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
 
-    const getActiveClass = (path) => {
-        return location.pathname === path
-            ? 'text-[#38A368] ' // Active link class
-            : 'text-white'; // Inactive link class
-    };
+    const getActiveClass = (path) => 
+        location.pathname === path ? 'text-[#195C51] font-semibold' : 'text-[#333333] hover:text-[#195C51]';
 
     return (
-        <nav className="border-gray-200 bg-gray-950 mt-8 md:container w-[95%] md:mx-auto ml-3 md:rounded-3xl bg-opacity-95 rounded shadow-xl fixed z-50">
-            <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
-                <a href="/home" className="flex items-center space-x-3 rtl:space-x-reverse">
-                    <img src="/assets/icons/Logo03.svg" className="h-8" alt="Flowbite Logo" />
-                    <span className="self-center text-2xl font-semibold whitespace-nowrap text-white">BYOSE</span>
-                </a>
-                <div className="flex md:order-2">
-                    <button
-                        type="button"
-                        className="md:hidden text-gray-400 hover:bg-gray-600 focus:outline-none focus:ring-4 focus:ring-gray-700 rounded-lg text-sm p-2.5 me-1"
-                        onClick={toggleMenu}
+        <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${scrolled ? 'py-3' : 'py-6'}`}>
+            <div className={`mx-auto max-w-7xl px-4`}>
+                <div className={`glass-header rounded-full px-8 py-3 flex items-center justify-between shadow-sm`}>
+                    <Link to="/home" className="flex items-center gap-2">
+                        <img src="/assets/icons/Logo01.svg" className="h-8 w-8" alt="BYOSE Logo" />
+                        <span className="text-xl font-bold tracking-tight text-[#195C51]">BYOSE</span>
+                    </Link>
+
+                    <div className="hidden md:flex items-center gap-8">
+                        {['/home', '/', '/we-are', '/presence-eye'].map((path) => (
+                            <Link 
+                                key={path} 
+                                to={path} 
+                                className={`text-sm font-medium uppercase tracking-wider ${getActiveClass(path)}`}
+                            >
+                                {path === '/' ? 'About' : path.replace('/', '').replace('-', ' ')}
+                            </Link>
+                        ))}
+                    </div>
+
+                    <Link 
+                        to="/contact" 
+                        className="bg-[#195C51] text-white px-6 py-2 rounded-full text-sm font-medium flex items-center gap-2 hover:bg-[#0E3A32] shadow-md active:scale-95"
                     >
-                        <svg
-                            className="w-5 h-5"
-                            aria-hidden="true"
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 20 20"
-                        >
-                            <path
-                                stroke="currentColor"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth="2"
-                                d="M1 1h15M1 7h15M1 13h15"
-                            />
-                        </svg>
-                        <span className="sr-only">Open main menu</span>
-                    </button>
-                </div>
-                <div
-                    className={`items-center justify-between w-full md:flex md:w-auto md:order-1 ${
-                        menuOpen ? '' : 'hidden'
-                    }`}
-                    id="navbar-search"
-                >
-                    <ul className="flex flex-col p-4 md:p-0 mt-4 font-medium border rounded-lg md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0 border-gray-700">
-                        <li>
-                            <a
-                                href="/home"
-                                className={`block py-2 px-3 rounded md:p-0 md:hover:text-[#38A368] ${getActiveClass('/home')}`}
-                            >
-                                Home
-                            </a>
-                        </li>
-                        <li>
-                            <a
-                                href="/"
-                                className={`block py-2 px-3 rounded md:p-0 md:hover:text-[#38A368] ${getActiveClass('/')}`}
-                            >
-                                About
-                            </a>
-                        </li>
-                        <li>
-                            <a
-                                href="/#services"
-                                className={`block py-2 px-3 rounded md:p-0 md:hover:text-[#38A368] ${getActiveClass('/#servicesz')}`}
-                            >
-                                Services
-                            </a>
-                        </li>
-                        <li>
-                            <a
-                                href="/we-are"
-                                className={`block py-2 px-3 rounded md:p-0 md:hover:text-[#38A368] ${getActiveClass('/we-are')}`}
-                            >
-                                Who we are
-                            </a>
-                        </li>
-                        <li>
-                            <a
-                                href="/presence-eye"
-                                className={`block py-2 px-3 rounded md:p-0 md:hover:text-[#38A368] ${getActiveClass('/presence-eye')}`}
-                            >
-                                Presence Eye
-                            </a>
-                        </li>
-                        <li>
-                            <a
-                                href="/contact"
-                                className={`block flex text-wrap gap-3  py-2 px-3 rounded md:p-0 md:hover:text-[#38A368] ${getActiveClass('/contact')}`}
-                            >
-                                Get in Touch<LuMessageCircleQuestion size={20} />
-                            </a>
-                        </li>
-                    </ul>
+                        Get in Touch <LuMessageCircleQuestion />
+                    </Link>
                 </div>
             </div>
         </nav>

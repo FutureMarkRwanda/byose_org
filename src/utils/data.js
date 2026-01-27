@@ -240,14 +240,28 @@ Prince’s leadership is marked by his deep interest in leveraging technology to
     {
         id: 113,
         name:"Mugisha Shami Innocent",
-        role:"Chief Strategy Officer",
+        role:"Chief Technical Officer",
         images:[
             "https://res.cloudinary.com/ddsojj7zo/image/upload/v1754999837/WhatsApp_Image_2025-08-11_at_07.45.38_xtbwmg.jpg",
             "https://res.cloudinary.com/ddsojj7zo/image/upload/v1754999837/WhatsApp_Image_2025-08-11_at_07.45.37_dsiayw.jpg",
             "https://res.cloudinary.com/ddsojj7zo/image/upload/v1754999837/WhatsApp_Image_2025-08-11_at_07.45.382_y6x8od.jpg",
             "https://res.cloudinary.com/ddsojj7zo/image/upload/v1754999836/WhatsApp_Image_2025-08-11_at_10.49.12_p1kfqy.jpg"
         ],
-        more: "",
+        more:`
+Mugisha Shami Innocent is the Chief Technical Officer (CTO) of BYOSE, where he leads the company’s technological vision and oversees the development of innovative robotics and embedded systems solutions. As CTO, Innocent is responsible for driving BYOSE’s research and development efforts, ensuring that the company remains at the forefront of technological advancements in AI, robotics, and smart automation.
+        
+With a strong background in ** UX Design, Software Development, and Embedded Systems**, Innocent brings a wealth of technical expertise to BYOSE. He has been instrumental in the creation and refinement of key BYOSE projects, including **[PresenceEye](https://www.byose.info/presence-eye)**, an AI-powered smart plug extension board, and various educational platforms like **[B-Academy](https://academy.byose.info/)**.
+        
+Innocent’s leadership in technology is characterized by his commitment to innovation and quality. He works closely with the CEO and President to align BYOSE’s technical strategies with its broader mission of empowering individuals to build their own solutions everywhere. His focus on user-centric design and cutting-edge technology ensures that BYOSE’s products are not only innovative but also accessible and impactful.
+
+**Mugisha .S .I**
+“Technology is the bridge between imagination and reality — my role is to build that bridge stronger every day.”
+        
+**Social Links:**
+
+* [GitHub](https://github.com/qubyte7)
+* [Instagram](https://www.instagram.com/bless__7002/)
+        `,
         link: "mugisha-shami-innocent"
     },
     {
@@ -275,7 +289,7 @@ At BYOSE, Yanice is responsible for identifying new markets, fostering global pa
 
         `,
         color: "!bg-[#f2f2e6]",
-        link: "murangwa-shami-innocent"
+        link: "murangwa-shami-yanice"
     },
     // {
     //     id: 114,

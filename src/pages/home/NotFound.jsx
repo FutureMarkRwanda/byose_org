@@ -1,41 +1,53 @@
-// eslint-disable-next-line no-unused-vars
 import React from 'react';
+import { MdOutlineWest } from "react-icons/md";
+import { Link } from 'react-router-dom';
 
 function NotFound() {
     return (
-        <div
-            className="min-h-full  flex flex-col gap-5 justify-center items-center px-4 sm:px-6 lg:px-8">
-            <div className="max-w-md w-full space-y-8 text-center">
-                <div className="mb-8">
-                    <h2 className="mt-6 text-6xl font-extrabold text-gray-900 ">404</h2>
-                    <p className="mt-1 text-3xl font-bold text-gray-900 ">Page not found</p>
-                    {/* eslint-disable-next-line react/no-unescaped-entities */}
-                    <p className="mt-2 text-sm text-gray-600 ">Sorry, we couldn't find this page&nbsp;
-                        {/* eslint-disable-next-line react/no-unescaped-entities */}
-                        you're looking for. <strong>Could still be in progress.</strong></p>
-                </div>
-                <div className="mt-2">
-                    <a href="/home"
-                       className="text-white hover:scale-105 active:scale-125 bg-gradient-to-tr from-[#195C51] via-gray-900  to-[#195C51] inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md  focus:outline-none focus:ring-2 focus:ring-offset-2 ">
-                        <svg className="mr-2 -ml-1 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
-                                  d="M3 12h18m-9-9l9 9-9 9"/>
-                        </svg>
-                        Go back home
-                    </a>
-                </div>
-            </div>
-            <div className="w-full max-w-2xl">
-                <div className="relative flex flex-col gap-7">
-                    <hr/>
-                    <div className="relative flex justify-center">
-                        <span className="px-2  text-sm text-gray-500">
-                        If you think this is a mistake, please contact support
-                        </span>
+        <section className="min-h-[80vh] flex flex-col items-center justify-center bg-white px-6 py-8 relative overflow-hidden">
+            {/* Ethereal Background Accents */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#195C51]/5 rounded-full blur-[120px] -z-10"></div>
+            
+            <div className="text-center max-w-2xl space-y-8 animate-slide-entrance">
+                {/* Large Subtle Backdrop Text */}
+                <div className="relative">
+                    <h1 className="text-[12rem] md:text-[18rem] font-bold text-[#F5F5F5] select-none leading-none">
+                        404
+                    </h1>
+                    <div className="absolute inset-0 flex flex-col items-center justify-center pt-10">
+                        <h2 className="text-3xl md:text-5xl font-bold text-[#333333]">
+                            Lost in the <span className="text-[#195C51]">void?</span>
+                        </h2>
                     </div>
                 </div>
+
+                <div className="space-y-4">
+                    <p className="text-xl text-gray-500 font-light leading-relaxed">
+                        The solution you are looking for might have moved to another dimension. 
+                        Let’s get you back to the center of innovation.
+                    </p>
+                </div>
+
+                <div className="pt-8 flex flex-col sm:flex-row items-center justify-center gap-6">
+                    <Link
+                        to="/home"
+                        className="group flex items-center gap-3 bg-[#195C51] text-white px-10 py-4 rounded-2xl font-bold hover:bg-[#0E3A32] shadow-xl transition-all active:scale-95"
+                    >
+                        <MdOutlineWest className="transition-transform group-hover:-translate-x-1" size={20} />
+                        Return to Headquarters
+                    </Link>
+                    
+                    <Link
+                        to="/contact"
+                        className="text-sm font-bold uppercase tracking-widest text-gray-400 hover:text-[#195C51] transition-colors"
+                    >
+                        Report a technical glitch
+                    </Link>
+                </div>
             </div>
-        </div>
+
+           
+        </section>
     );
 }
 
