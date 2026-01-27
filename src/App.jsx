@@ -77,16 +77,34 @@ function App() {
                 </Route>
 
                 {/* Admin DashBoard */}
-                <Route path="/dashboard" element={<DashboardLayout />}>
-                    {routes.map(
-                        ({layout, pages}) =>
-                            layout === "dashboard" &&
-                            pages.map(({path, element}) => (
-                                // eslint-disable-next-line react/jsx-key
-                                <Route exact path={path} element={element}/>
-                            ))
-                    )}
-                </Route>
+{/* Admin DashBoard */}
+<Route path="/dashboard" element={<DashboardLayout />}>
+    {routes.map(({ layout, pages }) =>
+        layout === "dashboard" &&
+        pages.map((page) => {
+            // 1. If it's a normal page
+            if (!page.isDropdown) {
+                return (
+                    <Route 
+                        key={page.path} 
+                        index={page.path === ""} // Handle /dashboard as index
+                        path={page.path !== "" ? page.path : undefined} 
+                        element={page.element} 
+                    />
+                );
+            }
+            
+            // 2. If it's a dropdown, register all its subPages
+            return page.subPages.map((sub) => (
+                <Route 
+                    key={sub.path} 
+                    path={sub.path} // This is now 'byose-tv/feedbacks', etc.
+                    element={sub.element} 
+                />
+            ));
+        })
+    )}
+</Route>
 
                 <Route path="/auth" element={<Auth/>}>
                     {routes.map(
@@ -98,6 +116,8 @@ function App() {
                             ))
                     )}
                 </Route>
+
+                
             </Routes>
         </div>
     )

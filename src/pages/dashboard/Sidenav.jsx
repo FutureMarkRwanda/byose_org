@@ -1,112 +1,138 @@
-import PropTypes from "prop-types";
-import { Link, NavLink } from "react-router-dom";
-import { XMarkIcon } from "@heroicons/react/24/outline";
-import {
-  Button,
-  IconButton,
-  Typography,
-} from "@material-tailwind/react";
-import {setOpenSidenav, useMaterialTailwindController} from "../../context/navContext.jsx";
+import React, { useState, useEffect } from "react";
+import { Link, NavLink, useLocation } from "react-router-dom";
+import { ChevronDownIcon, ArrowLeftOnRectangleIcon, XMarkIcon } from "@heroicons/react/24/solid";
+import { handleLogout } from "../../utils/helper.js";
+import { useMaterialTailwindController, setOpenSidenav } from "../../context/navContext.jsx";
 
-// eslint-disable-next-line no-unused-vars
-export function Sidenav({ brandImg, brandName, routes }) {
-  const [controller, dispatch] = useMaterialTailwindController();
-  const { sidenavColor, sidenavType, openSidenav } = controller;
-  const sidenavTypes = {
-    dark: "bg-gradient-to-br from-gray-800 to-gray-900",
-    white: "bg-white shadow-sm",
-    transparent: "bg-transparent",
-  };
+export function Sidenav({ routes }) {
+    const [openDropdown, setOpenDropdown] = useState(null);
+    const [controller, dispatch] = useMaterialTailwindController();
+    const { openSidenav } = controller;
+    const { pathname } = useLocation();
 
-  return (
-    <aside
-      className={`${sidenavTypes[sidenavType]} ${
-        openSidenav ? "translate-x-0" : "-translate-x-80"
-      } fixed inset-0 z-50 my-4 ml-4 h-[calc(100vh-32px)] w-72 rounded-xl transition-transform duration-300 xl:translate-x-0 border border-blue-gray-100`}
-    >
-      <div
-        className={`relative`}
-      >
-        <Link to="/" className="py-6 px-8 text-center">
-          <Typography
-            variant="h6"
-            color={sidenavType === "dark" ? "white" : "blue-gray"}
-          >
-            {brandName}
-          </Typography>
-        </Link>
-        <IconButton
-          variant="text"
-          color="white"
-          size="sm"
-          ripple={false}
-          className="absolute right-0 top-0 grid rounded-br-none rounded-tl-none xl:hidden"
-          onClick={() => setOpenSidenav(dispatch, false)}
-        >
-          <XMarkIcon strokeWidth={2.5} className="h-5 w-5 text-white" />
-        </IconButton>
-      </div>
-      <div className="m-4">
-          {/* eslint-disable-next-line no-unused-vars */}
-        {routes.map(({ layout, title, pages }, key) => (
-          <ul key={key} className="mb-4 flex flex-col gap-1">
-            {title && (
-              <li className="mx-3.5 mt-4 mb-2">
-                <Typography
-                  variant="small"
-                  color={sidenavType === "dark" ? "white" : "blue-gray"}
-                  className="font-black uppercase opacity-75"
-                >
-                  {title}
-                </Typography>
-              </li>
-            )}
-            {pages.map(({ icon, name, path }) => (
-              <li key={name}>
-                <NavLink to={`${path}`}>
-                  {({ isActive }) => (
-                    <Button
-                      variant={isActive ? "gradient" : "text"}
-                      color={
-                        isActive
-                          ? sidenavColor
-                          : sidenavType === "dark"
-                          ? "white"
-                          : "blue-gray"
-                      }
-                      className="flex items-center gap-4 px-4 capitalize"
-                      fullWidth
+    // Auto-open dropdown if current path is a sub-page
+    useEffect(() => {
+        routes.forEach(group => {
+            group.pages.forEach(page => {
+                if (page.isDropdown && page.subPages.some(sub => pathname.includes(sub.path))) {
+                    setOpenDropdown(page.name);
+                }
+            });
+        });
+    }, [pathname, routes]);
+
+    const toggleDropdown = (name) => {
+        setOpenDropdown(openDropdown === name ? null : name);
+    };
+
+    return (
+        <>
+            {/* 1. MOBILE OVERLAY (Backdrop) */}
+            <div
+                className={`fixed inset-0 z-40 h-full w-full bg-black/50 transition-opacity duration-300 xl:hidden ${
+                    openSidenav ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+                }`}
+                onClick={() => setOpenSidenav(dispatch, false)}
+            />
+
+            {/* 2. THE SIDEBAR */}
+            <aside
+                className={`fixed inset-y-0 left-0 z-50 my-4 ml-4 w-72 rounded-3xl bg-white border border-gray-100 shadow-xl flex flex-col overflow-hidden transition-transform duration-300 
+                ${openSidenav ? "translate-x-0" : "-translate-x-[110%]"} xl:translate-x-0`}
+            >
+                {/* Header Section */}
+                <div className="p-8 border-b border-gray-50 relative">
+                    {/* Close button for mobile */}
+                    <button 
+                        onClick={() => setOpenSidenav(dispatch, false)}
+                        className="absolute top-4 right-4 p-2 text-gray-400 hover:bg-gray-100 rounded-full xl:hidden"
                     >
-                      {icon}
-                      <Typography
-                        color="inherit"
-                        className="font-medium capitalize"
-                      >
-                        {name}
-                      </Typography>
-                    </Button>
-                  )}
-                </NavLink>
-              </li>
-            ))}
-          </ul>
-        ))}
-      </div>
-    </aside>
-  );
+                        <XMarkIcon className="h-5 w-5" />
+                    </button>
+
+                    <Link to="/" className="flex items-center gap-3 mb-6" onClick={() => setOpenSidenav(dispatch, false)}>
+                        <img src="/assets/icons/Logo03.svg" className="h-8" alt="BYOSE" />
+                        <span className="text-xl font-bold text-[#195C51]">BYOSE Admin</span>
+                    </Link>
+                 
+                </div>
+
+                {/* Navigation Section */}
+                <div className="flex-grow overflow-y-auto p-4 custom-scrollbar">
+                    {routes.map(({ title, pages }, key) => (
+                        <div key={key} className="mb-6">
+                            {title && (
+                                <p className="px-4 mb-2 text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">
+                                    {title}
+                                </p>
+                            )}
+                            <ul className="space-y-1">
+                                {pages.map((page) => (
+                                    <li key={page.name}>
+                                        {page.isDropdown ? (
+                                            <div>
+                                                <button
+                                                    onClick={() => toggleDropdown(page.name)}
+                                                    className={`flex w-full items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition-all ${openDropdown === page.name ? 'bg-[#195C51]/5 text-[#195C51]' : 'text-gray-600 hover:bg-gray-50'}`}
+                                                >
+                                                    <div className="flex items-center gap-3">
+                                                        {page.icon}
+                                                        {page.name}
+                                                    </div>
+                                                    <ChevronDownIcon className={`w-4 h-4 transition-transform ${openDropdown === page.name ? 'rotate-180' : ''}`} />
+                                                </button>
+                                                {openDropdown === page.name && (
+                                                    <ul className="mt-1 ml-9 space-y-1 border-l border-gray-100">
+                                                        {page.subPages.map((sub) => (
+                                                            <li key={sub.path}>
+                                                                <NavLink 
+                                                                    to={`/dashboard/${sub.path}`}
+                                                                    onClick={() => setOpenSidenav(dispatch, false)} // Close on mobile tap
+                                                                >
+                                                                    {({ isActive }) => (
+                                                                        <span className={`block px-4 py-2 text-xs font-medium rounded-lg transition-colors ${isActive ? 'text-[#195C51] bg-[#195C51]/10 font-bold' : 'text-gray-500 hover:text-[#195C51]'}`}>
+                                                                            {sub.name}
+                                                                        </span>
+                                                                    )}
+                                                                </NavLink>
+                                                            </li>
+                                                        ))}
+                                                    </ul>
+                                                )}
+                                            </div>
+                                        ) : (
+                                            <NavLink 
+                                                to={`/dashboard/${page.path}`}
+                                                onClick={() => setOpenSidenav(dispatch, false)}
+                                            >
+                                                {({ isActive }) => (
+                                                    <div className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${isActive ? 'bg-[#195C51] text-white shadow-lg shadow-[#195C51]/20' : 'text-gray-600 hover:bg-gray-50'}`}>
+                                                        {page.icon}
+                                                        {page.name}
+                                                    </div>
+                                                )}
+                                            </NavLink>
+                                        )}
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    ))}
+                </div>
+
+                {/* Footer Section - Logout */}
+                <div className="p-4 border-t border-gray-50 bg-gray-50/50">
+                    <button 
+                        onClick={() => handleLogout("", "/auth")}
+                        className="flex w-full items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-red-500 hover:bg-red-50 transition-colors"
+                    >
+                        <ArrowLeftOnRectangleIcon className="w-5 h-5" />
+                        Sign Out
+                    </button>
+                </div>
+            </aside>
+        </>
+    );
 }
-
-Sidenav.defaultProps = {
-  brandImg: "/img/logo-ct.png",
-  brandName: "Material Tailwind React",
-};
-
-Sidenav.propTypes = {
-  brandImg: PropTypes.string,
-  brandName: PropTypes.string,
-  routes: PropTypes.arrayOf(PropTypes.object).isRequired,
-};
-
-// Sidenav.displayName = "/src/widgets/layout/sidnave.jsx";
 
 export default Sidenav;
