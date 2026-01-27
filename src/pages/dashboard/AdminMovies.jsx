@@ -1,256 +1,223 @@
-// src/pages/AdminMovies.jsx
-import {useState, useEffect} from 'react';
-import {
-    fetchData,
-    deleteData,
-    returnToken,
-    handleLogout,
-} from '../../utils/helper.js';
-import {useNotification} from '../../context/NotificationContext.jsx';
+import { useState, useEffect, useMemo } from 'react';
+import { fetchData, deleteData, returnToken, formatDate } from '../../utils/helper.js';
+import { useNotification } from '../../context/NotificationContext.jsx';
 import MovieDetailsModal from './MovieDetailsModal.jsx';
-import {server} from "../../config/server_api.js";
+import { server } from "../../config/server_api.js";
+import { 
+    MdSearch, 
+    MdMovie, 
+    MdTv, 
+    MdDeleteOutline, 
+    MdOutlineEdit,
+    MdChevronLeft,
+    MdChevronRight,
+    MdAdd
+} from "react-icons/md";
 
 const AdminMovies = () => {
+    const { showNotification } = useNotification();
     const [movies, setMovies] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
-    const [errorMessage, setErrorMessage] = useState('');
-    const [pagination, setPagination] = useState({
-        currentPage: 1,
-        totalPages: 1,
-        totalItems: 0,
-        itemsPerPage: 10,
-        hasNextPage: false,
-        hasPrevPage: false,
-    });
-    const [filters, setFilters] = useState({
-        page: 1,
-        limit: 10,
-        category: '',
-        movie_type: '',
-        tags: '',
-        search: '',
-        sort: '-createdAt',
-        populate: 'true',
-    });
     const [selectedMovie, setSelectedMovie] = useState(null);
-    const {showNotification} = useNotification();
+    
+    // Pagination
+    const [currentPage, setCurrentPage] = useState(1);
+    const rowsPerPage = 6; // Balanced limit for UI harmony
+
+    const [filters, setFilters] = useState({
+        movie_type: '',
+        search: '',
+    });
 
     const loadMovies = async () => {
         setIsLoading(true);
-        setErrorMessage('');
         try {
-            const queryParams = new URLSearchParams(filters).toString();
-            const url = server + `/movies?${queryParams}`;
+            // Fetching a larger limit to handle client-side pagination/filtering
+            const url = `${server}/movies?limit=100&populate=true`; 
             const result = await fetchData(url, returnToken());
-
+            
             if (result.error) {
                 showNotification(result.error, 'error');
-                setErrorMessage(result.error);
-                if (
-                    result.error.toLowerCase().includes('token') ||
-                    result.error.toLowerCase().includes('auth')
-                ) {
-                    handleLogout();
-                }
             } else {
-                // ✅ extract correctly
-                const moviesData = result.data?.data?.movies || [];
-                const paginationData = result.data?.data?.pagination || {};
-
-                setMovies(moviesData);
-                setPagination(paginationData);
+                // DATA EXTRACTION FIX:
+                // We check result.data.data (standard) or result.data.data.movies (original code)
+                const extractedData = result.data?.data?.movies || result.data?.data || [];
+                setMovies(Array.isArray(extractedData) ? extractedData : []);
             }
         } catch (err) {
-            console.error(err);
-            setErrorMessage('Failed to load movies. Please try again.');
-            showNotification('Failed to load movies', 'error');
+            showNotification('Failed to sync library', 'error');
         } finally {
             setIsLoading(false);
         }
     };
 
-
-    useEffect(() => {
-        loadMovies();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [filters]);
+    useEffect(() => { loadMovies(); }, []);
 
     const handleFilterChange = (e) => {
-        const {name, value} = e.target;
-        setFilters((prev) => ({...prev, [name]: value, page: 1}));
+        const { name, value } = e.target;
+        setFilters(prev => ({ ...prev, [name]: value }));
+        setCurrentPage(1);
     };
 
-    const handlePageChange = (newPage) => {
-        setFilters((prev) => ({...prev, page: newPage}));
-    };
+    // Filter Logic
+    const filteredMovies = useMemo(() => {
+        return (movies || []).filter(m => 
+            m.title?.toLowerCase().includes(filters.search.toLowerCase()) &&
+            (filters.movie_type === '' || m.movie_type === filters.movie_type)
+        );
+    }, [movies, filters]);
 
-    const handleDeleteMovie = async (id) => {
-        if (!window.confirm('Are you sure you want to delete this movie and its videos?')) return;
-        try {
-            const result = await deleteData(`${server}/movies/${id}`, returnToken());
-            if (result.error) {
-                showNotification(result.error, 'error');
-            } else {
-                showNotification('Movie deleted successfully', 'success');
-                loadMovies();
-            }
-        } catch (err) {
-            showNotification('Error deleting movie'+err.message, 'error');
+    // Pagination Logic
+    const totalPages = Math.ceil(filteredMovies.length / rowsPerPage);
+    const paginatedMovies = filteredMovies.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage);
+
+    const handleDelete = async (id) => {
+        if (!window.confirm('Delete this title permanently?')) return;
+        const result = await deleteData(`${server}/movies/${id}`, returnToken());
+        if (!result.error) {
+            showNotification('Content removed', 'success');
+            loadMovies();
         }
     };
 
-    const handleEditMovie = (movie) => {
-        setSelectedMovie(movie);
-    };
-
-    const handleCloseModal = () => {
-        setSelectedMovie(null);
-        loadMovies();
-    };
-
-
     return (
-        <div className="container mx-auto p-4">
-            <h1 className="text-2xl font-bold mb-4">Manage Movies</h1>
+        <div className="space-y-6 animate-slide-entrance pb-10">
+            {/* Header Section */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-2">
+                <div>
+                    <h1 className="text-2xl font-bold text-[#333333]">Media Library</h1>
+                    <p className="text-sm text-gray-500 font-medium">Managing {filteredMovies.length} titles in the ecosystem.</p>
+                </div>
+                <a href="/dashboard/byose-tv/add-movie" className="flex items-center justify-center gap-2 bg-[#195C51] text-white px-6 py-3 rounded-2xl font-bold hover:bg-[#0E3A32] shadow-lg transition-all active:scale-95">
+                    <MdAdd size={20}/> New Content
+                </a>
+            </div>
 
-            {/* Filters */}
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-4">
-                <input
-                    type="text"
-                    name="search"
-                    placeholder="Search..."
-                    value={filters.search}
+            {/* Top Bar: Search & Filter */}
+            <div className="google-card p-5 flex flex-col md:flex-row gap-4 items-center">
+                <div className="relative w-full md:w-96 group">
+                    <MdSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#195C51]" size={20} />
+                    <input 
+                        type="text" 
+                        name="search"
+                        placeholder="Search by title..." 
+                        value={filters.search}
+                        onChange={handleFilterChange}
+                        className="w-full pl-12 pr-4 py-2.5 bg-[#F5F5F5] border-none rounded-xl text-sm outline-none focus:ring-2 focus:ring-[#195C51]/10 transition-all"
+                    />
+                </div>
+                <select 
+                    name="movie_type" 
+                    value={filters.movie_type} 
                     onChange={handleFilterChange}
-                    className="p-2 border rounded bg-white"
-                />
-                <input
-                    type="text"
-                    name="category"
-                    placeholder="Category"
-                    value={filters.category}
-                    onChange={handleFilterChange}
-                    className="p-2 border rounded bg-white"
-                />
-                <input
-                    type="text"
-                    name="tags"
-                    placeholder="Tags (comma separated)"
-                    value={filters.tags}
-                    onChange={handleFilterChange}
-                    className="p-2 border rounded bg-white"
-                />
-                <select
-                    name="movie_type"
-                    value={filters.movie_type}
-                    onChange={handleFilterChange}
-                    className="p-2 border rounded bg-white"
+                    className="w-full md:w-48 bg-[#F5F5F5] border-none rounded-xl p-2.5 text-xs font-bold uppercase tracking-widest text-gray-500 outline-none cursor-pointer"
                 >
-                    <option value="">All Types</option>
+                    <option value="">All Formats</option>
                     <option value="movie">Movie</option>
                     <option value="series">Series</option>
                 </select>
-                <select
-                    name="sort"
-                    value={filters.sort}
-                    onChange={handleFilterChange}
-                    className="p-2 border rounded bg-white"
-                >
-                    <option value="-createdAt">Newest First</option>
-                    <option value="createdAt">Oldest First</option>
-                    <option value="title">Title A-Z</option>
-                    <option value="-title">Title Z-A</option>
-                </select>
-                {/* Add Button */}
-            <a
-                href={"/dashboard/add-movie"}
-                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-            >
-                Add New Movie
-            </a>
             </div>
 
-
-            {/* Loader & Error */}
-            {isLoading && <p className="text-center">Loading movies...</p>}
-            {errorMessage && !isLoading && (
-                <p className="text-center text-red-500">{errorMessage}</p>
-            )}
-
-            {/* Movies Table */}
-            {!isLoading && !errorMessage && (
+            {/* Table Container */}
+            <div className="google-card overflow-hidden bg-white mx-2">
                 <div className="overflow-x-auto">
-                    {movies.length === 0 ? (
-                        <p className="text-center py-4">No movies found.</p>
-                    ) : (
-                        <table className="min-w-full bg-white border">
-                            <thead>
+                    <table className="w-full text-left border-collapse">
+                        <thead className="bg-[#F5F5F5]/60 border-b border-gray-100">
                             <tr>
-                                <th className="p-2 border">Title</th>
-                                <th className="p-2 border">Type</th>
-                                <th className="p-2 border">Category</th>
-                                <th className="p-2 border">Tags</th>
-                                <th className="p-2 border">Actions</th>
+                                <th className="px-8 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Content Detail</th>
+                                <th className="px-8 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Format</th>
+                                <th className="px-8 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Created At</th>
+                                <th className="px-8 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 text-right">Actions</th>
                             </tr>
-                            </thead>
-                            <tbody>
-                            {movies.map((movie) => (
-                                <tr key={movie._id}>
-                                    <td className="p-2 border">{movie.title}</td>
-                                    <td className="p-2 border">{movie.movie_type}</td>
-                                    <td className="p-2 border">{movie.category}</td>
-                                    <td className="p-2 border">
-                                        {Array.isArray(movie.tags) ? movie.tags.join(', ') : ''}
+                        </thead>
+                        <tbody className="divide-y divide-gray-50">
+                            {!isLoading && paginatedMovies.map((movie) => (
+                                <tr key={movie._id} className="hover:bg-gray-50/50 transition-colors">
+                                    <td className="px-8 py-5 flex items-center gap-5">
+                                        <div className="w-12 h-16 rounded-xl overflow-hidden shadow-sm bg-gray-100 flex-shrink-0 border border-gray-100">
+                                            <img src={movie.poster} alt="" className="w-full h-full object-cover" />
+                                        </div>
+                                        <div>
+                                            <div className="font-bold text-[#333333] text-sm tracking-tight">{movie.title}</div>
+                                            <div className="text-[10px] text-[#195C51] font-black uppercase tracking-widest">{movie.category}</div>
+                                        </div>
                                     </td>
-                                    <td className="p-2 border">
-                                        <button
-                                            onClick={() => handleEditMovie(movie)}
-                                            className="px-2 py-1 bg-green-500 text-white rounded mr-2 hover:bg-green-600"
-                                        >
-                                            View/Edit
-                                        </button>
-                                        <button
-                                            onClick={() => handleDeleteMovie(movie._id)}
-                                            className="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600"
-                                        >
-                                            Delete
-                                        </button>
+                                    <td className="px-8 py-5">
+                                        <div className="flex items-center gap-2 text-gray-500">
+                                            {movie.movie_type === 'series' ? <MdTv size={16}/> : <MdMovie size={16}/>}
+                                            <span className="text-[10px] font-bold uppercase tracking-widest">{movie.movie_type}</span>
+                                        </div>
+                                    </td>
+                                    <td className="px-8 py-5 text-xs font-medium text-gray-400">
+                                        {formatDate(movie.createdAt)}
+                                    </td>
+                                    <td className="px-8 py-5 text-right">
+                                        <div className="flex justify-end gap-3">
+                                            <button 
+                                                onClick={() => setSelectedMovie(movie)} 
+                                                className="p-2.5 rounded-xl bg-[#F5F5F5] text-gray-500 hover:bg-[#195C51] hover:text-white transition-all shadow-sm"
+                                                title="Edit Metadata"
+                                            >
+                                                <MdOutlineEdit size={18}/>
+                                            </button>
+                                            <button 
+                                                onClick={() => handleDelete(movie._id)} 
+                                                className="p-2.5 rounded-xl bg-red-50 text-red-400 hover:bg-red-500 hover:text-white transition-all shadow-sm"
+                                                title="Delete"
+                                            >
+                                                <MdDeleteOutline size={18}/>
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                             ))}
-                            </tbody>
-                        </table>
-                    )}
+                        </tbody>
+                    </table>
                 </div>
-            )}
 
-            {/* Pagination */}
-            {!isLoading && !errorMessage && movies.length > 0 && (
-                <div className="flex justify-center mt-4">
-                    {pagination.hasPrevPage && (
-                        <button
-                            onClick={() => handlePageChange(pagination.currentPage - 1)}
-                            className="px-4 py-2 bg-gray-200 rounded mr-2"
+                {/* Empty State / Loader */}
+                {isLoading && (
+                    <div className="p-20 text-center space-y-4">
+                        <div className="w-10 h-10 border-4 border-[#195C51]/10 border-t-[#195C51] rounded-full animate-spin mx-auto"></div>
+                        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-400">Syncing Media Vault...</p>
+                    </div>
+                )}
+                {!isLoading && filteredMovies.length === 0 && (
+                    <div className="p-20 text-center text-gray-400 text-[10px] font-black uppercase tracking-[0.2em]">
+                        No titles matching your criteria were found.
+                    </div>
+                )}
+
+                {/* Pagination Footer */}
+                <div className="px-8 py-5 bg-[#F5F5F5]/30 border-t border-gray-50 flex items-center justify-between">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">
+                        Page {currentPage} of {totalPages || 1}
+                    </p>
+                    <div className="flex gap-2">
+                        <button 
+                            disabled={currentPage === 1}
+                            onClick={() => setCurrentPage(p => p - 1)}
+                            className="p-2.5 rounded-xl bg-white border border-gray-100 text-gray-500 disabled:opacity-30 hover:text-[#195C51] transition-all"
                         >
-                            Previous
+                            <MdChevronLeft size={20} />
                         </button>
-                    )}
-                    <span className="px-4 py-2">
-            Page {pagination.currentPage} of {pagination.totalPages}
-          </span>
-                    {pagination.hasNextPage && (
-                        <button
-                            onClick={() => handlePageChange(pagination.currentPage + 1)}
-                            className="px-4 py-2 bg-gray-200 rounded ml-2"
+                        <button 
+                            disabled={currentPage >= totalPages}
+                            onClick={() => setCurrentPage(p => p + 1)}
+                            className="p-2.5 rounded-xl bg-white border border-gray-100 text-gray-500 disabled:opacity-30 hover:text-[#195C51] transition-all"
                         >
-                            Next
+                            <MdChevronRight size={20} />
                         </button>
-                    )}
+                    </div>
                 </div>
-            )}
+            </div>
 
-            {/* Modals */}
+            {/* Details/Edit Modal */}
             {selectedMovie && (
-                <MovieDetailsModal movie={selectedMovie} onClose={handleCloseModal}/>
+                <MovieDetailsModal 
+                    movie={selectedMovie} 
+                    onClose={() => { setSelectedMovie(null); loadMovies(); }} 
+                />
             )}
         </div>
     );
