@@ -1,13 +1,12 @@
-// src/context/AuthContext.js
 import React, { createContext, useContext, useEffect, useState } from "react";
-import {decodeToken, handleLogout, returnToken} from "../utils/helper.js";
+import { decodeToken, handleLogout, returnToken } from "../utils/helper.js";
+import LoadingPage from "../components/LoadingPage.jsx"; // Import here
 
 const AuthContext = createContext(null);
 
-// eslint-disable-next-line react/prop-types
 export const AuthProvider = ({ children }) => {
   const [userData, setUserData] = useState(null);
-  const [loading, setLoading] = useState(true); // 👈 important
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const init = async () => {
@@ -16,20 +15,24 @@ export const AuthProvider = ({ children }) => {
         try {
           const decoded = decodeToken(token);
           if (decoded?.exp * 1000 < Date.now()) {
-            handleLogout("","/auth");
+            handleLogout("", "/auth");
             setUserData(null);
           } else {
             setUserData(decoded);
           }
         } catch (e) {
-          handleLogout("","/auth");
+          handleLogout("", "/auth");
         }
       }
-      setLoading(false); // 👈 only after all checks
+      setLoading(false);
     };
 
     init();
   }, []);
+
+  if (loading) {
+    return <LoadingPage message="Synchronizing Identity" />; // Professional Loader
+  }
 
   return (
     <AuthContext.Provider value={{ userData, setUserData, loading }}>
