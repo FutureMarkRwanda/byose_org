@@ -7,16 +7,6 @@
 
 
 
-/* Ensure the cursor is always on top */
-#custom-cursor {
-  pointer-events: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 9999;
-}
-
-
 
 /* Re-enable selection visibility */
 ::selection {

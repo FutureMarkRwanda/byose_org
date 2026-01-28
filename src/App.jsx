@@ -24,7 +24,7 @@ import {AuthProvider} from "./context/AuthContext.jsx";
 import ProtectedRoute from "./pages/auth/ProtectRoutes.jsx";
 import BYOSE from "./pages/deck/BYOSE.jsx";
 import Progress from "./components/presence_eye/PresenceEyeProgress.jsx";
-import CustomCursor from "./components/CustomCursor.jsx";
+
 
 function DashboardLayout() {
   return (
@@ -55,7 +55,7 @@ function App() {
     useUpdateTitle(titleMap);
     return (
         <div className={`bg-white text-gray-800`}>
-            
+          
             <Routes>
                 <Route exact path="/" element={<Landing/>}>
                     <Route index element={<About/>}/>
