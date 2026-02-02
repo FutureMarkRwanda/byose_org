@@ -21,14 +21,7 @@ function JoinUs() {
                     <p className="text-gray-600 text-lg md:text-xl font-light leading-relaxed max-w-xl">
                         Join a global network of innovators. Whether you're a student, an engineer, or a dreamer, BYOSE provides the tools and the tribe to make your ideas reality.
                     </p>
-                    <div className="flex flex-wrap justify-center lg:justify-start gap-4 pt-4">
-                        <a href="/signup" className="bg-[#195C51] text-white px-10 py-4 rounded-2xl font-bold hover:bg-[#0E3A32] shadow-xl transition-all hover:-translate-y-1 active:scale-95">
-                            Get Started Now
-                        </a>
-                        <a href="/contact" className="px-10 py-4 rounded-2xl font-bold border-2 border-[#D1D5DB] text-[#333333] hover:bg-white transition-all">
-                            Inquire More
-                        </a>
-                    </div>
+                   
                 </div>
 
                 {/* Right Side: Video (Properly Scaled) */}

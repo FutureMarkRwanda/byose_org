@@ -18,7 +18,7 @@ function Banner() {
                     </p>
                     <div className="flex flex-wrap gap-4">
                         <a href="/presence-eye" className="bg-[#195C51] text-white px-8 py-4 rounded-2xl font-bold hover:bg-[#0E3A32] shadow-lg transition-transform active:scale-95">
-                            Shop PresenceEye
+                            Visit PresenceEye
                         </a>
                         <a href="/presence-eye/presents" className="px-8 py-4 rounded-2xl font-bold border-2 border-[#EDEDED] text-[#333333] hover:bg-gray-50 transition-colors">
                             View Roadmap →

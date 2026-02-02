@@ -24,7 +24,7 @@ function PresenceEyeLatest() {
     };
 
     return (
-        <div className="space-y-32">
+        <div className="space-y-32 py-6">
             {/* Product Showcase */}
             <div className="container mx-auto px-6">
                 <div className="grid lg:grid-cols-2 gap-16 items-center">
@@ -42,18 +42,7 @@ function PresenceEyeLatest() {
                         <p className="text-xl text-gray-500 font-light leading-relaxed max-w-lg">
                             Elevate your power management. A precision-engineered multisocket extension that bridges the gap between manual control and AI automation.
                         </p>
-                        
-                        <div className="flex flex-wrap gap-6 pt-4">
-                            <button 
-                                onClick={() => setShowForm(true)}
-                                className="bg-[#195C51] text-white px-10 py-4 rounded-2xl font-bold hover:bg-[#0E3A32] shadow-xl transition-all active:scale-95 flex items-center gap-3"
-                            >
-                                <MdOutlineShoppingCart size={20}/> Order Experience
-                            </button>
-                            <a href="/presence-eye/presents" className="px-10 py-4 rounded-2xl font-bold border-2 border-gray-100 text-gray-400 hover:text-[#195C51] hover:border-[#195C51] transition-all">
-                                Technical Specs →
-                            </a>
-                        </div>
+                       
                     </div>
                 </div>
             </div>

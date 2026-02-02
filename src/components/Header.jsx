@@ -25,13 +25,13 @@ function Header() {
                     </Link>
 
                     <div className="hidden md:flex items-center gap-8">
-                        {['/home', '/', '/we-are', '/presence-eye'].map((path) => (
+                        {['/', '/services', '/we-are', '/presence-eye'].map((path) => (
                             <Link 
                                 key={path} 
                                 to={path} 
                                 className={`text-sm font-medium uppercase tracking-wider ${getActiveClass(path)}`}
                             >
-                                {path === '/' ? 'About' : path.replace('/', '').replace('-', ' ')}
+                                {path === '/' ? 'Home' : path.replace('/', '').replace('-', ' ')}
                             </Link>
                         ))}
                     </div>

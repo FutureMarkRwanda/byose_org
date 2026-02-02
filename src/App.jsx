@@ -22,7 +22,7 @@ import Landing from "./pages/home/Landing.jsx";
 import Auth from "./pages/auth/Auth.jsx";
 import {AuthProvider} from "./context/AuthContext.jsx";
 import ProtectedRoute from "./pages/auth/ProtectRoutes.jsx";
-import BYOSE from "./pages/deck/BYOSE.jsx";
+import Services from "./pages/home/About.jsx";
 import Progress from "./components/presence_eye/PresenceEyeProgress.jsx";
 
 
@@ -58,9 +58,8 @@ function App() {
           
             <Routes>
                 <Route exact path="/" element={<Landing/>}>
-                    <Route index element={<About/>}/>
-                    <Route path="/home" element={<Home/>}/>
-                    <Route path="/deck.ppt" element={<BYOSE/>}/>
+                    <Route index element={<Home/>}/>
+                    <Route path="/services" element={<Services/>}/>
                     <Route path="/b-bot" element={<BBot/>}/>
                     <Route path="/we-are" element={<WhoWeAre/>}>
                         <Route index element={<><OurStory/><Team/><OurValues/></>}/>
