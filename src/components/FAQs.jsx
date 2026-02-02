@@ -19,7 +19,7 @@ function FaQs() {
             <div className="container mx-auto">
                 <h1 className="fade-in delay-200 text-center mb-10 font-semibold md:w-[60%] w-[90%] mx-auto md:text-4xl text-2xl">
                     {/* eslint-disable-next-line react/no-unescaped-entities */}
-                    Need Answers? We've Got You Covered!
+                    FAQS
                 </h1>
                 <h2 className="fade-in delay-300 container mx-auto text-start font-bold pb-5">
                     WITH QUICK ANSWERS TO COMMON QUESTIONS

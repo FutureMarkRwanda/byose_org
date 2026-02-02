@@ -1,38 +1,39 @@
-// eslint-disable-next-line no-unused-vars
 import React from 'react';
-import TitleColor from "./TitleColor.jsx";
 import Video from "./Video.jsx";
 
 function JoinUs() {
     return (
-        <div className="container mx-auto mt-24">
-            {/*<h1 className={`text-center mb-10 font-semibold md:w-[60%] w-[90%] mx-auto md:text-4xl text-2xl`}>We believe*/}
-            {/*    in innovation that empowers everyone to <TitleColor text={"Use"}/> and <TitleColor*/}
-            {/*        text={"Create"}/> smarter solutions</h1>*/}
-            <div className={`flex md:flex-row flex-col gap-4 justify-between align-middle`}>
-                <div className={`md:max-w-[40%] max-w-[90%] flex flex-col justify-center align-middle items-center`}>
-                    <div className={`px-8 flex flex-col gap-3 pt-12 `}>
-                        <h1 className={`md:text-4xl text-2xl font-semibold`}>
-                            Join the Club
-                        </h1>
-                        <p className={`md:text-xl text-xl font-normal`}>
-                            {/* eslint-disable-next-line react/no-unescaped-entities */}
-                            Join Byose community and unlock a world of possibilities. As a member, you'll gain exclusive access to innovative tools, personalized solutions, and a network of like-minded individuals driving their own journeys forward.
-                        </p>
-                        <div className={`py-5`}>
-                            <a href={`/signup`}
-                               className={`text-white active:scale-110 m-1 p-3 px-4 rounded-full font-medium bg-gradient-to-tr from-[#195C51] via-gray-900  to-[#195C51] hover:bg-gradient-to-tl hover:from-[#195C51] hover:via-gray-900 hover:to-[#195C51] `}>
-                                Join now
-                            </a>
-                            <a href={`/contact`} target="_blank" rel="noopener noreferrer"
-                               className="inline-block py-2 px-7 active:scale-110 text-base text-body-color font-medium hover:text-gray-700 transition ">
-                                Get in Touch→
-                            </a>
-                        </div>
+        <div className="container mx-auto px-6 py-24">
+            <div className="bg-[#F5F5F5] rounded-[4rem] p-8 md:p-16 lg:p-20 flex flex-col lg:flex-row items-center gap-12 overflow-hidden border border-gray-100">
+                
+                {/* Left Side: Content */}
+                <div className="lg:w-1/2 space-y-8 text-center lg:text-left">
+                    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#195C51]/10 text-[#195C51] text-xs font-bold uppercase tracking-widest">
+                        <span className="relative flex h-2 w-2">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#195C51] opacity-75"></span>
+                          <span className="relative inline-flex rounded-full h-2 w-2 bg-[#195C51]"></span>
+                        </span>
+                        Community
                     </div>
+                    <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-[#333333] leading-[1.1]">
+                        Build the future <br/> <span className="text-[#195C51]">with us.</span>
+                    </h2>
+                    <p className="text-gray-600 text-lg md:text-xl font-light leading-relaxed max-w-xl">
+                        Join a global network of innovators. Whether you're a student, an engineer, or a dreamer, BYOSE provides the tools and the tribe to make your ideas reality.
+                    </p>
+                   
                 </div>
-                <div className={`flex justify-end`}>
-                    <Video url={`https://www.youtube.com/watch?v=MnjP2a9vs0s`} no_auto={true}/>
+
+                {/* Right Side: Video (Properly Scaled) */}
+                <div className="lg:w-1/2 w-full flex justify-center">
+                    <div className="w-full max-w-lg transform lg:rotate-2 hover:rotate-0 transition-transform duration-700">
+                        {/* 
+                           Notice we use the Video component directly here. 
+                           The Video component's internal 'max-w' will work 
+                           harmoniously within this lg:w-1/2 container.
+                        */}
+                        <Video url="https://www.youtube.com/watch?v=MnjP2a9vs0s" no_auto={true} />
+                    </div>
                 </div>
             </div>
         </div>

@@ -1,29 +1,30 @@
-// eslint-disable-next-line no-unused-vars
-import React, {useEffect} from 'react';
-import {Helmet} from "react-helmet";
-import {Outlet} from "react-router-dom";
+import React from 'react';
+import { Outlet } from "react-router-dom";
 import TitleColor from "../../components/TitleColor.jsx";
-import PresenceEyeLatest from "../../components/presence_eye/PresenceEyeLatest.jsx";
 
 function PresenceEye() {
-
-    // Custom cursor style added through CSS
-    useEffect(() => {
-        document.body.classList.add('custom-cursor-presence-eye');
-
-        return () => {
-            document.body.classList.remove('custom-cursor-presence-eye');
-        };
-    }, []);
     return (
-        <div className="min-h-full flex flex-col justify-center items-center">
-            <div className={`w-full bg-white p-8`}>
-                <h1 className={`text-center mb-10 font-semibold md:w-[60%] w-[90%] mx-auto md:text-4xl text-2xl`}>
-                    PresenceEye<br/><br/><TitleColor text={"Because Your Home Deserves Intelligence."}/>
+        <section className="bg-white min-h-screen">
+            {/* Minimalist Hero Header */}
+            <div className="container mx-auto px-6 pt-20 pb-12 text-center space-y-4">
+                <h2 className="text-[#195C51] font-bold uppercase tracking-[0.4em] text-xs animate-fade-in">
+                    Hardware Ecosystem
+                </h2>
+                <h1 className="text-5xl md:text-7xl font-bold text-[#333333] leading-tight">
+                    PresenceEye
                 </h1>
+                <div className="max-w-2xl mx-auto">
+                    <p className="text-xl text-gray-400 font-light italic">
+                        <TitleColor text="Because your home deserves intelligence." />
+                    </p>
+                </div>
             </div>
-            <Outlet/>
-        </div>
+
+            {/* Content Slot */}
+            <div className="relative">
+                <Outlet />
+            </div>
+        </section>
     );
 }
 

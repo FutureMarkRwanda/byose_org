@@ -1,37 +1,55 @@
-// eslint-disable-next-line no-unused-vars
 import React from 'react';
+import { MdOutlineArrowForward } from "react-icons/md";
 
-// eslint-disable-next-line react/prop-types,no-unused-vars
-function Action({state}) {
+function Action() {
     return (
-        <div id={`action`} className={`flex flex-col md:p-6 gap-2 text-gray-900  bg-white md:pt-20 p-4`}>
-            <h1 className={` text-center font-bold md:mb-14`}>Making Life Simpler and Smarter for Everyone</h1>
-            {/*<h2 className={`text-center font-bold`}>EXPANDING POSSIBILITIES</h2>*/}
-            <div className={`container md:px-6 mx-auto grid md:grid-cols-2 gap-2`}>
-                <div>
-                    <img alt="logo" className={`rounded-lg`}
-                         src={`https://www.houseper.com/wp-content/uploads/2020/05/system_overview_home-1.jpg`}/>
+        <section className="container mx-auto px-6 py-24">
+            <div className="google-card bg-[#F5F5F5] p-8 md:p-16 lg:p-24 overflow-hidden relative">
+                {/* Decorative Ethereal Element */}
+                <div className="absolute -bottom-20 -left-20 w-96 h-96 bg-[#195C51]/5 rounded-full blur-3xl"></div>
+                
+                <div className="grid lg:grid-cols-2 gap-16 items-center relative z-10">
+                    <div className="space-y-8">
+                        <div className="space-y-4">
+                            <h2 className="text-[#195C51] font-bold uppercase tracking-[0.2em] text-sm">The Ecosystem</h2>
+                            <h1 className="text-4xl md:text-5xl font-bold text-[#333333] leading-tight">
+                                Making Life Simpler <br/> and Smarter for Everyone.
+                            </h1>
+                        </div>
+                        
+                        <p className="text-lg md:text-xl text-gray-600 font-light leading-relaxed">
+                            At BYOSE, we transform lives through innovation. From smart home automation to advanced robotics, 
+                            we design solutions that simplify routines and empower communities.
+                        </p>
+
+                        <div className="flex flex-wrap gap-3">
+                            {['B-Academy', 'B-Store', 'B-Tech Labs'].map((item) => (
+                                <span key={item} className="px-4 py-2 rounded-full bg-white border border-gray-200 text-sm font-bold text-[#195C51] shadow-sm">
+                                    {item}
+                                </span>
+                            ))}
+                        </div>
+
+                        <div className="pt-6">
+                            <a href="/presence-eye" className="inline-flex items-center gap-4 bg-[#195C51] text-white px-10 py-4 rounded-2xl font-bold hover:bg-[#0E3A32] shadow-xl transition-all active:scale-95 group">
+                                Explore PresenceEye
+                                <MdOutlineArrowForward className="group-hover:translate-x-2 transition-transform" size={24} />
+                            </a>
+                        </div>
+                    </div>
+
+                    <div className="relative">
+                        <div className="absolute -inset-4 bg-white rounded-[3rem] shadow-inner"></div>
+                        <img 
+                            alt="Smart Home Overview" 
+                            className="relative rounded-[2.5rem] shadow-2xl object-cover aspect-[4/3] grayscale hover:grayscale-0 transition-all duration-700"
+                            src="https://www.houseper.com/wp-content/uploads/2020/05/system_overview_home-1.jpg"
+                        />
+                    </div>
                 </div>
-                <p className={`flex items-center md:p-6 p-4 md:text-lg text-lg h-full w-full justify-start `}>
-                    <span>At BYOSE, we transform lives through innovation.
-                    From smart home automation to advanced robotics,
-                    we design solutions that simplify routines, save energy, and empower communities.
-                    Our platforms—
-                    <a href={`/b-academy`} className={`font-semibold italic bg-slate-300 p-1 rounded-md`}>B-Academy</a>,
-                    <a href={`/b-store`} className={`font-semibold italic bg-slate-300 p-1 rounded-md`}>B-Store</a>,
-                    and <a href={`/b-tech-labs`}
-                           className={`font-semibold italic bg-slate-300 p-1 rounded-md`}>B-Tech Labs—bring</a> education,
-                        commerce, and cutting-edge technology together to create a smarter future for everyone.
-                        <button className={`block my-4`}>
-                        <a href={`/presence-eye`} className={` text-white active:scale-110  p-3 rounded-full font-medium bg-gradient-to-tr from-[#195C51] via-gray-900  to-[#195C51] hover:bg-gradient-to-tl hover:from-[#195C51] hover:via-gray-900 hover:to-[#195C51] `}>
-                            Learn More
-                        </a>
-                        </button>
-                    </span>
-                </p>
             </div>
-        </div>
+        </section>
     );
 }
 
-export default Action;
+export default Action;  

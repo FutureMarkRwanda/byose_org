@@ -22,8 +22,9 @@ import Landing from "./pages/home/Landing.jsx";
 import Auth from "./pages/auth/Auth.jsx";
 import {AuthProvider} from "./context/AuthContext.jsx";
 import ProtectedRoute from "./pages/auth/ProtectRoutes.jsx";
-import BYOSE from "./pages/deck/BYOSE.jsx";
+import Services from "./pages/home/About.jsx";
 import Progress from "./components/presence_eye/PresenceEyeProgress.jsx";
+
 
 function DashboardLayout() {
   return (
@@ -54,11 +55,11 @@ function App() {
     useUpdateTitle(titleMap);
     return (
         <div className={`bg-white text-gray-800`}>
+          
             <Routes>
                 <Route exact path="/" element={<Landing/>}>
-                    <Route index element={<About/>}/>
-                    <Route path="/home" element={<Home/>}/>
-                    <Route path="/deck.ppt" element={<BYOSE/>}/>
+                    <Route index element={<Home/>}/>
+                    <Route path="/services" element={<Services/>}/>
                     <Route path="/b-bot" element={<BBot/>}/>
                     <Route path="/we-are" element={<WhoWeAre/>}>
                         <Route index element={<><OurStory/><Team/><OurValues/></>}/>
@@ -75,16 +76,34 @@ function App() {
                 </Route>
 
                 {/* Admin DashBoard */}
-                <Route path="/dashboard" element={<DashboardLayout />}>
-                    {routes.map(
-                        ({layout, pages}) =>
-                            layout === "dashboard" &&
-                            pages.map(({path, element}) => (
-                                // eslint-disable-next-line react/jsx-key
-                                <Route exact path={path} element={element}/>
-                            ))
-                    )}
-                </Route>
+{/* Admin DashBoard */}
+<Route path="/dashboard" element={<DashboardLayout />}>
+    {routes.map(({ layout, pages }) =>
+        layout === "dashboard" &&
+        pages.map((page) => {
+            // 1. If it's a normal page
+            if (!page.isDropdown) {
+                return (
+                    <Route 
+                        key={page.path} 
+                        index={page.path === ""} // Handle /dashboard as index
+                        path={page.path !== "" ? page.path : undefined} 
+                        element={page.element} 
+                    />
+                );
+            }
+            
+            // 2. If it's a dropdown, register all its subPages
+            return page.subPages.map((sub) => (
+                <Route 
+                    key={sub.path} 
+                    path={sub.path} // This is now 'byose-tv/feedbacks', etc.
+                    element={sub.element} 
+                />
+            ));
+        })
+    )}
+</Route>
 
                 <Route path="/auth" element={<Auth/>}>
                     {routes.map(
@@ -96,6 +115,8 @@ function App() {
                             ))
                     )}
                 </Route>
+
+                
             </Routes>
         </div>
     )

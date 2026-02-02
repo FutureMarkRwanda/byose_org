@@ -1,12 +1,12 @@
 import { Navigate } from "react-router-dom";
-import {useAuth} from "../../context/AuthContext.jsx";
+import { useAuth } from "../../context/AuthContext.jsx";
+import LoadingPage from "../../components/LoadingPage.jsx";
 
-// eslint-disable-next-line react/prop-types
 const ProtectedRoute = ({ children }) => {
   const { userData, loading } = useAuth();
 
   if (loading) {
-    return <div>Loading...</div>; // or a spinner
+    return <LoadingPage message="Authorizing Connection" />;
   }
 
   if (!userData) {

@@ -3,7 +3,7 @@ import React from 'react';
 
 function OurNumbers() {
     return (
-        <div className={` bg-white py-10`}>
+        <div className={` bg-white py-4`}>
             <div className={`md:w-[60%] w-[90%] mx-auto pb-6`}>
                 <p className={` text-center w-[90%] mx-auto`}></p>
                 <h1 className={`mx-auto text-center font-bold py-6 md:text-4xl text-2xl`}>Our Numbers</h1>

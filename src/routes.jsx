@@ -1,89 +1,78 @@
 import {
-    HomeIcon,
-    ServerStackIcon,
-    VideoCameraIcon,
-    SquaresPlusIcon,
-    ChartBarSquareIcon
-} from "@heroicons/react/24/solid";
-import AddMovie from "./pages/dashboard/AddMovie.jsx";
-import ResetPassword from "./pages/auth/ResetPassword.jsx";
-import Otp from "./pages/auth/otp.jsx";
-import SignIn from "./pages/auth/Sign-in.jsx";
-import CreatePost from "./pages/dashboard/CreatePost.jsx";
+    Squares2X2Icon,
+    TvIcon,
+    CursorArrowRaysIcon,
+} from "@heroicons/react/24/outline";
 import AdminMovies from "./pages/dashboard/AdminMovies.jsx";
-import Feedbacks from "./pages/dashboard/Feedbacks.jsx";
 import PresenceEyeAdmin from "./pages/dashboard/PresenceEye.jsx";
-import { FaFilePowerpoint } from "react-icons/fa6";
-import {RiRemoteControlFill} from "react-icons/ri";
 import OnlineDevicesDashboard from "./pages/dashboard/OnlineDevicesDashboard.jsx";
+import Feedbacks from "./pages/dashboard/Feedbacks.jsx";
+import DashboardOverview from "./pages/dashboard/DashboardOverview.jsx";
+import AddMovie from "./pages/dashboard/AddMovie.jsx";
+import CreatePost from "./pages/dashboard/CreatePost.jsx";
 
-const icon = {
-    className: "w-5 h-5 text-inherit",
-};
+const iconClass = "w-5 h-5";
 
 export const routes = [
     {
+        title: "Overview",
         layout: "dashboard",
         pages: [
             {
-                icon: <HomeIcon {...icon} />,
-                name: "dashboard",
-                path: "/dashboard",
-                element: <AdminMovies/>,
-            },
-            {
-                icon: <FaFilePowerpoint{...icon} />,
-                name: "Presence Eye",
-                path: "/dashboard/presence-eye",
-                element: <PresenceEyeAdmin/>,
-            },
-            {
-                icon: <RiRemoteControlFill {...icon} />,
-                name: "Live Buttons",
-                path: "/dashboard/presence-eye-buttons",
-                element: <OnlineDevicesDashboard/>,
-            },
-            {
-                icon: <ChartBarSquareIcon {...icon} />,
-                name: "FeedBacks",
-                path: "/dashboard/feedbacks",
-                element: <Feedbacks/>,
-            },
-            {
-                icon: <VideoCameraIcon {...icon} />,
-                name: "Add Movie",
-                path: "/dashboard/add-movie",
-                element: <AddMovie/>,
-            },
-            {
-                icon: <SquaresPlusIcon{...icon} />,
-                name: "Add Trends",
-                path: "/dashboard/add-post",
-                element: <CreatePost/>,
-            },
+                icon: <Squares2X2Icon className={iconClass} />,
+                name: "Dashboard",
+                path: "", // Relative to /dashboard, so this is the index
+                element: <DashboardOverview />,
+            }
         ],
     },
     {
-        title: "auth pages",
-        layout: "auth",
+        title: "Projects",
+        layout: "dashboard",
         pages: [
             {
-                icon: <ServerStackIcon {...icon} />,
-                name: "sign in",
-                path: "/auth",
-                element: <SignIn/>,
+                icon: <CursorArrowRaysIcon className={iconClass} />,
+                name: "Presence Eye",
+                isDropdown: true,
+                subPages: [
+                    { 
+                        name: "Device Manager", 
+                        path: "presence-eye-buttons/management", // Relative
+                        element: <PresenceEyeAdmin /> 
+                    },
+                    { 
+                        name: "Analytics", 
+                        path: "presence-eye-buttons/analytics", // Relative
+                        element: <OnlineDevicesDashboard /> 
+                    },
+                ]
             },
             {
-                icon: <ServerStackIcon {...icon} />,
-                name: "OTP Page",
-                path: "/auth/otp/:email",
-                element: <Otp/>,
-            },
-            {
-                icon: <ServerStackIcon {...icon} />,
-                name: "Reset password",
-                path: "/auth/reset-password",
-                element: <ResetPassword/>,
+                icon: <TvIcon className={iconClass} />,
+                name: "Byose TV",
+                isDropdown: true,
+                subPages: [
+                    { 
+                        name: "Add Movies", 
+                        path: "byose-tv/add-movie", // Relative
+                        element: <AddMovie /> 
+                    },
+                    { 
+                        name: "Manage movies", 
+                        path: "byose-tv/manage-movies", // Relative
+                        element: <AdminMovies /> 
+                    },
+                    { 
+                        name: "Add Trends", 
+                        path: "byose-tv/add-post", // Relative
+                        element: <CreatePost /> 
+                    },
+                    { 
+                        name: "FeedBacks", 
+                        path: "byose-tv/feedbacks", // Relative
+                        element: <Feedbacks /> 
+                    },
+                ]
             },
         ],
     },

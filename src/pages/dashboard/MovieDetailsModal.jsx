@@ -1,11 +1,10 @@
-// src/components/MovieDetailsModal.jsx
-import { useState} from 'react';
+import { useState } from 'react';
 import VideosList from './VideosList';
-import {useNotification} from "../../context/NotificationContext.jsx";
-import {patchData, returnToken} from "../../utils/helper.js";
-import {server} from "../../config/server_api.js";
+import { useNotification } from "../../context/NotificationContext.jsx";
+import { patchData, returnToken } from "../../utils/helper.js";
+import { server } from "../../config/server_api.js";
+import { MdClose, MdSave } from "react-icons/md";
 
-// eslint-disable-next-line react/prop-types
 const MovieDetailsModal = ({ movie, onClose }) => {
   const [formData, setFormData] = useState(movie);
   const { showNotification } = useNotification();
@@ -13,106 +12,81 @@ const MovieDetailsModal = ({ movie, onClose }) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    if (name === 'tags') {
-      setFormData((prev) => ({ ...prev, tags: value.split(',').map((t) => t.trim()) }));
-    } else {
-      setFormData((prev) => ({ ...prev, [name]: value }));
-    }
+    setFormData(prev => ({ ...prev, [name]: name === 'tags' ? value.split(',') : value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const result = await patchData(server+`/movies/${movie._id}`, formData, token);
-    if (result.error) {
-      showNotification(result.error, 'error');
-    } else {
-      showNotification('Movie updated successfully', 'success');
+    const result = await patchData(`${server}/movies/${movie._id}`, formData, token);
+    if (!result.error) {
+      showNotification('Catalog entry updated', 'success');
       onClose();
     }
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-95 flex justify-center items-center z-50 overflow-y-auto">
-      <div className="bg-white p-6  w-11/12 md:w-2/3 h-screen overflow-y-auto">
-          {/* eslint-disable-next-line react/prop-types */}
-        <h2 className="text-xl font-bold mb-4">Edit Movie: {movie.title}</h2>
-        <form onSubmit={handleSubmit}>
-          {/* Similar form fields as AddMovieModal */}
-          <input
-            type="text"
-            name="title"
-            placeholder="Title"
-            value={formData.title}
-            onChange={handleChange}
-            className="w-full p-2 border rounded mb-2 bg-white"
-          />
-          <input
-            type="text"
-            name="poster"
-            placeholder="Poster URL"
-            value={formData.poster}
-            onChange={handleChange}
-            className="w-full p-2 border rounded mb-2 bg-white"
-          />
-          <input
-            type="text"
-            name="backdrop"
-            placeholder="Backdrop URL"
-            value={formData.backdrop}
-            onChange={handleChange}
-            className="w-full p-2 border rounded mb-2 bg-white"
-          />
-          <input
-            type="text"
-            name="category"
-            placeholder="Category"
-            value={formData.category}
-            onChange={handleChange}
-            className="w-full p-2 border rounded mb-2 bg-white"
-          />
-          <input
-            type="text"
-            name="trailer_url"
-            placeholder="Trailer URL"
-            value={formData.trailer_url}
-            onChange={handleChange}
-            className="w-full p-2 border rounded mb-2 bg-white"
-          />
-          <input
-            type="text"
-            name="tags"
-            placeholder="Tags (comma separated)"
-            value={formData.tags.join(', ')}
-            onChange={handleChange}
-            className="w-full p-2 border rounded mb-2 bg-white"
-          />
-          <select
-            name="movie_type"
-            value={formData.movie_type}
-            onChange={handleChange}
-            className="w-full p-2 border rounded mb-2 bg-white"
-          >
-            <option value={formData.movie_type}>{formData.movie_type}</option>
-          </select>
-          <textarea
-            name="description"
-            placeholder="Description"
-            value={formData.description}
-            onChange={handleChange}
-            className="w-full p-2 border rounded mb-2 bg-white"
-          />
-          <div className="flex justify-end mb-4">
-            <button type="button" onClick={onClose} className="px-4 py-2 bg-gray-500 text-white rounded mr-2">
-              Close
-            </button>
-            <button type="submit" className="px-4 py-2 bg-blue-500 text-white rounded">
-              Update
-            </button>
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-10">
+      <div className="absolute inset-0 bg-[#0B121A]/80 backdrop-blur-md" onClick={onClose}></div>
+      
+      <div className="relative w-full max-w-6xl bg-white rounded-[3rem] shadow-2xl h-full flex flex-col overflow-hidden animate-slide-up">
+        {/* Header */}
+        <div className="p-8 border-b border-gray-50 flex justify-between items-center bg-[#F5F5F5]/50">
+          <div>
+            <h2 className="text-2xl font-bold text-[#333333]">{movie.title}</h2>
+            <p className="text-[10px] font-black uppercase tracking-widest text-[#195C51]">Master Metadata Control</p>
           </div>
-        </form>
+          <button onClick={onClose} className="p-2 hover:bg-gray-200 rounded-full text-gray-400 transition-colors">
+            <MdClose size={24} />
+          </button>
+        </div>
 
-        {/* Videos Section */}
-        <VideosList movie={formData} isSeries={formData.movie_type === 'series'} onUpdate={onClose} />
+        <div className="flex-grow overflow-y-auto custom-scrollbar p-8">
+            <div className="grid lg:grid-cols-12 gap-12">
+                {/* Form Section */}
+                <form onSubmit={handleSubmit} className="lg:col-span-5 space-y-6">
+                    <div className="space-y-4">
+                        <div className="aspect-video rounded-3xl overflow-hidden google-card relative group">
+                            <img src={formData.backdrop} alt="" className="w-full h-full object-cover" />
+                            <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all">
+                                <span className="text-white text-xs font-bold">Update Backdrop URL Below</span>
+                            </div>
+                        </div>
+                        
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Title</label>
+                            <input name="title" value={formData.title} onChange={handleChange} className="w-full bg-[#F5F5F5] border-none rounded-xl p-3 text-sm outline-none font-bold" />
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Category</label>
+                                <input name="category" value={formData.category} onChange={handleChange} className="w-full bg-[#F5F5F5] border-none rounded-xl p-3 text-sm outline-none" />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Type</label>
+                                <div className="p-3 bg-gray-100 rounded-xl text-xs font-bold text-gray-500 uppercase text-center">{formData.movie_type}</div>
+                            </div>
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Description</label>
+                            <textarea name="description" value={formData.description} onChange={handleChange} className="w-full bg-[#F5F5F5] border-none rounded-2xl p-4 text-sm outline-none h-32 resize-none" />
+                        </div>
+
+                        <button type="submit" className="w-full flex items-center justify-center gap-2 bg-[#195C51] text-white py-4 rounded-2xl font-bold hover:bg-[#0E3A32] transition-all shadow-lg active:scale-95">
+                            <MdSave size={20}/> Save Changes
+                        </button>
+                    </div>
+                </form>
+
+                {/* Videos/Episodes Section */}
+                <div className="lg:col-span-7 space-y-6">
+                    <div className="bg-[#F5F5F5] rounded-[2.5rem] p-6 border border-gray-100">
+                        <VideosList movie={formData} isSeries={formData.movie_type === 'series'} onUpdate={onClose} />
+                    </div>
+                </div>
+            </div>
+        </div>
       </div>
     </div>
   );
