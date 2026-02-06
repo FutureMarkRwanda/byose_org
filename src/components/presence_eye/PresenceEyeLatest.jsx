@@ -1,12 +1,12 @@
-import React, { useRef, useState } from 'react';
-import TitleColor from "../TitleColor.jsx";
+import { useRef, useState } from 'react';
 import ImageSlider from "../ImageSlider.jsx";
 import DownloadApp from "./DownloadApp.jsx";
 import { presence_eye_lite_images } from "../../utils/data.js";
 import emailjs from "@emailjs/browser";
 import { publicKey, viteemailserviceid, viteemailtemplate } from "../../utils/variable.js";
 import Video from "../Video.jsx";
-import { MdOutlineShoppingCart, MdClose, MdAutoAwesome } from "react-icons/md";
+import { MdClose, MdAutoAwesome } from "react-icons/md";
+// import Buttons3D from './Buttons3D.jsx';
 
 function PresenceEyeLatest() {
     const [showForm, setShowForm] = useState(false);
@@ -44,6 +44,7 @@ function PresenceEyeLatest() {
                         </p>
                        
                     </div>
+
                 </div>
             </div>
 

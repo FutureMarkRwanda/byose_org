@@ -94,7 +94,7 @@ function ContactUs() {
                                 </div>
                                 <div>
                                     <h4 className="text-xs font-bold uppercase tracking-widest text-gray-400">Email us at</h4>
-                                    <p className="text-lg font-medium text-[#333333]">rw.byose@email.com</p>
+                                    <p className="text-lg font-medium text-[#333333]">rw.byose@gmail.com</p>
                                 </div>
                             </div>
 

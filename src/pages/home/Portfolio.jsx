@@ -116,9 +116,8 @@ function Portfolio() {
                 {/* Background "Grid" effect */}
                 <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(#195C51 1px, transparent 1px)', backgroundSize: '30px 30px' }}></div>
                 
-                <div className="container mx-auto px-6 relative z-10 text-center space-y-16">
-                    <div className="space-y-4">
-                        <h2 className="text-[#195C51] font-bold uppercase tracking-[0.5em] text-[10px]">Archives</h2>
+<div className="container mx-auto px-6 relative z-10 flex flex-col md:flex-row items-center justify-center gap-16 text-center">                    <div className="space-y-4 justify-center">
+                        <h2 className="text-[#195C51] font-bold uppercase tracking-[0.5em] text-[30px]">Archives</h2>
                         <h1 className="text-4xl md:text-5xl font-bold text-white tracking-tighter">Visual Field Notes</h1>
                     </div>
                     

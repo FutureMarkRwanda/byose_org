@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect} from 'react';
 import { 
     MdWifi, 
     MdWifiOff, 
@@ -41,7 +41,11 @@ const OnlineDevicesDashboard = () => {
       if (investorRes.error) throw new Error(investorRes.error);
 
       setDevices(devicesRes.data.devices || []);
+      console.log(devicesRes.data.devices[0]);
+      
       setInvestorStats(investorRes.data);
+     
+      
     } catch (err) {
       setError(err.message || "Cloud synchronization failed");
     } finally {
@@ -127,6 +131,7 @@ const OnlineDevicesDashboard = () => {
                   <th className="p-5 text-[10px] font-black uppercase tracking-widest text-gray-400 text-center">Enabled</th>
                   <th className="p-5 text-[10px] font-black uppercase tracking-widest text-gray-400">Last Used</th>
                   <th className="p-5 text-[10px] font-black uppercase tracking-widest text-gray-400 text-right">Ping (Signal)</th>
+                  <th className="p-5 text-[10px] font-black uppercase tracking-widest text-gray-400">Location</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50">
@@ -155,6 +160,9 @@ const OnlineDevicesDashboard = () => {
                       </td>
                       <td className="p-5 text-right text-xs font-bold text-[#195C51]">
                         {online ? 'Now' : formatDate(device.lastHeartbeatAt)}
+                      </td>
+                      <td className="p-5 text-sm text-gray-400">
+                        {device.longitude || '—'}
                       </td>
                     </tr>
                   )
