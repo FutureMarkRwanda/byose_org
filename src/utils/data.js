@@ -270,6 +270,7 @@ Innocent’s leadership in technology is characterized by his commitment to inno
         role:"Head of Global Business Group",
         image:defaultAvatar,
         images:[
+            "https://res.cloudinary.com/duqu47a75/image/upload/v1770401227/pictures/yanice_rhsf1x.jpg",
             "https://res.cloudinary.com/ddsojj7zo/image/upload/v1754750241/yanice3_dmgn8w.jpg",
             "https://res.cloudinary.com/ddsojj7zo/image/upload/v1754750241/yanice1_vqv5to.jpg",
             "https://res.cloudinary.com/ddsojj7zo/image/upload/v1754750241/yanice2_b58irp.jpg"

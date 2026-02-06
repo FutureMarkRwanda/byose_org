@@ -102,10 +102,10 @@ function Footer() {
             </h3>
             <div className="flex flex-col space-y-4">
               <a
-                href="mailto:rw.byose@email.com"
+                href="mailto:rw.byose@gmail.com"
                 className="flex items-center gap-2 text-gray-400 hover:text-white"
               >
-                <TbBrandGmail className="text-[#195C51]" /> rw.byose@email.com
+                <TbBrandGmail className="text-[#195C51]" /> rw.byose@gmail.com
               </a>
               <p className="text-gray-400 font-light">Kigali, Rwanda</p>
             </div>
