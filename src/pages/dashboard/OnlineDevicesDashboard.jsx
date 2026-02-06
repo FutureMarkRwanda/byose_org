@@ -46,6 +46,8 @@ const OnlineDevicesDashboard = () => {
 
       setDevices(devicesRes.data.devices || []);
       setInvestorStats(investorRes.data);
+      console.log(investorRes.data);
+      
     } catch (err) {
       setError(err.message || "Cloud synchronization failed");
     } finally {
@@ -151,6 +153,13 @@ const OnlineDevicesDashboard = () => {
             subtitle="Avg. commands per day"
             icon={<MdOutlineTouchApp size={24} />}
           />
+          <StatCard 
+  title="Shelfware Rate" 
+  value={`${investorStats.shelfwarePercent}%`} 
+  subtitle="Inactive / Unused stock" 
+  icon={<MdOutlineHourglassEmpty size={24}/>} 
+  color="text-orange-600" 
+/>
         </div>
       )}
 
