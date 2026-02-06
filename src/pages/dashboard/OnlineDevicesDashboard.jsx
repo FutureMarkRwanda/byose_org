@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { fetchData, returnToken, getOwnerLabel } from "../../utils/helper.js"; // Added getOwnerLabel
 import {
   MdWifi,
   MdWifiOff,
@@ -16,7 +17,6 @@ import {
 } from "react-icons/md";
 import { MapContainer, TileLayer, CircleMarker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css"; // Essential for map styling
-import { fetchData, returnToken } from "../../utils/helper.js";
 import { presence_server } from "../../config/server_api.js";
 
 const OnlineDevicesDashboard = () => {
@@ -181,7 +181,6 @@ const OnlineDevicesDashboard = () => {
         {viewMode === "map" ? (
           /* GEOGRAPHIC DOT DISTRIBUTION */
           <div className="google-card overflow-hidden h-[600px] mx-2 bg-[#F5F5F5] relative border-none shadow-inner">
-            {/* CRITICAL CHANGE: Only mount the map when NOT loading */}
             {!loading ? (
               <MapContainer
                 center={[-1.9441, 30.0619]}
@@ -189,20 +188,15 @@ const OnlineDevicesDashboard = () => {
                 style={{ height: "100%", width: "100%", zIndex: 1 }}
                 scrollWheelZoom={false}
               >
+                {/* Changed to Voyager tiles for richer colors (Green/Blue/Yellow) */}
                 <TileLayer
-                  url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+                  url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
                   attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
                 />
+
                 {devices.map((device) => {
                   const coords = device.location?.coordinates?.coordinates;
-                  // Ensure coordinates exist and are valid numbers
-                  if (
-                    !coords ||
-                    coords.length < 2 ||
-                    isNaN(coords[0]) ||
-                    isNaN(coords[1])
-                  )
-                    return null;
+                  if (!coords || coords.length < 2) return null;
 
                   const online = isCurrentlyOnline(device);
 
@@ -212,34 +206,63 @@ const OnlineDevicesDashboard = () => {
                       center={[coords[1], coords[0]]}
                       radius={10}
                       pathOptions={{
-                        fillColor: online ? "#10b981" : "#94a3b8",
+                        fillColor: online ? "#10b981" : "#64748b",
                         color: "white",
                         weight: 3,
                         fillOpacity: 0.9,
                       }}
                     >
                       <Popup className="custom-popup">
-                        <div className="p-2 space-y-1">
-                          <p className="font-black text-[10px] uppercase tracking-widest text-[#195C51]">
-                            SN: {device.serialNumber}
-                          </p>
-                          <p className="font-bold text-gray-800 text-sm">
-                            {device.location.address || "Unknown Deployment"}
-                          </p>
-                          <div className="flex items-center gap-2 pt-1 border-t border-gray-50 mt-2">
+                        <div className="p-3 min-w-[180px] space-y-3">
+                          {/* Header */}
+                          <div className="flex justify-between items-start border-b border-gray-50 pb-2">
+                            <div>
+                              <p className="font-black text-[9px] uppercase tracking-widest text-[#195C51]">
+                                Serial Number
+                              </p>
+                              <p className="font-bold text-gray-800 text-xs">
+                                {device.serialNumber}
+                              </p>
+                            </div>
                             <div
-                              className={`w-1.5 h-1.5 rounded-full ${
-                                online ? "bg-green-500" : "bg-gray-400"
+                              className={`px-2 py-0.5 rounded-full text-[8px] font-black uppercase ${
+                                online
+                                  ? "bg-green-50 text-green-600"
+                                  : "bg-gray-100 text-gray-500"
                               }`}
-                            ></div>
-                            <p className="text-[9px] font-bold uppercase text-gray-500">
-                              {online
-                                ? "Online Now"
-                                : `Last sync: ${formatDateShort(
-                                    device.lastHeartbeatAt,
-                                  )}`}
+                            >
+                              {online ? "Live" : "Idle"}
+                            </div>
+                          </div>
+
+                          {/* Owner Section */}
+                          <div>
+                            <p className="font-black text-[9px] uppercase tracking-widest text-gray-400">
+                              Authorized Owner
+                            </p>
+                            <p className="font-bold text-gray-700 text-sm">
+                              {getOwnerLabel(device.owner)}
                             </p>
                           </div>
+
+                          {/* Deployment Section */}
+                          <div>
+                            <p className="font-black text-[9px] uppercase tracking-widest text-gray-400">
+                              Deployed At
+                            </p>
+                            <p className="text-xs text-gray-500 leading-tight">
+                              {device.location.address || "Unlabeled Station"}
+                            </p>
+                          </div>
+
+                          {/* Latency Info */}
+                          <p className="text-[9px] font-medium text-gray-400 italic pt-1">
+                            {online
+                              ? "Synced via Cloud Node"
+                              : `Last seen: ${formatDateShort(
+                                  device.lastHeartbeatAt,
+                                )}`}
+                          </p>
                         </div>
                       </Popup>
                     </CircleMarker>
@@ -247,22 +270,25 @@ const OnlineDevicesDashboard = () => {
                 })}
               </MapContainer>
             ) : (
-              /* Show a loader inside the map container space while fetching */
               <div className="flex items-center justify-center h-full">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#195C51]"></div>
               </div>
             )}
 
-            {/* Map Overlay Info (Stays visible even during loading) */}
-            <div className="absolute bottom-6 left-6 z-[1000] bg-white/80 backdrop-blur-md p-4 rounded-2xl shadow-xl border border-white/20">
-              <div className="flex items-center gap-4 text-[10px] font-black uppercase tracking-widest text-gray-700">
+            {/* Map Overlay Info (Color Legend) */}
+            <div className="absolute bottom-6 left-6 z-[1000] bg-white/90 backdrop-blur-md p-4 rounded-2xl shadow-xl border border-gray-100">
+              <div className="flex items-center gap-6">
                 <div className="flex items-center gap-2">
-                  <span className="w-3 h-3 rounded-full bg-green-500"></span>{" "}
-                  Online
+                  <span className="w-3 h-3 rounded-full bg-[#10b981] shadow-sm"></span>
+                  <span className="text-[10px] font-black uppercase tracking-widest text-gray-600">
+                    Active
+                  </span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="w-3 h-3 rounded-full bg-gray-400"></span>{" "}
-                  Latency
+                  <span className="w-3 h-3 rounded-full bg-[#64748b] shadow-sm"></span>
+                  <span className="text-[10px] font-black uppercase tracking-widest text-gray-600">
+                    Offline
+                  </span>
                 </div>
               </div>
             </div>

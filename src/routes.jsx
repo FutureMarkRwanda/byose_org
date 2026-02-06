@@ -16,6 +16,9 @@ import DashboardOverview from "./pages/dashboard/DashboardOverview.jsx";
 import AddMovie from "./pages/dashboard/AddMovie.jsx";
 import CreatePost from "./pages/dashboard/CreatePost.jsx";
 import UpdateLocation from "./pages/dashboard/UpdateLocation.jsx";
+import PresenceEyePlans from "./pages/dashboard/PresenceEyePlans.jsx";
+import PresenceEyeSubscriptions from "./pages/dashboard/PresenceEyeSubscriptions.jsx";
+
 import { MdMap } from "react-icons/md";
 
 // Auth Pages
@@ -87,6 +90,16 @@ export const routes = [
             name: "Update Location",
             path: "presence-eye-buttons/location",
             element: <UpdateLocation />,
+          },
+          {
+            name: "Subscription Plans",
+            path: "presence-eye-buttons/plans",
+            element: <PresenceEyePlans />,
+          },
+          {
+            name: "Active Subscriptions",
+            path: "presence-eye-buttons/subscriptions",
+            element: <PresenceEyeSubscriptions />,
           },
         ],
       },

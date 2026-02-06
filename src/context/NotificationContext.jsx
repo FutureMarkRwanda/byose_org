@@ -16,10 +16,18 @@ export const NotificationProvider = ({ children }) => {
     <NotificationContext.Provider value={{ showNotification }}>
       {children}
       {notification && (
-        <div className={`fixed top-5 right-5 px-4 py-2 rounded shadow-lg text-white z-50
-          ${notification.type === "success" ? "bg-green-500" :
-            notification.type === "error" ? "bg-red-500" :
-            notification.type === "warning" ? "bg-yellow-500" : "bg-blue-500"}`}>
+        <div
+          className={`fixed top-5 right-5 px-4 py-2 rounded shadow-lg text-white z-[9999]
+  ${
+    notification.type === "success"
+      ? "bg-green-500"
+      : notification.type === "error"
+      ? "bg-red-500"
+      : notification.type === "warning"
+      ? "bg-yellow-500"
+      : "bg-blue-500"
+  }`}
+        >
           {notification.message}
         </div>
       )}
