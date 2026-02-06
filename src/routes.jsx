@@ -10,6 +10,9 @@ import Feedbacks from "./pages/dashboard/Feedbacks.jsx";
 import DashboardOverview from "./pages/dashboard/DashboardOverview.jsx";
 import AddMovie from "./pages/dashboard/AddMovie.jsx";
 import CreatePost from "./pages/dashboard/CreatePost.jsx";
+import SignIn from "./pages/auth/Sign-in.jsx";
+import Otp from "./pages/auth/otp.jsx";
+import ResetPassword from "./pages/auth/ResetPassword.jsx";
 
 const iconClass = "w-5 h-5";
 
@@ -73,6 +76,27 @@ export const routes = [
                         element: <Feedbacks /> 
                     },
                 ]
+            },
+        ],
+    },
+        {
+        title: "Auth Pages",
+        layout: "auth", // This matches the check in App.jsx
+        pages: [
+            {
+                name: "Sign In",
+                path: "sign-in",
+                element: <SignIn />,
+            },
+            {
+                name: "OTP",
+                path: "otp/:email",
+                element: <Otp />,
+            },
+            {
+                name: "Reset Password",
+                path: "reset-password",
+                element: <ResetPassword />,
             },
         ],
     },

@@ -41,7 +41,7 @@ const OnlineDevicesDashboard = () => {
       if (investorRes.error) throw new Error(investorRes.error);
 
       setDevices(devicesRes.data.devices || []);
-      console.log(devicesRes.data.devices[0]);
+      
       
       setInvestorStats(investorRes.data);
      
