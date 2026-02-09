@@ -72,6 +72,8 @@ export default function PresenceEyeAdmin() {
             } else if (activeTab === "remotes") {
                 const { data } = await fetchData(API.REMOTES, token);
                 setRemotes(data?.remotes || []);
+                console.log(data.remotes);
+                
             } else if (activeTab === "extensions") {
                 const { data } = await fetchData(API.EXTENSIONS, token);
                 setExtensions(data?.extensions || data?.data || (Array.isArray(data) ? data : []));
