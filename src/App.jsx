@@ -24,6 +24,7 @@ import {AuthProvider} from "./context/AuthContext.jsx";
 import ProtectedRoute from "./pages/auth/ProtectRoutes.jsx";
 import Services from "./pages/home/About.jsx";
 import Progress from "./components/presence_eye/PresenceEyeProgress.jsx";
+import AccountDeletation from "./pages/home/AccountDeletation.jsx";
 
 
 function DashboardLayout() {
@@ -69,6 +70,7 @@ function App() {
                     <Route path="/presence-eye" element={<PresenceEye/>}>
                         <Route index element={<PresenceEyeLatest/>}/>
                         <Route path="/presence-eye/terms-policy" element={<PresenceEyePrivacyPolicy/>}/>
+                        <Route path="/presence-eye/account-deletion" element={<AccountDeletation/>}/>
                         <Route path="/presence-eye/presents" element={<PresenceEyePresentation/>}/>
                         <Route path="/presence-eye/progress" element={<Progress/>}/>
                     </Route>
