@@ -26,7 +26,8 @@ export const NotificationProvider = ({ children }) => {
       : notification.type === "warning"
       ? "bg-yellow-500"
       : "bg-blue-500"
-  }`}
+  }
+      `}
         >
           {notification.message}
         </div>
