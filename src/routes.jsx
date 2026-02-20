@@ -19,7 +19,6 @@ import UpdateLocation from "./pages/dashboard/UpdateLocation.jsx";
 import PresenceEyePlans from "./pages/dashboard/PresenceEyePlans.jsx";
 import PresenceEyeSubscriptions from "./pages/dashboard/PresenceEyeSubscriptions.jsx";
 
-import { MdMap } from "react-icons/md";
 
 // Auth Pages
 import SignIn from "./pages/auth/Sign-in.jsx";
@@ -71,14 +70,14 @@ export const routes = [
     title: "Projects",
     layout: "dashboard",
     pages: [
-      {
+{
         icon: <CursorArrowRaysIcon className={iconClass} />,
         name: "Presence Eye",
         isDropdown: true,
         subPages: [
           {
             name: "Device Manager",
-            path: "presence-eye-buttons/management",
+            path: "presence-eye-buttons/management", // This is the 'link' used in the card
             element: <PresenceEyeAdmin />,
           },
           {
@@ -109,14 +108,14 @@ export const routes = [
         isDropdown: true,
         subPages: [
           {
+            name: "Manage Movies",
+            path: "byose-tv/manage-movies", // This is the 'link' used in the card
+            element: <AdminMovies />,
+          },
+          {
             name: "Add Movies",
             path: "byose-tv/add-movie",
             element: <AddMovie />,
-          },
-          {
-            name: "Manage Movies",
-            path: "byose-tv/manage-movies",
-            element: <AdminMovies />,
           },
           {
             name: "Add Trends",

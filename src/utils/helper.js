@@ -278,12 +278,16 @@ export function lastNChars(str, n) {
     return str.slice(-n);
 }
 
-export const copyToClipboard = async (text, label = "copied" ,showNotification) => {
-        try {
-            await navigator.clipboard.writeText(String(text));
-            showNotification(`${label} copied to clipboard`)
-        } catch (err) {
-            showNotification('Failed to copy'+err.message);
+export const copyToClipboard = async (text, label = "copied", showNotification) => {
+    try {
+        await navigator.clipboard.writeText(String(text));
+        // Check if showNotification exists before calling to prevent crash
+        if (showNotification) {
+            showNotification(`${label} copied to clipboard`, "success");
+        } else {
+            alert(`${label} copied to clipboard`);
         }
-    };
-
+    } catch (err) {
+        if (showNotification) showNotification('Failed to copy: ' + err.message, "error");
+    }
+};

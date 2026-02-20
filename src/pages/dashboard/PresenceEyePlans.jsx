@@ -47,10 +47,9 @@ const handleToggleStatus = async (planId, currentlyActive) => {
     const action = currentlyActive ? "disable" : "enable";
     
     // Construct the URL without any potential whitespace or newlines
-    const baseUrl = `${presence_server}/api`;
     const url = currentlyActive 
-        ? `${baseUrl}/admin/plans/disable/${planId}`
-        : `${baseUrl}/subscriptions/admin/plans/enable/${planId}`;
+        ? `${presence_server}/api/subscriptions/admin/plans/disable/${planId}`
+        : `${presence_server}/api/subscriptions/admin/plans/enable/${planId}`;
 
     setLoading(true);
     const result = await patchData(url, {}, returnToken());

@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom"; // 1. Use Link for internal routing
 import { CursorArrowRaysIcon, TvIcon } from "@heroicons/react/24/outline";
 
 const DashboardOverview = () => {
@@ -7,14 +8,16 @@ const DashboardOverview = () => {
             desc: "Emphasis on enhancing remote connectivity of devices. Managing smart triggers and hardware communication layers.",
             icon: <CursorArrowRaysIcon className="w-8 h-8 text-white" />,
             color: "bg-[#195C51]",
-            link: "/dashboard/presence-eye"
+            // FIXED: Path must match routes.jsx
+            link: "/dashboard/presence-eye-buttons/management" 
         },
         {
             title: "Byose TV",
             desc: "The core multimedia streaming engine. Managing movie libraries, series, and versioning for global distribution.",
             icon: <TvIcon className="w-8 h-8 text-white" />,
             color: "bg-blue-600",
-            link: "/dashboard/movies"
+            // FIXED: Path must match routes.jsx
+            link: "/dashboard/byose-tv/manage-movies" 
         }
     ];
 
@@ -27,7 +30,8 @@ const DashboardOverview = () => {
 
             <div className="grid md:grid-cols-2 gap-8">
                 {projects.map((project, idx) => (
-                    <div key={idx} className="google-card p-8 group hover:border-[#195C51]/30">
+                    // 2. Wrap the whole card or just the button in <Link>
+                    <Link key={idx} to={project.link} className="google-card p-8 group hover:border-[#195C51]/30 block">
                         <div className={`w-16 h-16 ${project.color} rounded-2xl flex items-center justify-center mb-6 shadow-lg`}>
                             {project.icon}
                         </div>
@@ -35,28 +39,14 @@ const DashboardOverview = () => {
                         <p className="text-gray-600 leading-relaxed mb-8">
                             {project.desc}
                         </p>
-                        <a 
-                            href={project.link}
-                            className="inline-flex items-center font-bold text-sm uppercase tracking-widest text-[#195C51] hover:underline"
-                        >
+                        <div className="inline-flex items-center font-bold text-sm uppercase tracking-widest text-[#195C51] group-hover:underline">
                             Open Project Control →
-                        </a>
-                    </div>
+                        </div>
+                    </Link>
                 ))}
             </div>
 
-            {/* Quick Stats Placeholder */}
-            <div className="bg-[#F5F5F5] p-8 rounded-[2.5rem] border border-gray-100">
-                <h3 className="text-xs font-black uppercase tracking-widest text-gray-400 mb-6 text-center">Global System Health</h3>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-                    {['Users', 'Active Devices', 'Movies', 'Feedbacks'].map((stat) => (
-                        <div key={stat} className="text-center">
-                            <p className="text-2xl font-bold text-[#333333]">--</p>
-                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">{stat}</p>
-                        </div>
-                    ))}
-                </div>
-            </div>
+
         </div>
     );
 };

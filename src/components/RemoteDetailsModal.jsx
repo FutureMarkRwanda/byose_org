@@ -19,6 +19,7 @@ export default function RemoteDetailsModal({
     const debounceRef = useRef(null);
 
     const postConfig = async () => {
+         if (!remote?.buttons || remote.buttons.length === 0) return;
         if (debounceRef.current) {
             clearTimeout(debounceRef.current);
         }
