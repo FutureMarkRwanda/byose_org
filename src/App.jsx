@@ -1,4 +1,3 @@
-// eslint-disable-next-line no-unused-vars
 import Home from "./pages/home/Home.jsx";
 import WhoWeAre from "./pages/home/WhoWeAre.jsx";
 import { Route, Routes, Navigate } from "react-router-dom";
@@ -22,6 +21,7 @@ import { AuthProvider } from "./context/AuthContext.jsx";
 import ProtectedRoute from "./pages/auth/ProtectRoutes.jsx";
 import Services from "./pages/home/About.jsx";
 import Progress from "./components/presence_eye/PresenceEyeProgress.jsx";
+import AccountDeletation from "./pages/home/AccountDeletation.jsx";
 
 function DashboardLayout() {
   return (
@@ -49,10 +49,13 @@ function App() {
     "/login": "Login | BYOSE",
     "/dashboard": "DASHBOARD | BYOSE Tech",
   };
+
   useUpdateTitle(titleMap);
+
   return (
     <div className={`bg-white text-gray-800`}>
       <Routes>
+        {/* Public Landing Pages */}
         <Route exact path="/" element={<Landing />}>
           <Route index element={<Home />} />
           <Route path="/services" element={<Services />} />
@@ -78,6 +81,10 @@ function App() {
               element={<PresenceEyePrivacyPolicy />}
             />
             <Route
+              path="/presence-eye/account-deletion"
+              element={<AccountDeletation />}
+            />
+            <Route
               path="/presence-eye/presents"
               element={<PresenceEyePresentation />}
             />
@@ -86,46 +93,38 @@ function App() {
           <Route path="*" element={<NotFound />} />
         </Route>
 
-        {/* Admin DashBoard */}
-        {/* Admin DashBoard */}
+        {/* Admin Dashboard */}
         <Route path="/dashboard" element={<DashboardLayout />}>
           {routes.map(
             ({ layout, pages }) =>
               layout === "dashboard" &&
               pages.map((page) => {
-                // 1. If it's a normal page
                 if (!page.isDropdown) {
                   return (
                     <Route
                       key={page.path}
-                      index={page.path === ""} // Handle /dashboard as index
+                      index={page.path === ""}
                       path={page.path !== "" ? page.path : undefined}
                       element={page.element}
                     />
                   );
                 }
-
-                // 2. If it's a dropdown, register all its subPages
                 return page.subPages.map((sub) => (
-                  <Route
-                    key={sub.path}
-                    path={sub.path} // This is now 'byose-tv/feedbacks', etc.
-                    element={sub.element}
-                  />
+                  <Route key={sub.path} path={sub.path} element={sub.element} />
                 ));
-              }),
+              })
           )}
         </Route>
 
+        {/* Auth Pages */}
         <Route path="/auth" element={<Auth />}>
-        <Route index element={<Navigate to="/auth/sign-in" replace />} />
+          <Route index element={<Navigate to="/auth/sign-in" replace />} />
           {routes.map(
             ({ layout, pages }) =>
               layout === "auth" &&
               pages.map(({ path, element }) => (
-                // eslint-disable-next-line react/jsx-key
-                <Route exact path={`${path}`} element={element} />
-              )),
+                <Route key={path} exact path={`${path}`} element={element} />
+              ))
           )}
         </Route>
       </Routes>
