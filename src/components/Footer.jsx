@@ -17,7 +17,7 @@ function Footer() {
     },
     {
       icon: FaWhatsapp,
-      url: "https://wa.me/250792403062",
+      url: "https://wa.me/250798736159",
       label: "Whatsapp",
     },
   ];
