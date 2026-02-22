@@ -65,6 +65,13 @@ export default function PresenceEyeAdmin() {
   const [selectedUser, setSelectedUser] = useState(null);
   const [selectedRemote, setSelectedRemote] = useState(null);
   const [selectedExtension, setSelectedExtension] = useState(null);
+      const maskEmail = (email) => {
+    if (!email) return "—";
+    const [local, domain] = email.split("@");
+    // Show first 3 letters of the local part + asterisks + domain
+    const maskedLocal = local.substring(0, 3) + "***";
+    return `${maskedLocal}@${domain}`;
+};
 
   async function load() {
     setLoading(true);
@@ -214,209 +221,131 @@ export default function PresenceEyeAdmin() {
       </div>
 
       {/* Table Container */}
-      <div className="google-card overflow-hidden bg-white mx-2">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+<div className="google-card overflow-hidden bg-white mx-2">
+    <div className="overflow-x-auto">
+        <table className="w-full text-left border-collapse">
             <thead className="bg-[#F5F5F5]/40 border-b border-gray-100">
-              <tr>
-                {activeTab === "remotes" && (
-                  <>
-                    <th className="px-6 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">
-                      Identity
-                    </th>
-                    <th className="px-6 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">
-                      Pins
-                    </th>
-                    <th className="px-6 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">
-                      Status
-                    </th>
-                    <th className="px-6 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">
-                      Created
-                    </th>
-                    <th className="px-6 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400 text-right">
-                      Action
-                    </th>
-                  </>
-                )}
-                {activeTab === "users" && (
-                  <>
-                    <th className="px-6 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">
-                      User Details
-                    </th>
-                    <th className="px-6 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">
-                      Email
-                    </th>
-                    <th className="px-6 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">
-                      Devices
-                    </th>
-                    <th className="px-6 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">
-                      Registered
-                    </th>
-                    <th className="px-6 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400 text-right">
-                      Action
-                    </th>
-                  </>
-                )}
-                {activeTab === "extensions" && (
-                  <>
-                    <th className="px-6 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">
-                      Device Label
-                    </th>
-                    <th className="px-6 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">
-                      Serial
-                    </th>
-                    <th className="px-6 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">
-                      Current Owner
-                    </th>
-                    <th className="px-6 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">
-                      Status
-                    </th>
-                    <th className="px-6 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400 text-right">
-                      Action
-                    </th>
-                  </>
-                )}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-50">
-              {!loading &&
-                paginatedData.map((item) => (
-                  <tr
-                    key={item._id}
-                    className="hover:bg-gray-50/40 transition-colors"
-                  >
+                <tr>
                     {activeTab === "remotes" && (
-                      <>
-                        <td className="px-6 py-5">
-                          <div className="font-bold text-[#333333] text-sm">
-                            {item.serialNumber}
-                          </div>
-                          <div className="text-[10px] text-gray-400 font-bold uppercase">
-                            {item.manufacture}
-                          </div>
-                        </td>
-                        <td className="px-6 py-5 text-xs font-medium text-gray-500">
-                          {item.buttons?.length || 0} Pins
-                        </td>
-                        <td className="px-6 py-5">
-                          <StatusBadge state={item.state} />
-                        </td>
-                        <td className="px-6 py-5 text-xs font-medium text-gray-400">
-                          {formatDate(item.createdAt)}
-                        </td>
-                        <td className="px-6 py-5 text-right">
-                          <button
-                            onClick={() => setSelectedRemote(item)}
-                            className="px-4 py-2 rounded-xl bg-[#F5F5F5] text-[10px] font-black uppercase text-[#195C51] hover:bg-[#195C51] hover:text-white transition-all"
-                          >
-                            Manage
-                          </button>
-                        </td>
-                      </>
+                        <>
+                            <th className="px-6 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">Identity</th>
+                            <th className="px-6 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">Pins</th>
+                            <th className="px-6 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">Status</th>
+                            <th className="px-6 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">Created</th>
+                            <th className="px-6 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400 text-right">Action</th>
+                        </>
                     )}
                     {activeTab === "users" && (
-                      <>
-                        <td className="px-6 py-5 flex items-center gap-4">
-                          <div className="w-9 h-9 rounded-xl bg-[#195C51]/10 flex items-center justify-center text-[10px] font-black text-[#195C51] uppercase">
-                            {combineInitials(item.firstName, item.lastName)}
-                          </div>
-                          <div className="font-bold text-sm text-[#333333] tracking-tight">
-                            {item.firstName} {item.lastName}
-                          </div>
-                        </td>
-                        <td className="px-6 py-5 text-sm text-gray-500 font-medium">
-                          {item.email}
-                        </td>
-                        <td className="px-6 py-5 text-xs font-medium text-gray-600">
-                          {(item.extensions?.length || 0) +
-                            (item.buttons?.length || 0)}{" "}
-                          Units
-                        </td>
-                        <td className="px-6 py-5 text-xs text-gray-400">
-                          {formatDate(item.createdAt)}
-                        </td>
-                        <td className="px-6 py-5 text-right">
-                          <button
-                            onClick={() => setSelectedUser(item)}
-                            className="px-4 py-2 rounded-xl bg-[#F5F5F5] text-[10px] font-black uppercase text-[#195C51] hover:bg-[#195C51] hover:text-white transition-all"
-                          >
-                            Profile
-                          </button>
-                        </td>
-                      </>
+                        <>
+                            <th className="px-6 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">User Details</th>
+                            <th className="px-6 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">Email Address</th>
+                            <th className="px-6 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">Device Units</th>
+                            <th className="px-6 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">Registered</th>
+                            <th className="px-6 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400 text-right">Action</th>
+                        </>
                     )}
                     {activeTab === "extensions" && (
-                      <>
-                        <td className="px-6 py-5">
-                          <div className="font-bold text-[#333333] text-sm">
-                            {item.labelName || "Digital Twin"}
-                          </div>
-                          <div className="text-[10px] text-gray-400 font-bold uppercase">
-                            {item.modelType}
-                          </div>
-                        </td>
-                        <td className="px-6 py-5 text-xs font-mono text-gray-400">
-                          {item.serialNumber}
-                        </td>
-                        <td className="px-6 py-5">
-                          <div className="text-sm font-medium text-gray-600">
-                            {typeof item.owner === "object"
-                              ? getOwnerLabel(item.owner)
-                              : item.owner || "Unassigned"}
-                          </div>
-                        </td>
-                        <td className="px-6 py-5">
-                          <StatusBadge state={item.status} />
-                        </td>
-                        <td className="px-6 py-5 text-right">
-                          <button
-                            onClick={() => setSelectedExtension(item)}
-                            className="px-4 py-2 rounded-xl bg-[#F5F5F5] text-[10px] font-black uppercase text-[#195C51] hover:bg-[#195C51] hover:text-white transition-all"
-                          >
-                            Config
-                          </button>
-                        </td>
-                      </>
+                        <>
+                            <th className="px-6 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">Device Label</th>
+                            <th className="px-6 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">Serial</th>
+                            <th className="px-6 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">Current Owner</th>
+                            <th className="px-6 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">Status</th>
+                            <th className="px-6 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400 text-right">Action</th>
+                        </>
                     )}
-                  </tr>
+                </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-50">
+                {!loading && paginatedData.map((item) => (
+                    <tr key={item._id} className="hover:bg-gray-50/40 transition-colors">
+                        {activeTab === "remotes" && (
+                            <>
+                                <td className="px-6 py-5">
+                                    <div className="font-bold text-[#333333] text-sm">{item.serialNumber}</div>
+                                    <div className="text-[10px] text-gray-400 font-bold uppercase">{item.manufacture}</div>
+                                </td>
+                                <td className="px-6 py-5 text-xs font-medium text-gray-500">{item.buttons?.length || 0} Pins</td>
+                                <td className="px-6 py-5"><StatusBadge state={item.state} /></td>
+                                <td className="px-6 py-5 text-xs font-medium text-gray-400">{formatDate(item.createdAt)}</td>
+                                <td className="px-6 py-5 text-right">
+                                    <button onClick={() => setSelectedRemote(item)} className="px-4 py-2 rounded-xl bg-[#F5F5F5] text-[10px] font-black uppercase text-[#195C51] hover:bg-[#195C51] hover:text-white transition-all">Manage</button>
+                                </td>
+                            </>
+                        )}
+                        {activeTab === "users" && (
+                            <>
+                                <td className="px-6 py-5 flex items-center gap-4">
+                                    <div className="w-9 h-9 rounded-xl bg-[#195C51]/10 flex items-center justify-center text-[10px] font-black text-[#195C51] uppercase">
+                                        {combineInitials(item.firstName, item.lastName)}
+                                    </div>
+                                    <div className="font-bold text-sm text-[#333333] tracking-tight">{item.firstName} {item.lastName}</div>
+                                </td>
+                                <td className="px-6 py-5 text-sm text-gray-500 font-medium">
+                                    {maskEmail(item.email)}
+                                </td>
+                                <td className="px-6 py-5 text-xs font-medium text-gray-600">{(item.extensions?.length || 0) + (item.buttons?.length || 0)} Units</td>
+                                <td className="px-6 py-5 text-xs text-gray-400">{formatDate(item.createdAt)}</td>
+                                <td className="px-6 py-5 text-right">
+                                    <button onClick={() => setSelectedUser(item)} className="px-4 py-2 rounded-xl bg-[#F5F5F5] text-[10px] font-black uppercase text-[#195C51] hover:bg-[#195C51] hover:text-white transition-all">Profile</button>
+                                </td>
+                            </>
+                        )}
+                        {activeTab === "extensions" && (
+                            <>
+                                <td className="px-6 py-5">
+                                    <div className="font-bold text-[#333333] text-sm">{item.labelName || "Digital Twin"}</div>
+                                    <div className="text-[10px] text-gray-400 font-bold uppercase">{item.modelType}</div>
+                                </td>
+                                <td className="px-6 py-5 text-xs font-mono text-gray-400">{item.serialNumber}</td>
+                                <td className="px-6 py-5">
+                                    <div className="text-sm font-medium text-gray-600">
+                                        {typeof item.owner === "object" ? getOwnerLabel(item.owner) : item.owner || "Unassigned"}
+                                    </div>
+                                </td>
+                                <td className="px-6 py-5"><StatusBadge state={item.status} /></td>
+                                <td className="px-6 py-5 text-right">
+                                    <button onClick={() => setSelectedExtension(item)} className="px-4 py-2 rounded-xl bg-[#F5F5F5] text-[10px] font-black uppercase text-[#195C51] hover:bg-[#195C51] hover:text-white transition-all">Config</button>
+                                </td>
+                            </>
+                        )}
+                    </tr>
                 ))}
             </tbody>
-          </table>
-        </div>
+        </table>
+    </div>
 
-        {/* Footer with Pagination */}
-        <div className="px-6 py-4 bg-[#F5F5F5]/30 border-t border-gray-50 flex items-center justify-between">
-          <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">
+    {/* Footer with Pagination */}
+    <div className="px-6 py-4 bg-[#F5F5F5]/30 border-t border-gray-50 flex items-center justify-between">
+        <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">
             Page {currentPage} of {totalPages || 1}
-          </p>
-          <div className="flex gap-2">
+        </p>
+        <div className="flex gap-2">
             <button
-              disabled={currentPage === 1}
-              onClick={() => setCurrentPage((p) => p - 1)}
-              className="p-2 rounded-xl bg-white border border-gray-100 text-gray-500 disabled:opacity-30 hover:text-[#195C51] transition-all"
+                disabled={currentPage === 1}
+                onClick={() => setCurrentPage((p) => p - 1)}
+                className="p-2 rounded-xl bg-white border border-gray-100 text-gray-500 disabled:opacity-30 hover:text-[#195C51] transition-all"
             >
-              <MdChevronLeft size={20} />
+                <MdChevronLeft size={20} />
             </button>
             <button
-              disabled={currentPage >= totalPages}
-              onClick={() => setCurrentPage((p) => p + 1)}
-              className="p-2 rounded-xl bg-white border border-gray-100 text-gray-500 disabled:opacity-30 hover:text-[#195C51] transition-all"
+                disabled={currentPage >= totalPages}
+                onClick={() => setCurrentPage((p) => p + 1)}
+                className="p-2 rounded-xl bg-white border border-gray-100 text-gray-500 disabled:opacity-30 hover:text-[#195C51] transition-all"
             >
-              <MdChevronRight size={20} />
+                <MdChevronRight size={20} />
             </button>
-          </div>
         </div>
+    </div>
 
-        {loading && (
-          <div className="p-20 text-center space-y-4">
+    {loading && (
+        <div className="p-20 text-center space-y-4">
             <div className="w-10 h-10 border-4 border-[#195C51]/10 border-t-[#195C51] rounded-full animate-spin mx-auto"></div>
             <p className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-400">
-              Retrieving Cloud Data...
+                Retrieving Cloud Data...
             </p>
-          </div>
-        )}
-      </div>
-
+        </div>
+    )}
+</div>
       <AddRemoteModal
         isOpen={isModalOpen}
         onClose={() => setModalOpen(false)}

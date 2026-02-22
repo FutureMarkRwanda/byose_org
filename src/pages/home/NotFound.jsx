@@ -30,7 +30,7 @@ function NotFound() {
 
                 <div className="pt-8 flex flex-col sm:flex-row items-center justify-center gap-6">
                     <Link
-                        to="/home"
+                        to="/"
                         className="group flex items-center gap-3 bg-[#195C51] text-white px-10 py-4 rounded-2xl font-bold hover:bg-[#0E3A32] shadow-xl transition-all active:scale-95"
                     >
                         <MdOutlineWest className="transition-transform group-hover:-translate-x-1" size={20} />
