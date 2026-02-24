@@ -22,6 +22,7 @@ import ProtectedRoute from "./pages/auth/ProtectRoutes.jsx";
 import Services from "./pages/home/About.jsx";
 import Progress from "./components/presence_eye/PresenceEyeProgress.jsx";
 import AccountDeletation from "./pages/home/AccountDeletation.jsx";
+import PresenceEyeResetPassword from "./pages/auth/PresenceEyeResetPassword.jsx";
 
 function DashboardLayout() {
   return (
@@ -127,6 +128,10 @@ function App() {
               ))
           )}
         </Route>
+        <Route
+              path="/presence-eye/forgot-password"
+              element={<PresenceEyeResetPassword />}
+            />
       </Routes>
     </div>
   );
