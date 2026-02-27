@@ -380,8 +380,8 @@ export default function PresenceEyeAnalytics() {
     const signups  = safe(ov.growth?.monthlySignups).slice(-6).map(m=>({month:monthLabel(m.year,m.month),Users:m.newUsers||0}));
 
     const cards = [
-      {icon:MdPeople,      color:C.primary,      label:'Monthly Active Users',   value:ov.activeUsers?.mau,  sub:`DAU ${ov.activeUsers?.dau??'—'} · WAU ${ov.activeUsers?.wau??'—'}`, info:'Unique users who triggered a gate open event this month.'},
-      {icon:MdAttachMoney, color:C.accent,        label:'Monthly Revenue',         value:fmt(ov.revenue?.mrr||0), sub:`ARPU: ${fmt(ov.revenue?.arpu||0)}`, info:'Total subscription income this month.'},
+      {icon:MdPeople,      color:C.primary,      label:'Monthly Active Users',   value:ov.activeUsers?.mau,  sub:`DAU ${ov.activeUsers?.dau??'—'} · WAU ${ov.activeUsers?.wau??'—'}`, info:'How many people actually used the app this month — meaning they opened their gate at least once. DAU = today, WAU = this week.'},
+      {icon:MdAttachMoney, color:C.accent,        label:'Monthly Revenue',         value:fmt(ov.revenue?.mrr||0), sub:`ARPU: ${fmt(ov.revenue?.arpu||0)}`, info:'The total subscription money coming in each month. ARPU is the average amount each paying customer brings in. Formula: MRR ÷ active subscribers.'},
       {icon:MdDevices,     color:'#6B8BD4',       label:'Devices Sold',            value:safe(ov.hardware?.stateByModel).filter(m=>m.state==='sold').reduce((s,m)=>s+m.count,0)||'—', sub:`${ov.hardware?.agingInventory??'—'} aging in warehouse`},
       {icon:MdCreditCard,  color:C.accentWarm,    label:'Active Subscriptions',    value:ov.revenue?.totalActiveSubscriptions, sub:`Churn: ${ov.funnel?.churnRate??'—'}%`},
       {icon:MdWarning,     color:(ats.totalAlerts||0)>0?C.danger:C.primary, label:'Open Alerts', value:ats.totalAlerts, sub:`${ats.subscriptionsInGracePeriod??'—'} in grace period`},
@@ -463,11 +463,6 @@ export default function PresenceEyeAnalytics() {
     );
     const maxH = heatmap.length>0 ? Math.max(...heatmap.map(h=>h.count||0),1) : 1;
 
-    const press = safe(feats.pressTypeDistribution).map(p=>({
-      name:(p._id||'unknown')[0].toUpperCase()+(p._id||'unknown').slice(1),
-      value:p.count||0,
-    }));
-
     const sharingPct = parseFloat(feats.sharing?.percent||0);
     const multiPct   = parseFloat(feats.multiDevice?.percent||0);
 
@@ -480,10 +475,10 @@ export default function PresenceEyeAnalytics() {
         <Section icon={MdBubbleChart} title="Engagement & Adoption" subtitle="Is the app becoming a daily habit?"/>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           {[
-            {label:'Daily Active',     value:users.dau, sub:'Last 24h',    info:'Unique users who pressed a gate button today. Source: DeviceUsageEvent.userId distinct.'},
-            {label:'Weekly Active',    value:users.wau, sub:'Last 7 days', info:'Source: DeviceUsageEvent — distinct users in last 7 days.'},
-            {label:'Monthly Active',   value:users.mau, sub:'Last 30 days',info:'Source: DeviceUsageEvent — distinct users in last 30 days.'},
-            {label:'Stickiness',       value:`${users.stickinessRatio??'—'}%`, sub:'DAU÷WAU ratio',info:'DAU ÷ WAU × 100. Aim for 30%+ for a daily-use gate opener.'},
+            {label:'Daily Active',     value:users.dau, sub:'Last 24h',    info:'People who opened their gate at least once today.'},
+            {label:'Weekly Active',    value:users.wau, sub:'Last 7 days', info:'People who opened their gate at least once in the past 7 days.'},
+            {label:'Monthly Active',   value:users.mau, sub:'Last 30 days',info:'People who opened their gate at least once in the past 30 days.'},
+            {label:'Avg Opens / User / Day', value:users.avgOpensPerUserPerDay??'—', sub:'30-day average', info:'On average, how many times per day does each active user open their gate? Formula: total gate opens ÷ active users ÷ days in period.'},
           ].map(c=><KPI key={c.label} {...c} loading={loading('engagement')}/>)}
         </div>
 
@@ -494,7 +489,7 @@ export default function PresenceEyeAnalytics() {
               <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{background:`${C.accent}18`}}>
                 <MdWifi size={20} style={{color:C.accent}}/>
               </div>
-              <Info text={"Online Now = Sold devices with a DeviceDailySession entry in last 3 days.\nLive = DeviceStatusLog status='online' in last 15 min."}/>
+              <Info text={"How many of your sold devices have been active in the last 3 days. 'Live right now' means they sent a signal in the last 15 minutes."}/>
             </div>
             {loading('engagement') ? <><Sk cls="h-9 w-20 mb-2"/><Sk cls="h-3 w-28"/></> : (
               <>
@@ -522,7 +517,7 @@ export default function PresenceEyeAnalytics() {
 
           <div className="sm:col-span-2">
             <Card title="Online Devices vs Sold — Trend" subtitle="% of sold fleet online over time"
-              info={"Source: DeviceDailySession — distinct serialNumbers per period ÷ total sold Remotes × 100.\n\nDaily = devices with a session that day.\nWeekly/Monthly/Yearly = devices seen at least once in that period.\n\n80% line = healthy fleet. 50% = warning."}
+              info={"Shows what percentage of your sold fleet is active over time.\n\nAbove 80% = healthy.\nBelow 50% = a problem worth investigating — devices may be offline, broken, or abandoned.\n\nFormula: active devices in period ÷ total sold × 100."}
               action={<DurationPicker value={onlineDuration} onChange={handleDurationChange} options={DURATION_OPTS}/>}>
               {loading('engagement') ? <Sk cls="h-52 w-full"/> : onlineTrend.length>0 ? (
                 <ResponsiveContainer width="100%" height={210}>
@@ -550,7 +545,7 @@ export default function PresenceEyeAnalytics() {
 
         {/* Daily Usage Frequency */}
         <Card title="Daily Usage Frequency" subtitle="Avg gate opens per active device per day"
-          info={"Source: DeviceUsageEvent\nFORMULA: totalOpens ÷ distinct serialNumbers that day.\n\nMargin lines = ±30% from 30-day rolling average.\nAbove upper = unusually high (stuck button?).\nBelow lower = devices going idle or users churning."}>
+          info={"On an average day, how many times does each device get used?\n\nThe dotted lines show ±30% from the 30-day average. Spikes above the upper line could mean a stuck button. Drops below the lower line could mean users are losing interest.\n\nFormula: total gate opens ÷ number of active devices, per day."}>
           {loading('engagement') ? <Sk cls="h-56 w-full"/> : dailyFreq.length>0 ? (
             <div>
               {avgFreq && (
@@ -587,7 +582,7 @@ export default function PresenceEyeAnalytics() {
 
         {/* Heatmap + Press + Adoption */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-          <Card title="Peak Usage Heatmap" subtitle="Gate opens by hour × day (30 days)" info="Source: DeviceUsageEvent.timestamp, grouped by hour and dayOfWeek.">
+          <Card title="Peak Usage Heatmap" subtitle="Gate opens by hour × day (30 days)" info="Shows what time of day and day of the week people use their gates the most. Darker = more activity. Useful for planning maintenance windows and understanding your users' daily routines.">
             {loading('engagement') ? <Sk cls="h-48 w-full"/> : (
               <div className="overflow-x-auto">
                 <div style={{minWidth:280}}>
@@ -615,23 +610,9 @@ export default function PresenceEyeAnalytics() {
           </Card>
 
           <div className="space-y-4">
-            <Card title="Button Press Types" subtitle="Short / Long / Double" info="Source: DeviceUsageEvent.pressType">
-              {loading('engagement') ? <Sk cls="h-36 w-full"/> : press.length>0 ? (
-                <ResponsiveContainer width="100%" height={150}>
-                  <PieChart>
-                    <Pie data={press} cx="50%" cy="50%" innerRadius={35} outerRadius={58} dataKey="value" nameKey="name" paddingAngle={3}>
-                      {press.map((_,i)=><Cell key={i} fill={COLORS[i%COLORS.length]}/>)}
-                    </Pie>
-                    <Tooltip formatter={v=>v.toLocaleString()}/>
-                    <Legend wrapperStyle={{fontSize:'9px',fontWeight:'800',textTransform:'uppercase'}}/>
-                  </PieChart>
-                </ResponsiveContainer>
-              ) : <Empty msg="No press events yet"/>}
-            </Card>
-
             <Card title="Feature Adoption" subtitle="% of device owners using advanced features"
-              info={"SHARING RATE = owners who created at least one Share ÷ total device owners × 100.\nThis is the most important retention signal — shared access locks in households.\n\nMULTI-DEVICE = owners with 2+ sold Remotes.\nSource: Remote collection."}>
-              {loading('engagement') ? <Sk cls="h-32 w-full"/> : (
+              info={"SHARING RATE = owners who shared gate access with at least one person ÷ total device owners × 100.\nThe most important retention signal — shared access means the app is genuinely useful in a household.\n\nMULTI-DEVICE RATE = owners with 2 or more devices.\nThese are your most loyal customers and the best upsell targets."}>
+              {loading('engagement') ? <Sk cls="h-48 w-full"/> : (
                 <div className="space-y-4 pt-1">
                   <div className="p-3 bg-[#2DC87A]/5 rounded-xl border border-[#2DC87A]/20">
                     <div className="flex justify-between items-baseline mb-2">
@@ -639,14 +620,11 @@ export default function PresenceEyeAnalytics() {
                         <span className="text-xs font-black text-[#195C51]">Sharing Rate</span>
                         <span className="ml-2 text-[9px] font-bold text-gray-400 uppercase tracking-widest">KEY METRIC</span>
                       </div>
-                      <span className="text-sm font-black text-[#195C51]">{sharingPct}% <span className="text-[10px] font-normal text-gray-400">({feats.sharing?.count||0})</span></span>
+                      <span className="text-sm font-black text-[#195C51]">{sharingPct}% <span className="text-[10px] font-normal text-gray-400">({feats.sharing?.count||0} owners)</span></span>
                     </div>
                     <div className="h-3 bg-[#2DC87A]/15 rounded-full overflow-hidden">
                       <div className="h-full rounded-full transition-all duration-700" style={{width:`${Math.min(sharingPct,100)}%`,background:C.accent}}/>
                     </div>
-                    <p className="text-[10px] text-gray-500 mt-1.5">
-                      {sharingPct<15 ? '⚠️ Low — review the sharing UX flow.' : sharingPct<40 ? '↗ Growing — promote sharing during onboarding.' : '✅ Strong — app is genuinely useful in households.'}
-                    </p>
                   </div>
                   <Bar2 label="Multi-Device Owners" sublabel={`${multiPct}%  (${feats.multiDevice?.count||0} users)`} value={multiPct} color={C.primary} note="Owners with 2+ devices — best upsell targets."/>
                 </div>
@@ -676,10 +654,10 @@ export default function PresenceEyeAnalytics() {
     const top = steps[0]?.value||1;
 
     const kpis = [
-      {label:'MRR',         value:fmt(rev.mrr||0),        sub:'Monthly recurring revenue',  info:'SUM of pricingSnapshot.pricePerMonth for all active subscriptions.'},
-      {label:'ARPU',        value:fmt(rev.arpu||0),        sub:'Avg revenue per subscriber', info:'MRR ÷ active subscriber count.'},
-      {label:'Active Subs', value:rev.totalActiveSubscriptions, sub:'Paying customers now',  info:'COUNT where status = active | trial | grace_period.'},
-      {label:'Churn Rate',  value:`${funnel.churnRate??'—'}%`, sub:'Last 90 days',           info:'Cancelled + expired in 90d ÷ subscribers 90d ago × 100.'},
+      {label:'MRR',         value:fmt(rev.mrr||0),        sub:'Monthly recurring revenue',  info:'The total subscription income expected this month. Formula: sum of the monthly price of every active subscription. Annual subscribers are counted at their monthly equivalent (total paid ÷ duration months).'},
+      {label:'ARPU',        value:fmt(rev.arpu||0),        sub:'Avg revenue per subscriber', info:'How much each paying subscriber brings in per month on average. Formula: MRR ÷ number of active subscribers.'},
+      {label:'Active Subs', value:rev.totalActiveSubscriptions, sub:'Paying customers now',  info:'Customers who currently have a running paid subscription. Churn = the % who cancelled in the last 90 days.'},
+      {label:'Churn Rate',  value:`${funnel.churnRate??'—'}%`, sub:'Last 90 days',           info:'The percentage of subscribers who deliberately cancelled in the last 90 days. Lower is better. Formula: cancellations ÷ subscribers at start of period × 100.'},
     ];
 
     return (
@@ -694,12 +672,12 @@ export default function PresenceEyeAnalytics() {
           <div className="grid sm:grid-cols-2 gap-x-8 gap-y-1.5 text-[11px] text-gray-600">
             <p><b>MRR</b> = Σ pricePerMonth of active subscriptions</p>
             <p><b>ARPU</b> = MRR ÷ active subscriber count</p>
-            <p><b>Churn</b> = cancelled/expired 90d ÷ subscribers 90d ago × 100</p>
+            <p><b>Churn</b> = cancellations in 90d ÷ subscribers at start of period × 100</p>
             <p><b>Trial→Paid</b> = converted trials ÷ total trials × 100</p>
           </div>
         </div>
 
-        <Card title="Revenue Trend — 12 Months" subtitle="Total collected per month" info="Source: Subscription.pricingSnapshot.totalPaid grouped by createdAt month.">
+        <Card title="Revenue Trend — 12 Months" subtitle="Total collected per month" info="How much money was collected each month over the past year. An upward trend is the primary signal the business is growing.">
           {loading('revenue') ? <Sk cls="h-56 w-full"/> : mrrTrend.length>0 ? (
             <ResponsiveContainer width="100%" height={240}>
               <BarChart data={mrrTrend} margin={{top:4,right:4,left:-5,bottom:0}}>
@@ -714,7 +692,7 @@ export default function PresenceEyeAnalytics() {
         </Card>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
-          <Card title="Subscription Status Mix" info={"COUNT of subscriptions per status value.\nActive = paying. Grace = expired but still has access. Trial = free period."}>
+          <Card title="Subscription Status Mix" info={"A breakdown of all subscriptions by their current state — paying, trialing, in grace period, expired, cancelled. Helps you see the health of your subscriber base at a glance."}>
             {loading('revenue') ? <Sk cls="h-52 w-full"/> : statuses.length>0 ? (
               <ResponsiveContainer width="100%" height={210}>
                 <PieChart>
@@ -728,7 +706,7 @@ export default function PresenceEyeAnalytics() {
             ) : <Empty msg="No subscription data yet"/>}
           </Card>
 
-          <Card title="Revenue by Payment Method" info="SUM of totalPaid grouped by paymentMethod.">
+          <Card title="Revenue by Payment Method" info="Which payment provider brings in the most revenue. Useful if one method is failing or if you want to promote a specific payment option.">
             {loading('revenue') ? <Sk cls="h-52 w-full"/> : methods.length>0 ? (
               <ResponsiveContainer width="100%" height={210}>
                 <BarChart data={methods} layout="vertical" margin={{left:4,right:8}}>
@@ -742,7 +720,7 @@ export default function PresenceEyeAnalytics() {
             ) : <Empty msg="No payment data yet"/>}
           </Card>
 
-          <Card title="Conversion Funnel" info={"Registered = COUNT verified Users.\nHas Device = distinct Remote.owner (state=sold).\nSubscriber = distinct Subscription.user (active).\nConversion % = step ÷ registered × 100."}>
+          <Card title="Conversion Funnel" info={"Tracks how many people move from signing up → buying a device → becoming a subscriber. The bigger the drop between steps, the bigger the opportunity to improve that step.\n\nFormula: each step ÷ registered users × 100."}>
             {loading('revenue') ? <Sk cls="h-52 w-full"/> : steps.length>0 ? (
               <div className="space-y-4 pt-2">
                 {steps.map(s=>{
@@ -792,12 +770,11 @@ export default function PresenceEyeAnalytics() {
       modelMap[k][item.state]=item.count;
     });
     const models=Object.values(modelMap);
-    const fw=safe(hw.firmwareDistribution).slice(0,6).map(f=>({name:f._id||'unknown',value:f.count||0}));
     const relCards=[
-      {label:'Total Sold',     value:rel.totalSoldDevices,         sub:'Deployed with customers',           color:C.primary,    info:'COUNT of Remotes where state = sold.'},
-      {label:'Silent Devices', value:rel.silentDevicesCount,       sub:`${rel.silentDevicesPercent??'—'}% offline >3d`, color:C.danger, info:'Sold Remotes with no DeviceDailySession entry in last 3 days.'},
-      {label:'Avg Uptime',     value:`${rel.avgDailyUptimeHours??'—'}h`, sub:'Per device — 30d avg',        color:C.accent,     info:'AVG of DeviceDailySession.totalOnlineSeconds ÷ 3600 per device.'},
-      {label:'Aging Stock',    value:hw.agingInventory,            sub:'In warehouse >60 days',             color:C.accentWarm, info:'COUNT of Remotes where state=instore AND createdAt < 60 days ago.'},
+      {label:'Total Sold',     value:rel.totalSoldDevices,         sub:'Deployed with customers',           color:C.primary,    info:'How many Presence Eye devices are currently deployed with customers.'},
+      {label:'Silent Devices', value:rel.silentDevicesCount,       sub:`${rel.silentDevicesPercent??'—'}% offline >3d`, color:C.danger, info:'Devices that haven\'t connected to the system in more than 3 days. Could mean the device is broken, the user stopped using the app, or there\'s a connectivity issue. Worth investigating if this number is growing.'},
+      {label:'Avg Uptime',     value:`${rel.avgDailyUptimeHours??'—'}h`, sub:'Per device — 30d avg',        color:C.accent,     info:'On average, how many hours per day is each device connected and online. Calculated from the last 30 days of session data.'},
+      {label:'Aging Stock',    value:hw.agingInventory,            sub:'In warehouse >60 days',             color:C.accentWarm, info:'Devices that have been sitting unsold in the warehouse for more than 60 days. A signal to review pricing or distribution strategy.'},
     ];
     return (
       <div className="space-y-5 sm:space-y-8">
@@ -806,7 +783,7 @@ export default function PresenceEyeAnalytics() {
           {relCards.map(c=><KPI key={c.label} {...c} loading={loading('hardware')}/>)}
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-          <Card title="Device Sales — 12 Months" subtitle="Units sold per month" info="Source: Remote where state=sold, grouped by updatedAt month.">
+          <Card title="Device Sales — 12 Months" subtitle="Units sold per month" info="How many units were sold each month over the past year.">
             {loading('hardware') ? <Sk cls="h-52 w-full"/> : sales.length>0 ? (
               <ResponsiveContainer width="100%" height={215}>
                 <AreaChart data={sales} margin={{top:4,right:4,left:-10,bottom:0}}>
@@ -820,7 +797,7 @@ export default function PresenceEyeAnalytics() {
               </ResponsiveContainer>
             ) : <Empty msg="Sales data will appear as devices are sold"/>}
           </Card>
-          <Card title="Inventory by Model" info="Source: Remote stateByModel aggregate.">
+          <Card title="Inventory by Model" info="For each product model, how many are still in stock vs. sold to customers.">
             {loading('hardware') ? <Sk cls="h-52 w-full"/> : models.length>0 ? (
               <ResponsiveContainer width="100%" height={215}>
                 <BarChart data={models} margin={{top:4,right:4,left:-10,bottom:0}}>
@@ -836,32 +813,7 @@ export default function PresenceEyeAnalytics() {
             ) : <Empty msg="Inventory loading…"/>}
           </Card>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-          <Card title="Firmware Distribution" info="Source: DeviceStatusLog — latest firmware field per device.">
-            {loading('hardware') ? <Sk cls="h-44 w-full"/> : fw.length>0 ? (
-              <ResponsiveContainer width="100%" height={185}>
-                <PieChart>
-                  <Pie data={fw} cx="50%" cy="50%" outerRadius={72} dataKey="value" nameKey="name" paddingAngle={2}>
-                    {fw.map((_,i)=><Cell key={i} fill={COLORS[i%COLORS.length]}/>)}
-                  </Pie>
-                  <Tooltip formatter={v=>`${v} devices`}/>
-                  <Legend wrapperStyle={{fontSize:'9px',fontWeight:'800',textTransform:'uppercase'}}/>
-                </PieChart>
-              </ResponsiveContainer>
-            ) : <Empty msg="No firmware data yet"/>}
-          </Card>
-          <Card title="Multi-Device Buyers" subtitle="Customers with 2+ devices">
-            {loading('hardware') ? <Sk cls="h-44 w-full"/> : (
-              <div className="flex flex-col items-center justify-center h-44 gap-3">
-                <div className="w-28 h-28 rounded-full border-4 flex flex-col items-center justify-center" style={{borderColor:C.primary}}>
-                  <p className="text-4xl font-black text-[#1A2E2A]">{hw.multiDeviceBuyers??'—'}</p>
-                  <p className="text-[9px] font-black uppercase tracking-widest text-gray-400 mt-0.5">Customers</p>
-                </div>
-                <p className="text-[11px] text-gray-400 text-center">Best upsell targets for higher-tier plans.</p>
-              </div>
-            )}
-          </Card>
-        </div>
+
       </div>
     );
   };
@@ -1272,33 +1224,26 @@ export default function PresenceEyeAnalytics() {
         pricePerMonth: parseFloat(p.pricePerMonth)||0,
       })),
     });
-    const ADMIN_API_KEY = import.meta.env.VITE_API_KEY;
-
 
     const handleSave = async () => {
       setSaving(true); setErr('');
       try {
         const payload = buildPayload();
-        let result;
-        if (modal === 'edit') {
-          result = await fetch(`${presence_server}/api/analytics/plans/${form._id}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json', 'x-api-key': ADMIN_API_KEY },
-            body: JSON.stringify(payload),
-          });
-        } else {
-          result = await fetch(`${presence_server}/api/analytics/plans`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'x-api-key': ADMIN_API_KEY },
-            body: JSON.stringify(payload),
-          });
-        }
-        const d = await result.json();
-        if (!result.ok) { setErr(d.message || 'Save failed'); return; }
+        const url  = modal==='edit'
+          ? `${presence_server}/api/analytics/plans/${form._id}`
+          : `${presence_server}/api/analytics/plans`;
+        const method = modal==='edit' ? 'PUT' : 'POST';
+        const res  = await fetch(url, {
+          method,
+          headers:{'Content-Type':'application/json','x-api-key': token},
+          body: JSON.stringify(payload),
+        });
+        const d = await res.json();
+        if (!res.ok) { setErr(d.message||'Save failed'); return; }
         setModal(null);
         load('plans');
-      } catch (e) {
-        setErr(e.message || 'Network error');
+      } catch(e) {
+        setErr(e.message||'Network error');
       } finally {
         setSaving(false);
       }
@@ -1307,8 +1252,7 @@ export default function PresenceEyeAnalytics() {
     const handleToggle = async planId => {
       try {
         await fetch(`${presence_server}/api/analytics/plans/${planId}/toggle`, {
-          method: 'PATCH',
-          headers: { 'x-api-key': ADMIN_API_KEY },
+          method:'PATCH', headers:{'x-api-key': token},
         });
         load('plans');
       } catch {}
@@ -1318,13 +1262,12 @@ export default function PresenceEyeAnalytics() {
       setDeleting(planId);
       try {
         const res = await fetch(`${presence_server}/api/analytics/plans/${planId}`, {
-          method: 'DELETE',
-          headers: { 'x-api-key': ADMIN_API_KEY },
+          method:'DELETE', headers:{'x-api-key': token},
         });
         const d = await res.json();
-        if (!res.ok) { alert(d.message || 'Delete failed'); return; }
+        if (!res.ok) { alert(d.message||'Delete failed'); return; }
         load('plans');
-      } catch (e) { alert(e.message); }
+      } catch(e) { alert(e.message); }
       finally { setDeleting(null); }
     };
 
@@ -1765,7 +1708,7 @@ export default function PresenceEyeAnalytics() {
         </div>
 
         <Card title="Failed Payments by Provider" subtitle="Last 30 days"
-          info="Source: Subscription.paymentMethod grouped, status='failed', createdAt > 30d ago.">
+          info="Payment attempts that failed in the last 30 days, grouped by provider. High numbers on one provider means you should contact that provider to investigate.">
           {loading('alerts') ? <Sk cls="h-44 w-full"/> : byM.length>0 ? (
             <ResponsiveContainer width="100%" height={185}>
               <BarChart data={byM.map(m=>({name:(m._id||'').toUpperCase(),Failures:m.count||0}))} margin={{top:4,right:4,left:-10,bottom:0}}>
