@@ -10,16 +10,14 @@ import {
 // Dashboard Pages
 import AdminMovies from "./pages/dashboard/AdminMovies.jsx";
 import PresenceEyeAdmin from "./pages/dashboard/PresenceEye.jsx";
-import OnlineDevicesDashboard from "./pages/dashboard/OnlineDevicesDashboard.jsx";
 import Feedbacks from "./pages/dashboard/Feedbacks.jsx";
 import DashboardOverview from "./pages/dashboard/DashboardOverview.jsx";
 import AddMovie from "./pages/dashboard/AddMovie.jsx";
 import CreatePost from "./pages/dashboard/CreatePost.jsx";
 import UpdateLocation from "./pages/dashboard/UpdateLocation.jsx";
-import PresenceEyePlans from "./pages/dashboard/PresenceEyePlans.jsx";
-import PresenceEyeSubscriptions from "./pages/dashboard/PresenceEyeSubscriptions.jsx";
 
-import { MdMap } from "react-icons/md";
+import PresenceEyeSubscriptions from "./pages/dashboard/PresenceEyeSubscriptions.jsx";
+import PresenceEyeAnalytics from "./pages/dashboard/PresenceEyeAnalytics.jsx";
 
 // Auth Pages
 import SignIn from "./pages/auth/Sign-in.jsx";
@@ -84,19 +82,13 @@ export const routes = [
           {
             name: "Analytics",
             path: "presence-eye-buttons/analytics",
-            element: <OnlineDevicesDashboard />,
+            element: <PresenceEyeAnalytics />, // ← UPDATED
           },
-          {
+        {
             name: "Update Location",
             path: "presence-eye-buttons/location",
             element: <UpdateLocation />,
-          },
-          {
-            name: "Subscription Plans",
-            path: "presence-eye-buttons/plans",
-            element: <PresenceEyePlans />,
-          },
-          {
+          },{
             name: "Active Subscriptions",
             path: "presence-eye-buttons/subscriptions",
             element: <PresenceEyeSubscriptions />,
@@ -109,14 +101,14 @@ export const routes = [
         isDropdown: true,
         subPages: [
           {
+            name: "Manage Movies",
+            path: "byose-tv/manage-movies", // This is the 'link' used in the card
+            element: <AdminMovies />,
+          },
+          {
             name: "Add Movies",
             path: "byose-tv/add-movie",
             element: <AddMovie />,
-          },
-          {
-            name: "Manage Movies",
-            path: "byose-tv/manage-movies",
-            element: <AdminMovies />,
           },
           {
             name: "Add Trends",

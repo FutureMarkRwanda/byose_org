@@ -29,27 +29,19 @@ const AdminMovies = () => {
         search: '',
     });
 
-    const loadMovies = async () => {
-        setIsLoading(true);
-        try {
-            // Fetching a larger limit to handle client-side pagination/filtering
-            const url = `${server}/movies?limit=100&populate=true`; 
-            const result = await fetchData(url, returnToken());
-            
-            if (result.error) {
-                showNotification(result.error, 'error');
-            } else {
-                // DATA EXTRACTION FIX:
-                // We check result.data.data (standard) or result.data.data.movies (original code)
-                const extractedData = result.data?.data?.movies || result.data?.data || [];
-                setMovies(Array.isArray(extractedData) ? extractedData : []);
-            }
-        } catch (err) {
-            showNotification('Failed to sync library', 'error');
-        } finally {
-            setIsLoading(false);
-        }
-    };
+const loadMovies = async () => {
+    setIsLoading(true);
+    const url = `${server}/movies?limit=100&populate=true`; 
+    const result = await fetchData(url, returnToken());
+    
+    if (!result.error) {
+        // Robust extraction
+        const data = result.data?.data;
+        const extractedMovies = Array.isArray(data) ? data : (data?.movies || []);
+        setMovies(extractedMovies);
+    }
+    setIsLoading(false);
+};
 
     useEffect(() => { loadMovies(); }, []);
 

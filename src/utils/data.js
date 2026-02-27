@@ -288,6 +288,10 @@ At BYOSE, Yanice is responsible for identifying new markets, fostering global pa
 **Yanice .S .M**
 “Great solutions deserve a global stage — my role is to make sure the world knows about them.”
 
+
+**Social Links:**
+* [Instagram] https://www.instagram.com/sham_yanice
+
         `,
         color: "!bg-[#f2f2e6]",
         link: "murangwa-shami-yanice"

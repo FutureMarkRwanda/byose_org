@@ -3,6 +3,7 @@ import { Outlet } from "react-router-dom";
 import TitleColor from "../../components/TitleColor.jsx";
 
 function PresenceEye() {
+
     return (
         <section className="bg-white min-h-screen">
             {/* Minimalist Hero Header */}

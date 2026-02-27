@@ -29,13 +29,13 @@ const AddRemoteModal = ({ isOpen, onClose, onCreated }) => {
         setLoading(true);
         try {
             const payload = {
-                price: Number(price),
-                hasHardware,
-                powered,
-                manufacture,
-                version,
-                buttons
-            };
+            price: Number(price), // Ensure this is a number
+            hasHardware: Boolean(hasHardware), // Ensure this is a boolean
+            powered,
+            manufacture,
+            version,
+            buttons
+        };
             const { error } = await sendData(`${presence_server}/buttons`, payload, returnToken());
 
             if (error) {
