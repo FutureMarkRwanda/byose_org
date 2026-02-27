@@ -10,15 +10,14 @@ import {
 // Dashboard Pages
 import AdminMovies from "./pages/dashboard/AdminMovies.jsx";
 import PresenceEyeAdmin from "./pages/dashboard/PresenceEye.jsx";
-import OnlineDevicesDashboard from "./pages/dashboard/OnlineDevicesDashboard.jsx";
 import Feedbacks from "./pages/dashboard/Feedbacks.jsx";
 import DashboardOverview from "./pages/dashboard/DashboardOverview.jsx";
 import AddMovie from "./pages/dashboard/AddMovie.jsx";
 import CreatePost from "./pages/dashboard/CreatePost.jsx";
 import UpdateLocation from "./pages/dashboard/UpdateLocation.jsx";
-import PresenceEyePlans from "./pages/dashboard/PresenceEyePlans.jsx";
-import PresenceEyeSubscriptions from "./pages/dashboard/PresenceEyeSubscriptions.jsx";
 
+import PresenceEyeSubscriptions from "./pages/dashboard/PresenceEyeSubscriptions.jsx";
+import PresenceEyeAnalytics from "./pages/dashboard/PresenceEyeAnalytics.jsx";
 
 // Auth Pages
 import SignIn from "./pages/auth/Sign-in.jsx";
@@ -70,32 +69,26 @@ export const routes = [
     title: "Projects",
     layout: "dashboard",
     pages: [
-{
+      {
         icon: <CursorArrowRaysIcon className={iconClass} />,
         name: "Presence Eye",
         isDropdown: true,
         subPages: [
           {
             name: "Device Manager",
-            path: "presence-eye-buttons/management", // This is the 'link' used in the card
+            path: "presence-eye-buttons/management",
             element: <PresenceEyeAdmin />,
           },
           {
             name: "Analytics",
             path: "presence-eye-buttons/analytics",
-            element: <OnlineDevicesDashboard />,
+            element: <PresenceEyeAnalytics />, // ← UPDATED
           },
-          {
+        {
             name: "Update Location",
             path: "presence-eye-buttons/location",
             element: <UpdateLocation />,
-          },
-          {
-            name: "Subscription Plans",
-            path: "presence-eye-buttons/plans",
-            element: <PresenceEyePlans />,
-          },
-          {
+          },{
             name: "Active Subscriptions",
             path: "presence-eye-buttons/subscriptions",
             element: <PresenceEyeSubscriptions />,

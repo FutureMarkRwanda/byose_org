@@ -39,11 +39,7 @@ const StatusBadge = ({ state }) => {
     offline: "bg-red-50 text-red-700 border-red-100",
   };
   return (
-    <span
-      className={`px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider border ${
-        styles[state] || styles.sold
-      }`}
-    >
+    <span className={`px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider border ${styles[state] || styles.sold}`}>
       {state || "N/A"}
     </span>
   );
@@ -65,13 +61,13 @@ export default function PresenceEyeAdmin() {
   const [selectedUser, setSelectedUser] = useState(null);
   const [selectedRemote, setSelectedRemote] = useState(null);
   const [selectedExtension, setSelectedExtension] = useState(null);
-      const maskEmail = (email) => {
+
+  const maskEmail = (email) => {
     if (!email) return "—";
     const [local, domain] = email.split("@");
-    // Show first 3 letters of the local part + asterisks + domain
     const maskedLocal = local.substring(0, 3) + "***";
     return `${maskedLocal}@${domain}`;
-};
+  };
 
   async function load() {
     setLoading(true);
@@ -79,18 +75,13 @@ export default function PresenceEyeAdmin() {
     try {
       if (activeTab === "users") {
         const { data } = await fetchData(API.USERS_WITH_DEVICES, token);
-        setUsers(
-          data?.users || data?.data || (Array.isArray(data) ? data : []),
-        );
+        setUsers(data?.users || data?.data || (Array.isArray(data) ? data : []));
       } else if (activeTab === "remotes") {
         const { data } = await fetchData(API.REMOTES, token);
         setRemotes(data?.remotes || []);
-        console.log(data.remotes);
       } else if (activeTab === "extensions") {
         const { data } = await fetchData(API.EXTENSIONS, token);
-        setExtensions(
-          data?.extensions || data?.data || (Array.isArray(data) ? data : []),
-        );
+        setExtensions(data?.extensions || data?.data || (Array.isArray(data) ? data : []));
       }
       setCurrentPage(1);
     } catch (err) {
@@ -100,43 +91,31 @@ export default function PresenceEyeAdmin() {
     }
   }
 
-  useEffect(() => {
-    load();
-  }, [activeTab]);
+  useEffect(() => { load(); }, [activeTab]);
 
   const allFilteredData = useMemo(() => {
     const q = search.toLowerCase();
     if (activeTab === "remotes")
-      return (remotes || []).filter((r) =>
-        r.serialNumber?.toLowerCase().includes(q),
-      );
+      return (remotes || []).filter((r) => r.serialNumber?.toLowerCase().includes(q));
     if (activeTab === "users")
-      return (users || []).filter((u) =>
-        `${u.firstName} ${u.lastName} ${u.email}`.toLowerCase().includes(q),
-      );
+      return (users || []).filter((u) => `${u.firstName} ${u.lastName} ${u.email}`.toLowerCase().includes(q));
     return (extensions || []).filter(
-      (e) =>
-        e.serialNumber?.toLowerCase().includes(q) ||
-        e.labelName?.toLowerCase().includes(q),
+      (e) => e.serialNumber?.toLowerCase().includes(q) || e.labelName?.toLowerCase().includes(q)
     );
   }, [activeTab, remotes, users, extensions, search]);
 
   const totalPages = Math.ceil(allFilteredData.length / rowsPerPage);
   const paginatedData = allFilteredData.slice(
     (currentPage - 1) * rowsPerPage,
-    currentPage * rowsPerPage,
+    currentPage * rowsPerPage
   );
 
   const handleAddingHardware = async (remote_id) => {
     try {
-      const result = await patchData(
-        `${presence_server}/buttons/remotes/hardware/${remote_id}`,
-        {},
-        returnToken(),
-      );
+      const result = await patchData(`${presence_server}/buttons/remotes/hardware/${remote_id}`, {}, returnToken());
       if (result.error) throw new Error(result.error);
       showNotification("Hardware status updated", "success");
-      load(); // Refresh list
+      load();
     } catch (error) {
       showNotification(error.message, "error");
     }
@@ -144,10 +123,7 @@ export default function PresenceEyeAdmin() {
 
   const handleTestingHardware = async (remote_id) => {
     try {
-      const result = await fetchData(
-        `${presence_server}/buttons/remotes/${remote_id}/buttons/test`,
-        returnToken(),
-      );
+      const result = await fetchData(`${presence_server}/buttons/remotes/${remote_id}/buttons/test`, returnToken());
       if (result.error) throw new Error(result.error);
       showNotification("Test pulse sent to device", "success");
     } catch (error) {
@@ -160,221 +136,268 @@ export default function PresenceEyeAdmin() {
       const result = await patchData(
         `${presence_server}/buttons/remotes/change-status/${remote_id}`,
         { isEnabled: !isEnabled },
-        returnToken(),
+        returnToken()
       );
       if (result.error) throw new Error(result.error);
-      showNotification(
-        `Remote ${!isEnabled ? "Enabled" : "Disabled"}`,
-        "success",
-      );
-      load(); // Refresh list
+      showNotification(`Remote ${!isEnabled ? "Enabled" : "Disabled"}`, "success");
+      load();
     } catch (error) {
       showNotification(error.message, "error");
     }
   };
 
   return (
-    <div className="space-y-6 animate-slide-entrance pb-10">
+    <div className="space-y-5 sm:space-y-6 animate-slide-entrance pb-10">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 px-2">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 px-2">
         <div className="space-y-1">
-          <h1 className="text-3xl font-bold text-[#333333]">Hardware Grid</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-[#333333]">Hardware Grid</h1>
           <p className="text-sm text-gray-500 font-medium tracking-tight">
             System managing {allFilteredData.length} active nodes.
           </p>
         </div>
         <button
           onClick={() => setModalOpen(true)}
-          className="flex items-center justify-center gap-2 bg-[#195C51] text-white px-8 py-3.5 rounded-2xl font-bold hover:bg-[#0E3A32] shadow-xl transition-all active:scale-95"
+          className="flex items-center justify-center gap-2 bg-[#195C51] text-white px-5 sm:px-8 py-3 sm:py-3.5 rounded-2xl font-bold hover:bg-[#0E3A32] shadow-xl transition-all active:scale-95 text-sm"
         >
-          <MdAdd size={20} /> Provision Remote
+          <MdAdd size={18} /> Provision Remote
         </button>
       </div>
 
       {/* Segmented Controls & Search */}
-      <div className="flex flex-col lg:flex-row gap-4 items-center justify-between px-2">
-        <div className="flex bg-white p-1.5 rounded-2xl border border-gray-100 shadow-sm w-full lg:w-max">
+      <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between px-2">
+        <div className="flex bg-white p-1.5 rounded-2xl border border-gray-100 shadow-sm">
           {["remotes", "users", "extensions"].map((tab) => (
-            <TabButton
-              key={tab}
-              active={activeTab === tab}
-              onClick={() => setActiveTab(tab)}
-            >
+            <TabButton key={tab} active={activeTab === tab} onClick={() => setActiveTab(tab)}>
               {tab}
             </TabButton>
           ))}
         </div>
 
-        <div className="relative w-full lg:w-80 group">
-          <MdSearch
-            className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#195C51]"
-            size={20}
-          />
+        <div className="relative group">
+          <MdSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#195C51]" size={18} />
           <input
             type="text"
             placeholder={`Search ${activeTab}...`}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-12 pr-4 py-3 bg-white border border-gray-100 rounded-2xl text-sm outline-none focus:ring-2 focus:ring-[#195C51]/10 shadow-sm"
+            className="w-full sm:w-72 lg:w-80 pl-11 pr-4 py-2.5 sm:py-3 bg-white border border-gray-100 rounded-2xl text-sm outline-none focus:ring-2 focus:ring-[#195C51]/10 shadow-sm"
           />
         </div>
       </div>
 
-      {/* Table Container */}
-<div className="google-card overflow-hidden bg-white mx-2">
-    <div className="overflow-x-auto">
-        <table className="w-full text-left border-collapse">
+      {/* Desktop Table (md and up) */}
+      <div className="hidden sm:block google-card overflow-hidden bg-white mx-2">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
             <thead className="bg-[#F5F5F5]/40 border-b border-gray-100">
-                <tr>
-                    {activeTab === "remotes" && (
-                        <>
-                            <th className="px-6 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">Identity</th>
-                            <th className="px-6 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">Pins</th>
-                            <th className="px-6 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">Status</th>
-                            <th className="px-6 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">Created</th>
-                            <th className="px-6 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400 text-right">Action</th>
-                        </>
-                    )}
-                    {activeTab === "users" && (
-                        <>
-                            <th className="px-6 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">User Details</th>
-                            <th className="px-6 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">Email Address</th>
-                            <th className="px-6 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">Device Units</th>
-                            <th className="px-6 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">Registered</th>
-                            <th className="px-6 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400 text-right">Action</th>
-                        </>
-                    )}
-                    {activeTab === "extensions" && (
-                        <>
-                            <th className="px-6 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">Device Label</th>
-                            <th className="px-6 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">Serial</th>
-                            <th className="px-6 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">Current Owner</th>
-                            <th className="px-6 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">Status</th>
-                            <th className="px-6 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400 text-right">Action</th>
-                        </>
-                    )}
-                </tr>
+              <tr>
+                {activeTab === "remotes" && (
+                  <>
+                    <th className="px-5 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">Identity</th>
+                    <th className="px-5 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">Pins</th>
+                    <th className="px-5 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">Status</th>
+                    <th className="px-5 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">Created</th>
+                    <th className="px-5 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400 text-right">Action</th>
+                  </>
+                )}
+                {activeTab === "users" && (
+                  <>
+                    <th className="px-5 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">User Details</th>
+                    <th className="px-5 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">Email</th>
+                    <th className="px-5 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">Device Units</th>
+                    <th className="px-5 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">Registered</th>
+                    <th className="px-5 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400 text-right">Action</th>
+                  </>
+                )}
+                {activeTab === "extensions" && (
+                  <>
+                    <th className="px-5 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">Device Label</th>
+                    <th className="px-5 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">Serial</th>
+                    <th className="px-5 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">Owner</th>
+                    <th className="px-5 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">Status</th>
+                    <th className="px-5 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400 text-right">Action</th>
+                  </>
+                )}
+              </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
-                {!loading && paginatedData.map((item) => (
-                    <tr key={item._id} className="hover:bg-gray-50/40 transition-colors">
-                        {activeTab === "remotes" && (
-                            <>
-                                <td className="px-6 py-5">
-                                    <div className="font-bold text-[#333333] text-sm">{item.serialNumber}</div>
-                                    <div className="text-[10px] text-gray-400 font-bold uppercase">{item.manufacture}</div>
-                                </td>
-                                <td className="px-6 py-5 text-xs font-medium text-gray-500">{item.buttons?.length || 0} Pins</td>
-                                <td className="px-6 py-5"><StatusBadge state={item.state} /></td>
-                                <td className="px-6 py-5 text-xs font-medium text-gray-400">{formatDate(item.createdAt)}</td>
-                                <td className="px-6 py-5 text-right">
-                                    <button onClick={() => setSelectedRemote(item)} className="px-4 py-2 rounded-xl bg-[#F5F5F5] text-[10px] font-black uppercase text-[#195C51] hover:bg-[#195C51] hover:text-white transition-all">Manage</button>
-                                </td>
-                            </>
-                        )}
-                        {activeTab === "users" && (
-                            <>
-                                <td className="px-6 py-5 flex items-center gap-4">
-                                    <div className="w-9 h-9 rounded-xl bg-[#195C51]/10 flex items-center justify-center text-[10px] font-black text-[#195C51] uppercase">
-                                        {combineInitials(item.firstName, item.lastName)}
-                                    </div>
-                                    <div className="font-bold text-sm text-[#333333] tracking-tight">{item.firstName} {item.lastName}</div>
-                                </td>
-                                <td className="px-6 py-5 text-sm text-gray-500 font-medium">
-                                    {maskEmail(item.email)}
-                                </td>
-                                <td className="px-6 py-5 text-xs font-medium text-gray-600">{(item.extensions?.length || 0) + (item.buttons?.length || 0)} Units</td>
-                                <td className="px-6 py-5 text-xs text-gray-400">{formatDate(item.createdAt)}</td>
-                                <td className="px-6 py-5 text-right">
-                                    <button onClick={() => setSelectedUser(item)} className="px-4 py-2 rounded-xl bg-[#F5F5F5] text-[10px] font-black uppercase text-[#195C51] hover:bg-[#195C51] hover:text-white transition-all">Profile</button>
-                                </td>
-                            </>
-                        )}
-                        {activeTab === "extensions" && (
-                            <>
-                                <td className="px-6 py-5">
-                                    <div className="font-bold text-[#333333] text-sm">{item.labelName || "Digital Twin"}</div>
-                                    <div className="text-[10px] text-gray-400 font-bold uppercase">{item.modelType}</div>
-                                </td>
-                                <td className="px-6 py-5 text-xs font-mono text-gray-400">{item.serialNumber}</td>
-                                <td className="px-6 py-5">
-                                    <div className="text-sm font-medium text-gray-600">
-                                        {typeof item.owner === "object" ? getOwnerLabel(item.owner) : item.owner || "Unassigned"}
-                                    </div>
-                                </td>
-                                <td className="px-6 py-5"><StatusBadge state={item.status} /></td>
-                                <td className="px-6 py-5 text-right">
-                                    <button onClick={() => setSelectedExtension(item)} className="px-4 py-2 rounded-xl bg-[#F5F5F5] text-[10px] font-black uppercase text-[#195C51] hover:bg-[#195C51] hover:text-white transition-all">Config</button>
-                                </td>
-                            </>
-                        )}
-                    </tr>
-                ))}
+              {!loading && paginatedData.map((item) => (
+                <tr key={item._id} className="hover:bg-gray-50/40 transition-colors">
+                  {activeTab === "remotes" && (
+                    <>
+                      <td className="px-5 py-4">
+                        <div className="font-bold text-[#333333] text-sm">{item.serialNumber}</div>
+                        <div className="text-[10px] text-gray-400 font-bold uppercase">{item.manufacture}</div>
+                      </td>
+                      <td className="px-5 py-4 text-xs font-medium text-gray-500">{item.buttons?.length || 0} Pins</td>
+                      <td className="px-5 py-4"><StatusBadge state={item.state} /></td>
+                      <td className="px-5 py-4 text-xs font-medium text-gray-400">{formatDate(item.createdAt)}</td>
+                      <td className="px-5 py-4 text-right">
+                        <button onClick={() => setSelectedRemote(item)} className="px-3 py-1.5 rounded-xl bg-[#F5F5F5] text-[9px] font-black uppercase text-[#195C51] hover:bg-[#195C51] hover:text-white transition-all">Manage</button>
+                      </td>
+                    </>
+                  )}
+                  {activeTab === "users" && (
+                    <>
+                      <td className="px-5 py-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-xl bg-[#195C51]/10 flex items-center justify-center text-[9px] font-black text-[#195C51] uppercase flex-shrink-0">
+                            {combineInitials(item.firstName, item.lastName)}
+                          </div>
+                          <div className="font-bold text-sm text-[#333333]">{item.firstName} {item.lastName}</div>
+                        </div>
+                      </td>
+                      <td className="px-5 py-4 text-sm text-gray-500">{maskEmail(item.email)}</td>
+                      <td className="px-5 py-4 text-xs font-medium text-gray-600">{(item.extensions?.length || 0) + (item.buttons?.length || 0)} Units</td>
+                      <td className="px-5 py-4 text-xs text-gray-400">{formatDate(item.createdAt)}</td>
+                      <td className="px-5 py-4 text-right">
+                        <button onClick={() => setSelectedUser(item)} className="px-3 py-1.5 rounded-xl bg-[#F5F5F5] text-[9px] font-black uppercase text-[#195C51] hover:bg-[#195C51] hover:text-white transition-all">Profile</button>
+                      </td>
+                    </>
+                  )}
+                  {activeTab === "extensions" && (
+                    <>
+                      <td className="px-5 py-4">
+                        <div className="font-bold text-[#333333] text-sm">{item.labelName || "Digital Twin"}</div>
+                        <div className="text-[10px] text-gray-400 font-bold uppercase">{item.modelType}</div>
+                      </td>
+                      <td className="px-5 py-4 text-xs font-mono text-gray-400">{item.serialNumber}</td>
+                      <td className="px-5 py-4 text-sm font-medium text-gray-600">
+                        {typeof item.owner === "object" ? getOwnerLabel(item.owner) : item.owner || "Unassigned"}
+                      </td>
+                      <td className="px-5 py-4"><StatusBadge state={item.status} /></td>
+                      <td className="px-5 py-4 text-right">
+                        <button onClick={() => setSelectedExtension(item)} className="px-3 py-1.5 rounded-xl bg-[#F5F5F5] text-[9px] font-black uppercase text-[#195C51] hover:bg-[#195C51] hover:text-white transition-all">Config</button>
+                      </td>
+                    </>
+                  )}
+                </tr>
+              ))}
             </tbody>
-        </table>
-    </div>
+          </table>
+        </div>
 
-    {/* Footer with Pagination */}
-    <div className="px-6 py-4 bg-[#F5F5F5]/30 border-t border-gray-50 flex items-center justify-between">
-        <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">
+        {/* Pagination */}
+        <div className="px-5 py-3 bg-[#F5F5F5]/30 border-t border-gray-50 flex items-center justify-between">
+          <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">
             Page {currentPage} of {totalPages || 1}
-        </p>
-        <div className="flex gap-2">
-            <button
-                disabled={currentPage === 1}
-                onClick={() => setCurrentPage((p) => p - 1)}
-                className="p-2 rounded-xl bg-white border border-gray-100 text-gray-500 disabled:opacity-30 hover:text-[#195C51] transition-all"
-            >
-                <MdChevronLeft size={20} />
+          </p>
+          <div className="flex gap-2">
+            <button disabled={currentPage === 1} onClick={() => setCurrentPage((p) => p - 1)} className="p-2 rounded-xl bg-white border border-gray-100 text-gray-500 disabled:opacity-30 hover:text-[#195C51] transition-all">
+              <MdChevronLeft size={18} />
             </button>
-            <button
-                disabled={currentPage >= totalPages}
-                onClick={() => setCurrentPage((p) => p + 1)}
-                className="p-2 rounded-xl bg-white border border-gray-100 text-gray-500 disabled:opacity-30 hover:text-[#195C51] transition-all"
-            >
-                <MdChevronRight size={20} />
+            <button disabled={currentPage >= totalPages} onClick={() => setCurrentPage((p) => p + 1)} className="p-2 rounded-xl bg-white border border-gray-100 text-gray-500 disabled:opacity-30 hover:text-[#195C51] transition-all">
+              <MdChevronRight size={18} />
             </button>
+          </div>
         </div>
-    </div>
 
-    {loading && (
-        <div className="p-20 text-center space-y-4">
+        {loading && (
+          <div className="p-16 text-center space-y-4">
             <div className="w-10 h-10 border-4 border-[#195C51]/10 border-t-[#195C51] rounded-full animate-spin mx-auto"></div>
-            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-400">
-                Retrieving Cloud Data...
-            </p>
-        </div>
-    )}
-</div>
-      <AddRemoteModal
-        isOpen={isModalOpen}
-        onClose={() => setModalOpen(false)}
-        onCreated={load}
-      />
-      {selectedUser && (
-        <UserModal
-          user={selectedUser}
-          onClose={() => setSelectedUser(null)}
-          copyToClipboard={copyToClipboard}
-        />
-      )}
+            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-400">Retrieving Cloud Data...</p>
+          </div>
+        )}
+      </div>
+
+      {/* Mobile Cards (below sm) */}
+      <div className="sm:hidden space-y-3 px-2">
+        {loading && (
+          <div className="py-12 text-center">
+            <div className="w-10 h-10 border-4 border-[#195C51]/10 border-t-[#195C51] rounded-full animate-spin mx-auto"></div>
+          </div>
+        )}
+        {!loading && paginatedData.length === 0 && (
+          <div className="google-card bg-white p-10 text-center">
+            <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">No records found.</p>
+          </div>
+        )}
+        {!loading && paginatedData.map((item) => (
+          <div key={item._id} className="google-card bg-white p-4 space-y-3">
+            {activeTab === "remotes" && (
+              <>
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="font-bold text-[#333333] text-sm">{item.serialNumber}</p>
+                    <p className="text-[10px] text-gray-400 font-bold uppercase">{item.manufacture}</p>
+                  </div>
+                  <StatusBadge state={item.state} />
+                </div>
+                <div className="flex items-center justify-between text-xs text-gray-500 border-t border-gray-50 pt-2">
+                  <span>{item.buttons?.length || 0} Pins</span>
+                  <span>{formatDate(item.createdAt)}</span>
+                </div>
+                <button onClick={() => setSelectedRemote(item)} className="w-full py-2 rounded-xl bg-[#F5F5F5] text-[10px] font-black uppercase text-[#195C51] hover:bg-[#195C51] hover:text-white transition-all">Manage</button>
+              </>
+            )}
+            {activeTab === "users" && (
+              <>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-[#195C51]/10 flex items-center justify-center text-[10px] font-black text-[#195C51] uppercase flex-shrink-0">
+                    {combineInitials(item.firstName, item.lastName)}
+                  </div>
+                  <div>
+                    <p className="font-bold text-[#333333] text-sm">{item.firstName} {item.lastName}</p>
+                    <p className="text-xs text-gray-400">{maskEmail(item.email)}</p>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between text-xs text-gray-500 border-t border-gray-50 pt-2">
+                  <span>{(item.extensions?.length || 0) + (item.buttons?.length || 0)} units</span>
+                  <span>{formatDate(item.createdAt)}</span>
+                </div>
+                <button onClick={() => setSelectedUser(item)} className="w-full py-2 rounded-xl bg-[#F5F5F5] text-[10px] font-black uppercase text-[#195C51] hover:bg-[#195C51] hover:text-white transition-all">View Profile</button>
+              </>
+            )}
+            {activeTab === "extensions" && (
+              <>
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="font-bold text-[#333333] text-sm">{item.labelName || "Digital Twin"}</p>
+                    <p className="text-[10px] text-gray-400 font-mono">{item.serialNumber}</p>
+                  </div>
+                  <StatusBadge state={item.status} />
+                </div>
+                <div className="text-xs text-gray-500 border-t border-gray-50 pt-2">
+                  Owner: {typeof item.owner === "object" ? getOwnerLabel(item.owner) : item.owner || "Unassigned"}
+                </div>
+                <button onClick={() => setSelectedExtension(item)} className="w-full py-2 rounded-xl bg-[#F5F5F5] text-[10px] font-black uppercase text-[#195C51] hover:bg-[#195C51] hover:text-white transition-all">Config</button>
+              </>
+            )}
+          </div>
+        ))}
+
+        {/* Mobile Pagination */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between py-2">
+            <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">
+              {currentPage} / {totalPages}
+            </span>
+            <div className="flex gap-2">
+              <button disabled={currentPage === 1} onClick={() => setCurrentPage((p) => p - 1)} className="p-2 rounded-xl bg-white border border-gray-100 text-gray-500 disabled:opacity-30">
+                <MdChevronLeft size={18} />
+              </button>
+              <button disabled={currentPage >= totalPages} onClick={() => setCurrentPage((p) => p + 1)} className="p-2 rounded-xl bg-white border border-gray-100 text-gray-500 disabled:opacity-30">
+                <MdChevronRight size={18} />
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      <AddRemoteModal isOpen={isModalOpen} onClose={() => setModalOpen(false)} onCreated={load} />
+      {selectedUser && <UserModal user={selectedUser} onClose={() => setSelectedUser(null)} copyToClipboard={copyToClipboard} />}
       {selectedRemote && (
         <RemoteDetailsModal
           remote={selectedRemote}
           onClose={() => setSelectedRemote(null)}
           copyToClipboard={copyToClipboard}
-          handleAddHadware={handleAddingHardware} // Pass the missing prop
-          handleTestingHardware={handleTestingHardware} // Pass the missing prop
-          handleRemoteStatus={handleRemoteStatus} // Pass the missing prop
+          handleAddHadware={handleAddingHardware}
+          handleTestingHardware={handleTestingHardware}
+          handleRemoteStatus={handleRemoteStatus}
         />
       )}
-      {selectedExtension && (
-        <ExtensionModal
-          extension={selectedExtension}
-          onClose={() => setSelectedExtension(null)}
-          copyToClipboard={copyToClipboard}
-        />
-      )}
+      {selectedExtension && <ExtensionModal extension={selectedExtension} onClose={() => setSelectedExtension(null)} copyToClipboard={copyToClipboard} />}
     </div>
   );
 }
@@ -383,10 +406,8 @@ function TabButton({ children, active, onClick }) {
   return (
     <button
       onClick={onClick}
-      className={`flex items-center px-8 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 ${
-        active
-          ? "bg-[#195C51] text-white shadow-lg"
-          : "text-gray-400 hover:text-[#333333]"
+      className={`flex items-center px-4 sm:px-6 py-2 sm:py-3 rounded-xl sm:rounded-2xl text-[9px] sm:text-[10px] font-black uppercase tracking-widest transition-all duration-300 flex-1 sm:flex-none justify-center ${
+        active ? "bg-[#195C51] text-white shadow-lg" : "text-gray-400 hover:text-[#333333]"
       }`}
     >
       {children}

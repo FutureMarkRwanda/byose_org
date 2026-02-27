@@ -1,4 +1,4 @@
-const default_api = import.meta.env.VITE_DEFAULT_SERVER_URL || 'http://localhost:5000/v1/api';
+const default_api = import.meta.env.VITE_DEFAULT_SERVER_URL || 'http://localhost:8081/v1/api';
 
 // API endpoints
 export const API_ENDPOINTS = {
@@ -24,5 +24,5 @@ export const API_ENDPOINTS = {
     },
 };
 
-export const server = default_api
-export const presence_server = import.meta.env.VITE_PRESENCE_EYE_SERVER_URL || 'http://localhost:5000'
+export const server = "https://tv.byose.info/v1/api";  
+export const presence_server = "http://localhost:8081";
