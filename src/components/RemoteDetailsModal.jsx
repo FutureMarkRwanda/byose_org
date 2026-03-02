@@ -25,7 +25,7 @@ export default function RemoteDetailsModal({
         }
         debounceRef.current = setTimeout(async () => {
             const payload = {
-                data: remote.buttons[0]._id,
+                data: remote.serialNumber,
                 config: {
                     bgColor: "#FFFFFF",
                     body: "rounded-pointed",
