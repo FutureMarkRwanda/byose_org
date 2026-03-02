@@ -92,7 +92,7 @@ function ContactUs() {
                     {/* RIGHT SIDE: FORM AREA */}
                     <div className="lg:col-span-8 p-10 md:p-20 bg-white">
                         <div className="max-w-2xl">
-                            <p className="text-gray-400 font-medium mb-12 italic text-lg">
+                            <p className="text-gray-600 font-medium mb-12 italic text-lg">
                                 "Solving the world's problems starts with a single message. Tell us what you're building."
                             </p>
 
@@ -100,20 +100,20 @@ function ContactUs() {
                                 <div className="grid md:grid-cols-2 gap-10">
                                     <div className="relative group">
                                         <input type="text" name="name" required 
-                                               className="w-full bg-transparent border-b-2 border-gray-100 py-3 outline-none focus:border-[#195C51] transition-colors peer text-gray-800 font-medium" />
-                                        <label className="absolute left-0 top-3 text-gray-400 pointer-events-none transition-all peer-focus:-top-4 peer-focus:text-[10px] peer-focus:font-black peer-focus:uppercase peer-focus:tracking-widest peer-focus:text-[#195C51] peer-valid:-top-4 peer-valid:text-[10px]">Full Name</label>
+                                               className="w-full bg-transparent border-b-2 border-gray-500 py-3 outline-none focus:border-[#195C51] transition-colors peer text-gray-800 font-medium" />
+                                        <label className="absolute left-0 top-3 text-gray-600 pointer-events-none transition-all peer-focus:-top-4 peer-focus:text-[10px] peer-focus:font-black peer-focus:uppercase peer-focus:tracking-widest peer-focus:text-[#195C51] peer-valid:-top-4 peer-valid:text-[10px]">Full Name</label>
                                     </div>
                                     <div className="relative group">
                                         <input type="email" name="email" required 
-                                               className="w-full bg-transparent border-b-2 border-gray-100 py-3 outline-none focus:border-[#195C51] transition-colors peer text-gray-800 font-medium" />
-                                        <label className="absolute left-0 top-3 text-gray-400 pointer-events-none transition-all peer-focus:-top-4 peer-focus:text-[10px] peer-focus:font-black peer-focus:uppercase peer-focus:tracking-widest peer-focus:text-[#195C51] peer-valid:-top-4 peer-valid:text-[10px]">Email Address</label>
+                                               className="w-full bg-transparent border-b-2 border-gray-500 py-3 outline-none focus:border-[#195C51] transition-colors peer text-gray-800 font-medium" />
+                                        <label className="absolute left-0 top-3 text-gray-600 pointer-events-none transition-all peer-focus:-top-4 peer-focus:text-[10px] peer-focus:font-black peer-focus:uppercase peer-focus:tracking-widest peer-focus:text-[#195C51] peer-valid:-top-4 peer-valid:text-[10px]">Email Address</label>
                                     </div>
                                 </div>
 
                                 <div className="relative group">
                                     <textarea name="message" required 
                                               className="w-full bg-[#F8F9FA] rounded-3xl p-6 outline-none focus:ring-2 focus:ring-[#195C51]/20 transition-all h-40 resize-none text-gray-800"></textarea>
-                                    <label className="absolute left-6 top-6 text-gray-400 pointer-events-none transition-all group-focus-within:-top-4 group-focus-within:left-2 group-focus-within:text-[10px] group-focus-within:font-black group-focus-within:uppercase group-focus-within:text-[#195C51]">Your Message</label>
+                                    <label className="absolute left-6 top-6 text-gray-600 pointer-events-none transition-all group-focus-within:-top-4 group-focus-within:left-2 group-focus-within:text-[10px] group-focus-within:font-black group-focus-within:uppercase group-focus-within:text-[#195C51]">Your Message</label>
                                 </div>
 
                                 <div className="flex flex-col sm:flex-row items-center gap-8">
@@ -127,14 +127,14 @@ function ContactUs() {
                         </div>
 
                         {/* Integrated Map Preview (Small & Subtle) */}
-                        <div className="mt-20 opacity-50 hover:opacity-100 transition-opacity">
+                        {/* <div className="mt-20 opacity-50 hover:opacity-100 transition-opacity">
                             <h4 className="text-[10px] font-black uppercase tracking-widest text-gray-300 mb-4">Network Node: Kigali/RW</h4>
-                            <div className="h-48 rounded-[2rem] overflow-hidden grayscale border border-gray-100">
+                            <div className="h-48 rounded-[2rem] overflow-hidden grayscale border border-gray-500">
                                 <iframe
                                     src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3987.507959722124!2d30.058176301332598!3d-1.9499429990886152!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x19dca4260034b84f%3A0xca04c4970ca3e25a!2sKN%204%20Ave%2C%20Kigali!5e0!3m2!1sen!2srw!4v1770418428525!5m2!1sen!2srw"
                                     width="100%" height="100%" className="border-0" allowFullScreen="" loading="lazy"></iframe>
                             </div>
-                        </div>
+                        </div> */}
                     </div>
                 </div>
             </div>

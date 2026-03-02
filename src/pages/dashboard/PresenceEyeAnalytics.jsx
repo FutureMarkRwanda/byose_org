@@ -19,7 +19,7 @@ import {
   MdSignalWifi4Bar, MdBubbleChart, MdInfoOutline, MdClose,
   MdWifi, MdTrendingDown, MdLocationOn, MdAdd, MdEdit,
   MdDelete, MdToggleOn, MdToggleOff, MdDownload, MdCalendarToday,
-  MdCheckBox, MdMap, MdPictureAsPdf,
+  MdCheckBox, MdMap, MdPictureAsPdf, MdEmojiEvents, MdFilterList, MdArrowUpward, MdArrowDownward,
 } from 'react-icons/md';
 
 // ─── Palette ──────────────────────────────────────────────────────────────────
@@ -268,9 +268,12 @@ export default function PresenceEyeAnalytics() {
   const [busy, setBusy] = useState({});
   const [ts,   setTs]   = useState(new Date());
 
-  const [onlineDuration, setOnlineDuration] = useState('daily');
+  const [onlineDuration, setOnlineDuration]     = useState('daily');
+  const [lbPeriod,       setLbPeriod]           = useState('30d');
+  const [lbSearch,       setLbSearch]           = useState('');
+  const [lbSort,         setLbSort]             = useState({ key: 'rank', dir: 'asc' });
 
-  const TABS = ['overview','engagement','revenue','hardware','map','plans','report','alerts'];
+  const TABS = ['overview','engagement','revenue','hardware','map','leaderboard','plans','report','alerts'];
   const DURATION_OPTS = [
     {value:'daily',  label:'Day'},
     {value:'weekly', label:'Week'},
@@ -344,6 +347,11 @@ export default function PresenceEyeAnalytics() {
       } else if (section==='alerts') {
         const {data:d,error} = await fetchData(`${presence_server}/api/analytics/alerts`, token);
         if (!error&&d) setData(p=>({...p,alerts:d}));
+
+      } else if (section==='leaderboard') {
+        const per = extra.period || lbPeriod;
+        const {data:d,error} = await fetchData(`${presence_server}/api/analytics/leaderboard?period=${per}&limit=100`, token);
+        if (!error&&d) setData(p=>({...p,leaderboard:d}));
       }
     } catch(e) {
       console.error(`[Analytics] ${section}:`, e);
@@ -355,10 +363,11 @@ export default function PresenceEyeAnalytics() {
 
   useEffect(()=>{
     load('overview');
-    if (!['overview','map','plans','report'].includes(tab)) load(tab);
-    if (tab==='map')    load('map');
-    if (tab==='plans')  load('plans');
-    if (tab==='report') load('report');
+    if (!['overview','map','plans','report','leaderboard'].includes(tab)) load(tab);
+    if (tab==='map')         load('map');
+    if (tab==='plans')       load('plans');
+    if (tab==='report')      load('report');
+    if (tab==='leaderboard') load('leaderboard');
   }, [tab, load]);
 
   const loading    = s => !!busy[s];
@@ -1730,6 +1739,288 @@ export default function PresenceEyeAnalytics() {
     );
   };
 
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // LEADERBOARD
+  // ═══════════════════════════════════════════════════════════════════════════
+  const Leaderboard = () => {
+    const lb   = data.leaderboard || {};
+    const rows = safe(lb.rows);
+
+    const handlePeriodChange = p => {
+      setLbPeriod(p);
+      setLbSearch('');
+      load('leaderboard', { period: p });
+    };
+
+    const handleSort = key => {
+      setLbSort(s => s.key === key
+        ? { key, dir: s.dir === 'asc' ? 'desc' : 'asc' }
+        : { key, dir: key === 'rank' ? 'asc' : 'desc' }
+      );
+    };
+
+    // Filter by search
+    const filtered = rows.filter(r => {
+      const q = lbSearch.toLowerCase();
+      if (!q) return true;
+      return (
+        r.ownerName.toLowerCase().includes(q) ||
+        r.serialNumber.toLowerCase().includes(q) ||
+        r.labelName.toLowerCase().includes(q)
+      );
+    });
+
+    // Sort
+    const sorted = [...filtered].sort((a, b) => {
+      let va, vb;
+      if (lbSort.key === 'rank') {
+        va = rows.indexOf(a);
+        vb = rows.indexOf(b);
+      } else if (lbSort.key === 'opens') {
+        va = a.totalOpens || 0;
+        vb = b.totalOpens || 0;
+      } else if (lbSort.key === 'avg') {
+        va = a.avgOpensPerDay || 0;
+        vb = b.avgOpensPerDay || 0;
+      } else if (lbSort.key === 'last') {
+        va = new Date(a.lastOpenAt || 0).getTime();
+        vb = new Date(b.lastOpenAt || 0).getTime();
+      } else if (lbSort.key === 'name') {
+        va = a.ownerName.toLowerCase();
+        vb = b.ownerName.toLowerCase();
+      }
+      if (va < vb) return lbSort.dir === 'asc' ? -1 : 1;
+      if (va > vb) return lbSort.dir === 'asc' ?  1 : -1;
+      return 0;
+    });
+
+    const SortIcon = ({ k }) => {
+      if (lbSort.key !== k) return <span className="opacity-20 ml-1">↕</span>;
+      return lbSort.dir === 'asc'
+        ? <MdArrowUpward size={11} className="inline ml-1 opacity-70"/>
+        : <MdArrowDownward size={11} className="inline ml-1 opacity-70"/>;
+    };
+
+    const RankBadge = ({ rank }) => {
+      if (rank === 0) return (
+        <div className="w-7 h-7 rounded-full flex items-center justify-center text-sm font-black bg-yellow-400 text-yellow-900">🥇</div>
+      );
+      if (rank === 1) return (
+        <div className="w-7 h-7 rounded-full flex items-center justify-center text-sm font-black bg-gray-300 text-gray-700">🥈</div>
+      );
+      if (rank === 2) return (
+        <div className="w-7 h-7 rounded-full flex items-center justify-center text-sm font-black bg-amber-600/30 text-amber-800">🥉</div>
+      );
+      return (
+        <div className="w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-black bg-gray-100 text-gray-500">
+          {rank + 1}
+        </div>
+      );
+    };
+
+    const modelColor = m => ({
+      lite:  { bg: '#6B8BD4', label: 'Lite'  },
+      max:   { bg: C.accent,  label: 'Max'   },
+      pro:   { bg: C.primary, label: 'Pro'   },
+    }[m] || { bg: C.muted, label: m?.toUpperCase() || '—' });
+
+    const timeAgo = date => {
+      if (!date) return '—';
+      const diff = Date.now() - new Date(date).getTime();
+      const m = Math.floor(diff / 60000);
+      if (m < 1)  return 'just now';
+      if (m < 60) return `${m}m ago`;
+      const h = Math.floor(m / 60);
+      if (h < 24) return `${h}h ago`;
+      const d = Math.floor(h / 24);
+      if (d < 30) return `${d}d ago`;
+      return new Date(date).toLocaleDateString('en-GB', { day:'numeric', month:'short' });
+    };
+
+    // Top 3 summary cards
+    const top3 = rows.slice(0, 3);
+
+    // Max opens for relative bar width
+    const maxOpens = sorted.length > 0
+      ? Math.max(...sorted.map(r => lbPeriod === 'avg' ? (r.avgOpensPerDay || 0) : (r.totalOpens || 0)), 1)
+      : 1;
+
+
+    const metricNum = r => lbPeriod === 'avg' ? (r.avgOpensPerDay || 0) : (r.totalOpens || 0);
+
+    return (
+      <div className="space-y-5 sm:space-y-8">
+        <Section icon={MdEmojiEvents} title="Customer Leaderboard" subtitle="Ranked by gate usage — one row per remote"/>
+
+        {/* Controls */}
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 justify-between">
+          <div className="flex items-center gap-2">
+            <DurationPicker
+              value={lbPeriod}
+              onChange={handlePeriodChange}
+              options={[
+                { value: '30d', label: 'Last 30 days' },
+                { value: 'avg', label: 'Avg / day' },
+              ]}
+            />
+            {loading('leaderboard') && (
+              <span className="text-[10px] text-gray-400 font-bold animate-pulse">Loading…</span>
+            )}
+          </div>
+          {/* Search */}
+          <div className="relative w-full sm:w-64">
+            <MdFilterList size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"/>
+            <input
+              value={lbSearch}
+              onChange={e => setLbSearch(e.target.value)}
+              placeholder="Filter by name, email or serial…"
+              className="w-full border border-gray-200 rounded-xl pl-8 pr-3 py-2 text-xs text-[#1A2E2A] focus:outline-none focus:border-[#195C51] focus:ring-1 focus:ring-[#195C51]/20 transition-all"
+            />
+          </div>
+        </div>
+
+        {/* Top 3 podium */}
+        {!loading('leaderboard') && top3.length > 0 && lbSearch === '' && (
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+            {top3.map((r, i) => {
+              const mc = modelColor(r.modelType);
+              return (
+                <div key={r.serialNumber}
+                  className={`bg-white rounded-2xl border p-4 sm:p-5 shadow-sm relative overflow-hidden
+                    ${i === 0 ? 'border-yellow-200 ring-1 ring-yellow-200/60' : 'border-gray-100'}`}>
+                  {i === 0 && (
+                    <div className="absolute top-0 right-0 w-20 h-20 bg-yellow-400/10 rounded-bl-full"/>
+                  )}
+                  <div className="flex items-start gap-3 mb-3">
+                    <RankBadge rank={i}/>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-black text-[#1A2E2A] truncate">{r.ownerName}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="px-2 py-0.5 rounded-full text-[9px] font-black text-white uppercase tracking-wider"
+                      style={{ background: mc.bg }}>{mc.label}</span>
+                    <span className="text-[10px] text-gray-500 truncate">{r.labelName}</span>
+                  </div>
+                  <p className="text-2xl font-black" style={{ color: C.primary }}>
+                    {lbPeriod === 'avg' ? r.avgOpensPerDay : (r.totalOpens || 0).toLocaleString()}
+                  </p>
+                  <p className="text-[9px] font-black uppercase tracking-widest text-gray-400 mt-0.5">
+                    {lbPeriod === 'avg' ? 'avg opens / day' : 'gate opens (30d)'}
+                  </p>
+                  <p className="text-[10px] text-gray-400 mt-2">Last: {timeAgo(r.lastOpenAt)}</p>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Full table */}
+        <Card
+          title={`All Customers — ${sorted.length} remote${sorted.length !== 1 ? 's' : ''}`}
+          subtitle={lbPeriod === '30d' ? 'Ranked by total opens in the last 30 days' : 'Ranked by average opens per day (all-time)'}
+          info={"Each row = one remote device. A customer who owns 2 remotes appears twice.\n\n30 days = total gate opens since the start of the current 30-day window.\n\nAvg / day = total all-time opens ÷ number of days since first use.\n\nLast active = timestamp of the most recent gate open event."}
+        >
+          {loading('leaderboard') ? (
+            <div className="space-y-2">
+              {Array.from({ length: 8 }).map((_, i) => (
+                <Sk key={i} cls="h-14 w-full"/>
+              ))}
+            </div>
+          ) : sorted.length === 0 ? (
+            <Empty msg={lbSearch ? 'No results match your filter.' : 'No usage data yet. Gate opens will appear here as customers use the app.'}/>
+          ) : (
+            <div className="overflow-x-auto -mx-2">
+              <table className="w-full min-w-[640px] text-left border-collapse">
+                <thead>
+                  <tr className="border-b border-gray-100">
+                    {[
+                      { key: 'rank',  label: '#',           cls: 'w-12 pl-3' },
+                      { key: 'name',  label: 'Customer',    cls: 'pl-2' },
+                      { key: null,    label: 'Remote',       cls: '' },
+                      { key: 'opens', label: lbPeriod === 'avg' ? 'Avg / Day' : '30d Opens', cls: 'text-right' },
+                      { key: 'last',  label: 'Last Active', cls: 'text-right pr-3' },
+                    ].map(col => (
+                      <th key={col.label}
+                        onClick={col.key ? () => handleSort(col.key) : undefined}
+                        className={`py-3 text-[9px] font-black uppercase tracking-widest text-gray-400
+                          ${col.cls} ${col.key ? 'cursor-pointer hover:text-[#195C51] select-none transition-colors' : ''}`}>
+                        {col.label}
+                        {col.key && <SortIcon k={col.key}/>}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {sorted.map((r, i) => {
+                    const origRank = rows.indexOf(r);
+                    const mc = modelColor(r.modelType);
+                    const pct = maxOpens > 0 ? (metricNum(r) / maxOpens) * 100 : 0;
+                    const isTop = origRank < 3 && lbSearch === '';
+                    return (
+                      <tr key={r.serialNumber + i}
+                        className={`border-b border-gray-50 hover:bg-[#195C51]/3 transition-colors
+                          ${isTop && origRank === 0 ? 'bg-yellow-50/50' : ''}`}>
+                        {/* Rank */}
+                        <td className="py-3 pl-3 pr-2 w-12">
+                          <RankBadge rank={lbSearch ? i : origRank}/>
+                        </td>
+                        {/* Customer */}
+                        <td className="py-3 pl-2 pr-4">
+                          <div className="flex items-center gap-2.5">
+                            <div className="w-8 h-8 rounded-xl flex items-center justify-center text-white text-[11px] font-black flex-shrink-0"
+                              style={{ background: C.primary }}>
+                              {(r.ownerName || '?')[0].toUpperCase()}
+                            </div>
+                            <div className="min-w-0">
+                              <p className="text-xs font-black text-[#1A2E2A] truncate">{r.ownerName}</p>
+                                    </div>
+                          </div>
+                        </td>
+                        {/* Remote */}
+                        <td className="py-3 pr-4">
+                          <div className="flex items-center gap-2">
+                            <span className="px-2 py-0.5 rounded-full text-[9px] font-black text-white uppercase tracking-wider flex-shrink-0"
+                              style={{ background: mc.bg }}>{mc.label}</span>
+                            <div className="min-w-0">
+                              <p className="text-[11px] font-bold text-gray-700 truncate">{r.labelName}</p>
+                              <p className="text-[9px] text-gray-400 font-mono">{r.serialNumber}</p>
+                            </div>
+                          </div>
+                        </td>
+                        {/* Opens + bar */}
+                        <td className="py-3 pr-4 text-right">
+                          <p className="text-sm font-black text-[#1A2E2A]">
+                            {lbPeriod === 'avg' ? r.avgOpensPerDay : (r.totalOpens || 0).toLocaleString()}
+                          </p>
+                          <div className="mt-1 h-1 bg-gray-100 rounded-full overflow-hidden w-20 ml-auto">
+                            <div className="h-full rounded-full transition-all duration-500"
+                              style={{ width: `${pct}%`, background: isTop && origRank === 0 ? '#F59E0B' : C.primary }}/>
+                          </div>
+                        </td>
+                        {/* Last active */}
+                        <td className="py-3 pr-3 text-right">
+                          <p className="text-xs font-bold text-gray-600">{timeAgo(r.lastOpenAt)}</p>
+                          {r.lastOpenAt && (
+                            <p className="text-[9px] text-gray-400">
+                              {new Date(r.lastOpenAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: '2-digit' })}
+                            </p>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </Card>
+      </div>
+    );
+  };
+
+
   // ─── Render ───────────────────────────────────────────────────────────────
   return (
     <div className="space-y-5 sm:space-y-8 pb-16">
@@ -1749,18 +2040,20 @@ export default function PresenceEyeAnalytics() {
         </div>
       </div>
 
+
       {/* Tab bar */}
       <div className="overflow-x-auto pb-1 -mx-1 px-1">
         <div className="flex bg-white p-1 sm:p-1.5 rounded-2xl border border-gray-100 shadow-sm w-fit gap-0.5 sm:gap-1">
           {[
-            {id:'overview',   label:'Overview'},
-            {id:'engagement', label:'Usage'},
-            {id:'revenue',    label:'Revenue'},
-            {id:'hardware',   label:'Hardware'},
-            {id:'map',        label:'Map'},
-            {id:'plans',      label:'Plans'},
-            {id:'report',     label:'Report'},
-            {id:'alerts',     label:'Alerts'},
+            {id:'overview',     label:'Overview'},
+            {id:'engagement',   label:'Usage'},
+            {id:'revenue',      label:'Revenue'},
+            {id:'hardware',     label:'Hardware'},
+            {id:'map',          label:'Map'},
+            {id:'leaderboard',  label:'Leaderboard'},
+            {id:'plans',        label:'Plans'},
+            {id:'report',       label:'Report'},
+            {id:'alerts',       label:'Alerts'},
           ].map(t=>(
             <Tab key={t.id} label={t.label} active={tab===t.id} onClick={()=>setTab(t.id)} badge={t.id==='alerts'?alertCount:0}/>
           ))}
@@ -1776,6 +2069,7 @@ export default function PresenceEyeAnalytics() {
         {tab==='map'        && <MapView/>}
         {tab==='plans'      && <Plans/>}
         {tab==='report'     && <DailyReport/>}
+        {tab==='leaderboard' && <Leaderboard/>}
         {tab==='alerts'     && <Alerts/>}
       </div>
     </div>

@@ -12,7 +12,7 @@ export  const servicesAndProducts = [
         title:`B-Tech Labs`,
         description:`Where innovation comes to life. B-Tech Labs is the hub for BYOSE's groundbreaking projects and cutting-edge products. From AI-powered home automation to advanced robotics, we design and develop solutions that shape the future. Explore our latest innovations and join us on the journey to revolutionize technology`,
         images:[`https://i.pinimg.com/550x/00/81/3e/00813e7a1a1c59a05f143695ace22c3b.jpg`],
-        link:`https://academy.byose.info/labs/byose`,
+        link:`https://academy.byose.info`,
         position:`right`
     },
     // {
