@@ -1155,12 +1155,12 @@ export default function PresenceEyeAnalytics() {
                     <p className="text-xs font-black">{selected.address}</p>
                   </div>
                 )}
-                {selected.ownerEmail && (
-                  <div>
-                    <p className="text-[9px] text-gray-400 uppercase tracking-widest font-bold">Email</p>
-                    <p className="text-xs font-black">{selected.ownerEmail}</p>
-                  </div>
-                )}
+                {/*{selected.ownerEmail && (*/}
+                {/*  <div>*/}
+                {/*    <p className="text-[9px] text-gray-400 uppercase tracking-widest font-bold">Email</p>*/}
+                {/*    <p className="text-xs font-black">{selected.ownerEmail}</p>*/}
+                {/*  </div>*/}
+                {/*)}*/}
                 <button onClick={()=>setSelected(null)} className="ml-auto text-gray-400 hover:text-white transition-colors">
                   <MdClose size={16}/>
                 </button>
