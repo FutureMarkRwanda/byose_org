@@ -23,6 +23,7 @@ import Services from "./pages/home/About.jsx";
 import Progress from "./components/presence_eye/PresenceEyeProgress.jsx";
 import AccountDeletation from "./pages/home/AccountDeletation.jsx";
 import PresenceEyeResetPassword from "./pages/auth/PresenceEyeResetPassword.jsx";
+import ButtonsPage from "./components/presence_eye/ButtonsPage.jsx";
 
 function DashboardLayout() {
   return (
@@ -49,6 +50,7 @@ function App() {
     "/signup": "Create Account | BYOSE Tech",
     "/login": "Login | BYOSE",
     "/dashboard": "DASHBOARD | BYOSE Tech",
+    "/presence-eye/buttons": "Buttons | Gate Remote Extender | BYOSE Tech",
   };
 
   useUpdateTitle(titleMap);
@@ -76,6 +78,7 @@ function App() {
           </Route>
           <Route path="/contact" element={<ContactUs />} />
           <Route path="/presence-eye" element={<PresenceEye />}>
+          
             <Route index element={<PresenceEyeLatest />} />
             <Route
               path="/presence-eye/terms-policy"
@@ -90,6 +93,10 @@ function App() {
               element={<PresenceEyePresentation />}
             />
             <Route path="/presence-eye/progress" element={<Progress />} />
+            <Route
+  path="/presence-eye/buttons"
+  element={<ButtonsPage />}
+/>
           </Route>
           <Route path="*" element={<NotFound />} />
         </Route>

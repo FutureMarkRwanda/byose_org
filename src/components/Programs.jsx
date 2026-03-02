@@ -1,5 +1,3 @@
-// eslint-disable-next-line no-unused-vars
-import React from 'react';
 import ServiceCard from "./ServiceCard.jsx";
 import {servicesAndProducts} from "../utils/data.js";
 function Programs() {
