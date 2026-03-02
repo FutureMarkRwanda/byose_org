@@ -1,4 +1,10 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+// src/pages/dashboard/PresenceEyeAnalytics.jsx
+// ─── Presence Eye — Analytics Dashboard (v5) ─────────────────────────────────
+// Changes: frequency endpoint fixed, online trend from DeviceDailySession,
+//          Map tab with device pins, Plans management, Daily Report generator,
+//          Network Intelligence removed
+
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
@@ -1760,7 +1766,6 @@ export default function PresenceEyeAnalytics() {
       if (!q) return true;
       return (
         r.ownerName.toLowerCase().includes(q) ||
-        r.ownerEmail.toLowerCase().includes(q) ||
         r.serialNumber.toLowerCase().includes(q) ||
         r.labelName.toLowerCase().includes(q)
       );
@@ -1891,7 +1896,6 @@ export default function PresenceEyeAnalytics() {
                     <RankBadge rank={i}/>
                     <div className="min-w-0 flex-1">
                       <p className="text-sm font-black text-[#1A2E2A] truncate">{r.ownerName}</p>
-                      <p className="text-[10px] text-gray-400 truncate">{r.ownerEmail}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2 mb-3">
@@ -1971,8 +1975,7 @@ export default function PresenceEyeAnalytics() {
                             </div>
                             <div className="min-w-0">
                               <p className="text-xs font-black text-[#1A2E2A] truncate">{r.ownerName}</p>
-                              <p className="text-[10px] text-gray-400 truncate">{r.ownerEmail}</p>
-                            </div>
+                                    </div>
                           </div>
                         </td>
                         {/* Remote */}
