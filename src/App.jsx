@@ -78,7 +78,6 @@ function App() {
           </Route>
           <Route path="/contact" element={<ContactUs />} />
           <Route path="/presence-eye" element={<PresenceEye />}>
-          
             <Route index element={<PresenceEyeLatest />} />
             <Route
               path="/presence-eye/terms-policy"
@@ -92,11 +91,8 @@ function App() {
               path="/presence-eye/presents"
               element={<PresenceEyePresentation />}
             />
-            <Route path="/presence-eye/progress" element={<Progress />} />
-            <Route
-  path="/presence-eye/buttons"
-  element={<ButtonsPage />}
-/>
+            
+            <Route path="/presence-eye/buttons" element={<ButtonsPage />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Route>
@@ -120,7 +116,7 @@ function App() {
                 return page.subPages.map((sub) => (
                   <Route key={sub.path} path={sub.path} element={sub.element} />
                 ));
-              })
+              }),
           )}
         </Route>
 
@@ -132,13 +128,13 @@ function App() {
               layout === "auth" &&
               pages.map(({ path, element }) => (
                 <Route key={path} exact path={`${path}`} element={element} />
-              ))
+              )),
           )}
         </Route>
         <Route
-              path="/presence-eye/forgot-password"
-              element={<PresenceEyeResetPassword />}
-            />
+          path="/presence-eye/forgot-password"
+          element={<PresenceEyeResetPassword />}
+        />
       </Routes>
     </div>
   );

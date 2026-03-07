@@ -827,273 +827,360 @@ export default function PresenceEyeAnalytics() {
     );
   };
 
-  // ═══════════════════════════════════════════════════════════════════════════
-  // MAP — Device Locations
-  // ═══════════════════════════════════════════════════════════════════════════
-  // ═══════════════════════════════════════════════════════════════════════════
-  // MAP — Interactive Device Pins (Leaflet + OpenStreetMap, no API key)
-  // ═══════════════════════════════════════════════════════════════════════════
-  const MapView = () => {
-    const locations   = safe(data.locations);
-    const mapRef      = useRef(null);       // ref to the div that holds the map
-    const leafletRef  = useRef(null);       // leaflet map instance
-    const markersRef  = useRef([]);         // leaflet marker instances
-    const [selected,  setSelected]  = useState(null);
-    const [leafletReady, setLeafletReady] = useState(false);
-    const [filterModel, setFilterModel]   = useState('all');
-    const [filterStatus, setFilterStatus] = useState('all'); // 'all'|'enabled'|'disabled'
+//  from view device geo location
 
-    const hasLocations = locations.length > 0;
-    const models = ['all', ...new Set(locations.map(d => d.modelType).filter(Boolean))];
+const MapView = () => {
+  const locations = safe(data.locations);
 
-    const filtered = locations.filter(d => {
-      if (filterModel  !== 'all' && d.modelType !== filterModel) return false;
-      if (filterStatus === 'enabled'  && !d.isEnabled)  return false;
-      if (filterStatus === 'disabled' &&  d.isEnabled)  return false;
-      return true;
-    });
+  const mapRef     = useRef(null);
+  const leafletRef = useRef(null);
+  const markersRef = useRef([]);
 
-    const onlineCount   = locations.filter(d =>  d.isEnabled).length;
-    const disabledCount = locations.filter(d => !d.isEnabled).length;
+  const [selected,     setSelected]     = useState(null);
+  const [leafletReady, setLeafletReady] = useState(false);
+  const [filterModel,  setFilterModel]  = useState('all');
+  const [filterStatus, setFilterStatus] = useState('all');
 
-    // ── Load Leaflet dynamically (no npm install needed) ──────────────────────
-    useEffect(() => {
-      if (window.L) { setLeafletReady(true); return; }
-      // Load Leaflet CSS
-      if (!document.getElementById('leaflet-css')) {
-        const link = document.createElement('link');
-        link.id   = 'leaflet-css';
-        link.rel  = 'stylesheet';
-        link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
-        document.head.appendChild(link);
+  const hasLocations = locations.length > 0;
+  const models       = ['all', ...new Set(locations.map(d => d.modelType).filter(Boolean))];
+
+  const getenabled = d => Boolean( d.isEnabled);
+
+  const filtered = locations.filter(d => {
+    if (filterModel  !== 'all' && d.modelType !== filterModel) return false;
+    if (filterStatus === 'enabled'  && !getenabled(d)) return false;
+    if (filterStatus === 'disabled' &&  getenabled(d)) return false;
+    return true;
+  });
+
+  const enabledCount  = locations.filter(d =>  getenabled(d)).length;
+  const disabledCount = locations.filter(d => !getenabled(d)).length;
+
+  // ── Privacy helpers ───────────────────────────────────────────────────────
+  // If you've imported PrivacyMask.jsx, replace these with:
+  //   import { maskName, maskEmail } from '../../components/PrivacyMask.jsx';
+  const maskName = (fullName) => {
+    if (!fullName || fullName === 'Unknown') return 'Unknown';
+    const parts = fullName.trim().split(/\s+/);
+    if (parts.length === 1) return parts[0];
+    return `${parts[0]} ${parts[1][0].toUpperCase()}.`;
+  };
+
+  const maskEmail = (email) => {
+    if (!email) return null;
+    const at     = email.indexOf('@');
+    if (at === -1) return `${email.slice(0, 3)}***`;
+    const local  = email.slice(0, at);
+    const domain = email.slice(at);
+    return `${local.slice(0, 3)}${'*'.repeat(Math.max(3, local.length - 3))}${domain}`;
+  };
+
+  // ── Inject pulse keyframe once ────────────────────────────────────────────
+  useEffect(() => {
+    if (document.getElementById('lf-pulse-style')) return;
+    const s = document.createElement('style');
+    s.id = 'lf-pulse-style';
+    s.textContent = `
+      @keyframes lf-pulse {
+        0%   { transform: scale(1);   opacity: 0.75; }
+        70%  { transform: scale(2.4); opacity: 0;    }
+        100% { transform: scale(2.4); opacity: 0;    }
       }
-      // Load Leaflet JS
-      const script = document.createElement('script');
-      script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
-      script.onload = () => setLeafletReady(true);
-      script.onerror = () => console.warn('[Map] Leaflet failed to load — check network');
-      document.head.appendChild(script);
-    }, []);
-
-    // ── Init / update map whenever Leaflet is ready or locations change ────────
-    useEffect(() => {
-      if (!leafletReady || !mapRef.current || !hasLocations) return;
-      const L = window.L;
-
-      // Init map once
-      if (!leafletRef.current) {
-        leafletRef.current = L.map(mapRef.current, { zoomControl: true });
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          attribution: '© <a href="https://openstreetmap.org">OSM</a>',
-          maxZoom: 19,
-        }).addTo(leafletRef.current);
+      .lf-pulse-ring {
+        position: absolute;
+        top: 50%; left: 50%;
+        width: 14px; height: 14px;
+        margin: -7px 0 0 -7px;
+        border-radius: 50%;
+        background: #22C55E;
+        animation: lf-pulse 1.8s ease-out infinite;
+        pointer-events: none;
+        z-index: 0;
       }
+    `;
+    document.head.appendChild(s);
+  }, []);
 
-      const map = leafletRef.current;
+  // ── Load Leaflet dynamically ──────────────────────────────────────────────
+  useEffect(() => {
+    if (window.L) { setLeafletReady(true); return; }
 
-      // Clear old markers
-      markersRef.current.forEach(m => m.remove());
-      markersRef.current = [];
+    if (!document.getElementById('leaflet-css')) {
+      const link = document.createElement('link');
+      link.id   = 'leaflet-css';
+      link.rel  = 'stylesheet';
+      link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+      document.head.appendChild(link);
+    }
 
-      if (filtered.length === 0) return;
+    const script  = document.createElement('script');
+    script.src    = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+    script.onload = () => setLeafletReady(true);
+    script.onerror= () => console.warn('[MapView] Leaflet failed to load');
+    document.head.appendChild(script);
+  }, []);
 
-      const bounds = [];
+  // ── Init / update map ─────────────────────────────────────────────────────
+  useEffect(() => {
+    if (!leafletReady || !mapRef.current || !hasLocations) return;
+    const L = window.L;
 
-      filtered.forEach(d => {
-        const color  = d.isEnabled ? '#2DC87A' : '#E84040';
-        const border = d.isEnabled ? '#166B45' : '#B91C1C';
+    if (!leafletRef.current) {
+      leafletRef.current = L.map(mapRef.current, { zoomControl: true });
 
-        // Custom SVG pin marker
-        const icon = L.divIcon({
-          className: '',
-          html: `<div style="
-            position:relative;
-            width:32px;
-            height:40px;
-            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.25));
-          ">
-            <svg viewBox="0 0 32 40" xmlns="http://www.w3.org/2000/svg" width="32" height="40">
-              <path d="M16 0C7.163 0 0 7.163 0 16c0 10 16 24 16 24S32 26 32 16C32 7.163 24.837 0 16 0z"
-                fill="${color}" stroke="${border}" stroke-width="1.5"/>
-              <circle cx="16" cy="16" r="7" fill="white" opacity="0.9"/>
-              <text x="16" y="20" text-anchor="middle" font-size="10" font-weight="bold" fill="${border}" font-family="monospace">
-                ${(d.modelType||'?')[0].toUpperCase()}
-              </text>
-            </svg>
+      // CartoDB Voyager — Google Maps aesthetic, free, no API key
+      L.tileLayer(
+        'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+        {
+          attribution:
+            '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>' +
+            ' &copy; <a href="https://carto.com/attributions">CARTO</a>',
+          subdomains: 'abcd',
+          maxZoom:    20,
+        }
+      ).addTo(leafletRef.current);
+    }
+
+    const map = leafletRef.current;
+
+    markersRef.current.forEach(m => m.remove());
+    markersRef.current = [];
+
+    if (filtered.length === 0) return;
+
+    const bounds = [];
+
+    filtered.forEach(d => {
+      const enabled      = getenabled(d);
+      const dotColor    = enabled ? '#22C55E' : '#9CA3AF';
+      const strokeColor = enabled ? '#16A34A' : '#6B7280';
+      const modelLetter = (d.modelType || '?')[0].toUpperCase();
+
+      // ✅ Masked display values for popup — never show full name/email
+      const displayName  = maskName(d.owner);
+      const displayEmail = maskEmail(d.ownerEmail);
+
+      const pulseDiv = enabled ? `<div class="lf-pulse-ring"></div>` : '';
+
+      const icon = L.divIcon({
+        className: '',
+        html: `
+          <div style="position:relative;width:36px;height:46px;">
+            ${pulseDiv}
+            <div style="position:absolute;top:0;left:0;width:36px;height:46px;
+              filter:drop-shadow(0 3px 6px rgba(0,0,0,0.22));z-index:1;">
+              <svg viewBox="0 0 36 46" xmlns="http://www.w3.org/2000/svg" width="36" height="46">
+                <path d="M18 0C8.059 0 0 8.059 0 18c0 11.941 18 28 18 28S36 29.941 36 18C36 8.059 27.941 0 18 0z"
+                  fill="${dotColor}" stroke="${strokeColor}" stroke-width="1.4"/>
+                <circle cx="18" cy="18" r="9" fill="white" opacity="0.93"/>
+                <text x="18" y="22.5" text-anchor="middle" font-size="10" font-weight="900"
+                  fill="${strokeColor}" font-family="system-ui,sans-serif,Arial">
+                  ${modelLetter}
+                </text>
+              </svg>
+            </div>
           </div>`,
-          iconSize:   [32, 40],
-          iconAnchor: [16, 40],
-          popupAnchor:[0, -42],
-        });
-
-        const marker = L.marker([d.lat, d.lng], { icon });
-
-        // Popup on click
-        marker.bindPopup(`
-          <div style="font-family:sans-serif;min-width:180px;padding:4px 0">
-            <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
-              <div style="width:8px;height:8px;border-radius:50%;background:${color};flex-shrink:0"></div>
-              <strong style="font-size:12px;color:#1A2E2A">${d.label || d.serialNumber}</strong>
-            </div>
-            <div style="font-size:10px;color:#6B7280;margin-bottom:2px">${d.serialNumber}</div>
-            <div style="margin:6px 0;padding:4px 8px;background:#F3F4F6;border-radius:6px;font-size:10px">
-              <div><b>Model:</b> ${(d.modelType||'unknown').toUpperCase()}</div>
-              <div><b>Status:</b> <span style="color:${color}">${d.isEnabled ? 'Enabled' : 'Disabled'}</span></div>
-              ${d.owner ? `<div><b>Owner:</b> ${d.owner}</div>` : ''}
-              ${d.address ? `<div><b>Address:</b> ${d.address}</div>` : ''}
-              <div><b>Coords:</b> ${d.lat.toFixed(5)}, ${d.lng.toFixed(5)}</div>
-            </div>
-          </div>
-        `, { maxWidth: 240 });
-
-        marker.on('click', () => setSelected(d));
-        marker.addTo(map);
-        markersRef.current.push(marker);
-        bounds.push([d.lat, d.lng]);
+        iconSize:    [36, 46],
+        iconAnchor:  [18, 46],
+        popupAnchor: [0, -48],
       });
 
-      // Fit map to show all markers
-      if (bounds.length > 0) {
-        map.fitBounds(bounds, { padding: [40, 40], maxZoom: 14 });
-      }
-    }, [leafletReady, filtered.length, filterModel, filterStatus, locations]);
+      const marker = L.marker([d.lat, d.lng], { icon });
 
-    // Cleanup on unmount
-    useEffect(() => {
-      return () => {
-        if (leafletRef.current) {
-          leafletRef.current.remove();
-          leafletRef.current = null;
-        }
-      };
-    }, []);
+      // ✅ Popup uses masked name and email
+      marker.bindPopup(`
+        <div style="font-family:system-ui,sans-serif;min-width:190px;padding:4px 0">
+          <div style="display:flex;align-items:center;gap:7px;margin-bottom:7px">
+            <div style="
+              width:9px;height:9px;border-radius:50%;
+              background:${dotColor};flex-shrink:0;
+              ${enabled ? `box-shadow:0 0 0 3px ${dotColor}33` : ''}
+            "></div>
+            <strong style="font-size:13px;color:#1A2E2A">${d.label || d.serialNumber}</strong>
+          </div>
+          <p style="font-size:10px;color:#6B7280;margin:0 0 7px">${d.serialNumber}</p>
+          <div style="background:#F8F9FA;border-radius:8px;padding:8px 10px;font-size:11px;line-height:1.9">
+            <div><b>Model:</b> ${(d.modelType || 'unknown').toUpperCase()}</div>
+            <div><b>Status:</b>
+              <span style="color:${dotColor};font-weight:700">
+                ${enabled ? '● Enabled' : '● Disabled'}
+              </span>
+            </div>
+            ${displayName  ? `<div><b>Owner:</b> ${displayName}</div>`  : ''}
+            ${displayEmail ? `<div><b>Email:</b> <span style="font-family:monospace">${displayEmail}</span></div>` : ''}
+            ${d.address    ? `<div><b>Address:</b> ${d.address}</div>`  : ''}
+            <div><b>Coords:</b> ${d.lat.toFixed(5)}, ${d.lng.toFixed(5)}</div>
+          </div>
+        </div>
+      `, { maxWidth: 260 });
 
-    // Pan to selected device when list item clicked
-    const flyTo = (d) => {
-      setSelected(d);
+      marker.on('click', () => setSelected(d));
+      marker.addTo(map);
+      markersRef.current.push(marker);
+      bounds.push([d.lat, d.lng]);
+    });
+
+    if (bounds.length > 0) {
+      map.fitBounds(bounds, { padding: [48, 48], maxZoom: 14 });
+    }
+  }, [leafletReady, filtered.length, filterModel, filterStatus, locations]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
       if (leafletRef.current) {
-        leafletRef.current.flyTo([d.lat, d.lng], 16, { duration: 1 });
-        // Open its popup
-        const marker = markersRef.current.find((m, i) => filtered[i]?.serialNumber === d.serialNumber);
-        if (marker) marker.openPopup();
+        leafletRef.current.remove();
+        leafletRef.current = null;
       }
     };
+  }, []);
 
-    return (
-      <div className="space-y-5 sm:space-y-8">
-        <Section icon={MdMap} title="Device Locations" subtitle="Where are your sold devices deployed?"/>
+  const flyTo = (d) => {
+    setSelected(d);
+    if (!leafletRef.current) return;
+    leafletRef.current.flyTo([d.lat, d.lng], 16, { duration: 1.1 });
+    const idx    = filtered.findIndex(f => f.serialNumber === d.serialNumber);
+    const marker = markersRef.current[idx];
+    if (marker) marker.openPopup();
+  };
 
-        {/* Stats row */}
-        <div className="grid grid-cols-3 gap-3">
-          <KPI label="Devices on Map"  value={locations.length} sub="With GPS data"      loading={loading('map')} color={C.primary}/>
-          <KPI label="Enabled"         value={onlineCount}      sub="Active"             loading={loading('map')} color={C.accent}/>
-          <KPI label="Disabled"        value={disabledCount}    sub="Disabled by owner"  loading={loading('map')} color={C.danger}/>
-        </div>
+  return (
+    <div className="space-y-5 sm:space-y-8">
+      <Section icon={MdMap} title="Device Locations" subtitle="Where are your sold devices deployed?"/>
 
-        {loading('map') ? (
-          <Sk cls="h-[500px] w-full"/>
-        ) : !hasLocations ? (
-          <div className="bg-white rounded-2xl border border-gray-100 p-10 flex flex-col items-center gap-4">
-            <MdLocationOn size={40} className="text-gray-200"/>
-            <div className="text-center">
-              <p className="font-black text-[#1A2E2A]">No device locations available</p>
-              <p className="text-xs text-gray-400 mt-1 max-w-sm">
-                Devices report GPS coordinates via <code className="bg-gray-100 px-1 rounded">Remote.location.coordinates</code> when first paired.
-                Locations appear here as devices come online.
-              </p>
-            </div>
-            <button onClick={()=>load('map')}
-              className="flex items-center gap-2 px-4 py-2 bg-[#195C51] text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-[#1E7060] transition-colors">
-              <MdRefresh size={14}/> Refresh
-            </button>
+      {/* Stats */}
+      <div className="grid grid-cols-3 gap-3">
+        <KPI label="Devices on Map" value={locations.length} sub="With GPS data"     loading={loading('map')} color={C.primary}/>
+        <KPI label="Enabled"         value={enabledCount}      sub="Currently enabled"  loading={loading('map')} color="#22C55E"/>
+        <KPI label="Disabled"        value={disabledCount}     sub="Currently disabled" loading={loading('map')} color="#9CA3AF"/>
+      </div>
+
+      {loading('map') ? (
+        <Sk cls="h-[500px] w-full"/>
+      ) : !hasLocations ? (
+        <div className="bg-white rounded-2xl border border-gray-100 p-10 flex flex-col items-center gap-4">
+          <MdLocationOn size={40} className="text-gray-200"/>
+          <div className="text-center">
+            <p className="font-black text-[#1A2E2A]">No device locations available</p>
+            <p className="text-xs text-gray-400 mt-1 max-w-sm">
+              Devices report GPS coordinates via{' '}
+              <code className="bg-gray-100 px-1 rounded">Remote.location.coordinates</code>{' '}
+              when first paired.
+            </p>
           </div>
-        ) : (
-          <div className="flex flex-col gap-4">
-            {/* Filters */}
-            <div className="flex flex-wrap items-center gap-3">
-              <div className="flex items-center gap-2">
-                <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">Model</span>
-                <div className="flex bg-gray-100 rounded-xl p-0.5 gap-0.5">
-                  {models.map(m => (
-                    <button key={m} onClick={()=>setFilterModel(m)}
-                      className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all
-                        ${filterModel===m?'bg-[#195C51] text-white shadow-sm':'text-gray-500 hover:text-[#195C51]'}`}>
-                      {m}
-                    </button>
-                  ))}
+          <button onClick={() => load('map')}
+            className="flex items-center gap-2 px-4 py-2 bg-[#195C51] text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-[#1E7060] transition-colors">
+            <MdRefresh size={14}/> Refresh
+          </button>
+        </div>
+      ) : (
+        <div className="flex flex-col gap-4">
+
+          {/* Filters */}
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">Model</span>
+              <div className="flex bg-gray-100 rounded-xl p-0.5 gap-0.5">
+                {models.map(m => (
+                  <button key={m} onClick={() => setFilterModel(m)}
+                    className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all
+                      ${filterModel===m ? 'bg-[#195C51] text-white shadow-sm' : 'text-gray-500 hover:text-[#195C51]'}`}>
+                    {m}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">Status</span>
+              <div className="flex bg-gray-100 rounded-xl p-0.5 gap-0.5">
+                {[
+                  { value: 'all',     label: 'All'     },
+                  { value: 'enabled',  label: 'Enabled'  },
+                  { value: 'disabled', label: 'Disabled' },
+                ].map(s => (
+                  <button key={s.value} onClick={() => setFilterStatus(s.value)}
+                    className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all
+                      ${filterStatus===s.value ? 'bg-[#195C51] text-white shadow-sm' : 'text-gray-500 hover:text-[#195C51]'}`}>
+                    {s.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <span className="text-[10px] text-gray-400 ml-auto">
+              {filtered.length} of {locations.length} shown
+            </span>
+          </div>
+
+          {/* Map + Sidebar */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+
+            {/* Leaflet map */}
+            <div className="lg:col-span-2 bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+              <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+                <p className="text-[10px] font-black uppercase tracking-widest text-[#1A2E2A]">
+                  {filtered.length} device{filtered.length !== 1 ? 's' : ''} visible
+                </p>
+                <div className="flex items-center gap-4 text-[9px] font-bold text-gray-400">
+                  <span className="flex items-center gap-1.5">
+                    <span className="relative flex h-2.5 w-2.5">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-60"/>
+                      <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"/>
+                    </span>
+                    Enabled
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <span className="w-2.5 h-2.5 rounded-full bg-gray-400 inline-block"/>
+                    Disabled
+                  </span>
+                  <span className="text-gray-300">· Letter = model type</span>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
-                <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">Status</span>
-                <div className="flex bg-gray-100 rounded-xl p-0.5 gap-0.5">
-                  {['all','enabled','disabled'].map(s => (
-                    <button key={s} onClick={()=>setFilterStatus(s)}
-                      className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all
-                        ${filterStatus===s?'bg-[#195C51] text-white shadow-sm':'text-gray-500 hover:text-[#195C51]'}`}>
-                      {s}
-                    </button>
-                  ))}
+
+              {!leafletReady ? (
+                <div className="h-[440px] flex items-center justify-center bg-gray-50">
+                  <div className="flex flex-col items-center gap-2">
+                    <div className="w-8 h-8 border-2 border-[#195C51] border-t-transparent rounded-full animate-spin"/>
+                    <p className="text-xs text-gray-400">Loading map…</p>
+                  </div>
                 </div>
-              </div>
-              <span className="text-[10px] text-gray-400 ml-auto">{filtered.length} of {locations.length} shown</span>
+              ) : (
+                <div ref={mapRef} style={{ height: 440, width: '100%', zIndex: 0 }}/>
+              )}
             </div>
 
-            {/* Map + sidebar */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-              {/* Leaflet map */}
-              <div className="lg:col-span-2 bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-                <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-[#1A2E2A]">
-                    {filtered.length} device{filtered.length!==1?'s':''} visible
-                  </p>
-                  <div className="flex items-center gap-4 text-[9px] font-bold text-gray-400">
-                    <span className="flex items-center gap-1.5">
-                      <svg width="10" height="13" viewBox="0 0 32 40"><path d="M16 0C7.163 0 0 7.163 0 16c0 10 16 24 16 24S32 26 32 16C32 7.163 24.837 0 16 0z" fill="#2DC87A"/></svg>
-                      Enabled
-                    </span>
-                    <span className="flex items-center gap-1.5">
-                      <svg width="10" height="13" viewBox="0 0 32 40"><path d="M16 0C7.163 0 0 7.163 0 16c0 10 16 24 16 24S32 26 32 16C32 7.163 24.837 0 16 0z" fill="#E84040"/></svg>
-                      Disabled
-                    </span>
-                    <span className="text-gray-300">· Letter = model type</span>
-                  </div>
-                </div>
-                {!leafletReady ? (
-                  <div className="h-[440px] flex items-center justify-center bg-gray-50">
-                    <div className="flex flex-col items-center gap-2">
-                      <div className="w-8 h-8 border-2 border-[#195C51] border-t-transparent rounded-full animate-spin"/>
-                      <p className="text-xs text-gray-400">Loading map…</p>
-                    </div>
-                  </div>
-                ) : (
-                  <div ref={mapRef} style={{height:440, width:'100%', zIndex:0}}/>
-                )}
+            {/* Sidebar */}
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col">
+              <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
+                <p className="text-[10px] font-black uppercase tracking-widest text-[#1A2E2A]">Devices</p>
+                <p className="text-[10px] text-gray-400">{filtered.length} listed</p>
               </div>
-
-              {/* Device list sidebar */}
-              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col">
-                <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-[#1A2E2A]">Devices</p>
-                  <p className="text-[10px] text-gray-400">{filtered.length} listed</p>
-                </div>
-                <div className="overflow-y-auto flex-1" style={{maxHeight:440}}>
-                  {filtered.length === 0 ? (
-                    <div className="flex items-center justify-center h-24">
-                      <p className="text-xs text-gray-400">No devices match filters</p>
-                    </div>
-                  ) : filtered.map(d => (
+              <div className="overflow-y-auto flex-1" style={{ maxHeight: 440 }}>
+                {filtered.length === 0 ? (
+                  <div className="flex items-center justify-center h-24">
+                    <p className="text-xs text-gray-400">No devices match filters</p>
+                  </div>
+                ) : filtered.map(d => {
+                  const enabled = getenabled(d);
+                  return (
                     <button key={d.serialNumber} onClick={() => flyTo(d)}
                       className={`w-full text-left px-4 py-3 border-b border-gray-50 hover:bg-[#195C51]/5 transition-colors
-                        ${selected?.serialNumber===d.serialNumber ? 'bg-[#195C51]/8 border-l-[3px] border-l-[#195C51]' : ''}`}>
+                        ${selected?.serialNumber === d.serialNumber
+                          ? 'bg-[#195C51]/8 border-l-[3px] border-l-[#195C51]'
+                          : ''}`}>
                       <div className="flex items-start gap-2.5">
-                        {/* Colored pin icon */}
-                        <div className="flex-shrink-0 mt-0.5">
-                          <svg width="14" height="18" viewBox="0 0 32 40">
-                            <path d="M16 0C7.163 0 0 7.163 0 16c0 10 16 24 16 24S32 26 32 16C32 7.163 24.837 0 16 0z"
-                              fill={d.isEnabled?'#2DC87A':'#E84040'}/>
-                            <circle cx="16" cy="16" r="7" fill="white" opacity="0.9"/>
-                          </svg>
+
+                        {/* enabled dot */}
+                        <div className="flex-shrink-0 mt-1.5">
+                          {enabled ? (
+                            <span className="relative flex h-2.5 w-2.5">
+                              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-60"/>
+                              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"/>
+                            </span>
+                          ) : (
+                            <span className="w-2.5 h-2.5 rounded-full bg-gray-400 inline-block"/>
+                          )}
                         </div>
+
                         <div className="flex-1 min-w-0">
                           <p className="text-[11px] font-black text-[#1A2E2A] truncate leading-tight">
                             {d.label || d.serialNumber}
@@ -1101,31 +1188,48 @@ export default function PresenceEyeAnalytics() {
                           <p className="text-[9px] text-gray-400 mt-0.5 truncate">
                             {d.address || `${d.lat?.toFixed(4)}, ${d.lng?.toFixed(4)}`}
                           </p>
+                          {/* ✅ Masked owner name in sidebar */}
                           {d.owner && (
-                            <p className="text-[9px] text-[#195C51] font-bold mt-0.5 truncate">{d.owner}</p>
+                            <p className="text-[9px] text-[#195C51] font-bold mt-0.5 truncate">
+                              {maskName(d.owner)}
+                            </p>
                           )}
                         </div>
+
                         <div className="flex-shrink-0 text-right">
-                          <span className="text-[8px] font-black text-white px-1.5 py-0.5 rounded-md uppercase"
-                            style={{background: d.isEnabled ? '#195C51' : '#E84040'}}>
+                          <span
+                            className="text-[8px] font-black text-white px-1.5 py-0.5 rounded-md uppercase"
+                            style={{ background: enabled ? '#195C51' : '#9CA3AF' }}>
                             {d.modelType || '?'}
                           </span>
+                          <p className="text-[8px] mt-0.5 font-bold"
+                            style={{ color: enabled ? '#22C55E' : '#9CA3AF' }}>
+                            {enabled ? 'enabled' : 'disabled'}
+                          </p>
                         </div>
                       </div>
                     </button>
-                  ))}
-                </div>
+                  );
+                })}
               </div>
             </div>
+          </div>
 
-            {/* Selected device detail strip */}
-            {selected && (
+          {/* Selected device strip */}
+          {selected && (() => {
+            const enabled = getenabled(selected);
+            return (
               <div className="bg-[#1A2E2A] text-white rounded-2xl px-5 py-4 flex flex-wrap gap-5 items-center">
-                <svg width="18" height="22" viewBox="0 0 32 40" className="flex-shrink-0">
-                  <path d="M16 0C7.163 0 0 7.163 0 16c0 10 16 24 16 24S32 26 32 16C32 7.163 24.837 0 16 0z"
-                    fill={selected.isEnabled?'#2DC87A':'#E84040'}/>
-                  <circle cx="16" cy="16" r="7" fill="white" opacity="0.9"/>
-                </svg>
+                <div className="flex-shrink-0">
+                  {enabled ? (
+                    <span className="relative flex h-3 w-3">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-60"/>
+                      <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"/>
+                    </span>
+                  ) : (
+                    <span className="w-3 h-3 rounded-full bg-gray-500 inline-block"/>
+                  )}
+                </div>
                 <div>
                   <p className="text-sm font-black">{selected.label || selected.serialNumber}</p>
                   <p className="text-[10px] text-gray-400">{selected.serialNumber}</p>
@@ -1137,14 +1241,24 @@ export default function PresenceEyeAnalytics() {
                 </div>
                 <div>
                   <p className="text-[9px] text-gray-400 uppercase tracking-widest font-bold">Status</p>
-                  <p className="text-xs font-black" style={{color:selected.isEnabled?'#2DC87A':'#E84040'}}>
-                    {selected.isEnabled ? 'Enabled' : 'Disabled'}
+                  <p className="text-xs font-black" style={{ color: enabled ? '#22C55E' : '#9CA3AF' }}>
+                    {enabled ? '● Enabled' : '● Disabled'}
                   </p>
                 </div>
-                <div>
-                  <p className="text-[9px] text-gray-400 uppercase tracking-widest font-bold">Owner</p>
-                  <p className="text-xs font-black">{selected.owner || '—'}</p>
-                </div>
+                {selected.owner && (
+                  <div>
+                    <p className="text-[9px] text-gray-400 uppercase tracking-widest font-bold">Owner</p>
+                    {/* ✅ Masked in detail strip */}
+                    <p className="text-xs font-black">{maskName(selected.owner)}</p>
+                  </div>
+                )}
+                {selected.ownerEmail && (
+                  <div>
+                    <p className="text-[9px] text-gray-400 uppercase tracking-widest font-bold">Email</p>
+                    {/* ✅ Masked in detail strip */}
+                    <p className="text-xs font-black font-mono">{maskEmail(selected.ownerEmail)}</p>
+                  </div>
+                )}
                 <div>
                   <p className="text-[9px] text-gray-400 uppercase tracking-widest font-bold">Coordinates</p>
                   <p className="text-xs font-black">{selected.lat?.toFixed(5)}, {selected.lng?.toFixed(5)}</p>
@@ -1155,23 +1269,18 @@ export default function PresenceEyeAnalytics() {
                     <p className="text-xs font-black">{selected.address}</p>
                   </div>
                 )}
-                {/*{selected.ownerEmail && (*/}
-                {/*  <div>*/}
-                {/*    <p className="text-[9px] text-gray-400 uppercase tracking-widest font-bold">Email</p>*/}
-                {/*    <p className="text-xs font-black">{selected.ownerEmail}</p>*/}
-                {/*  </div>*/}
-                {/*)}*/}
-                <button onClick={()=>setSelected(null)} className="ml-auto text-gray-400 hover:text-white transition-colors">
+                <button onClick={() => setSelected(null)}
+                  className="ml-auto text-gray-400 hover:text-white transition-colors">
                   <MdClose size={16}/>
                 </button>
               </div>
-            )}
-          </div>
-        )}
-      </div>
-    );
-  };
-
+            );
+          })()}
+        </div>
+      )}
+    </div>
+  );
+};
 
   // ═══════════════════════════════════════════════════════════════════════════
   // PLANS MANAGEMENT
@@ -1264,7 +1373,7 @@ export default function PresenceEyeAnalytics() {
           method:'PATCH', headers:{'x-api-key': token},
         });
         load('plans');
-      } catch {}
+      } catch(e) {alert(e.message||'Toggle failed');}
     };
 
     const handleDelete = async planId => {
@@ -1739,288 +1848,458 @@ export default function PresenceEyeAnalytics() {
     );
   };
 
+// LEADERBOARD SECTION — Drop-in replacement for the Leaderboard const inside
+// PresenceEyeAnalytics.jsx
+//
+// Changes vs original:
+//  • Groups by USER (one row per person), not per remote
+//  • Merges stats across all their remotes
+//  • Shows a collapsible remotes sub-list per user
+//  • Uses MaskedUserCard from PrivacyMask for name/email display
+//  • Subtitle updated: "one row per customer"
+// ─────────────────────────────────────────────────────────────────────────────
 
-  // ═══════════════════════════════════════════════════════════════════════════
-  // LEADERBOARD
-  // ═══════════════════════════════════════════════════════════════════════════
-  const Leaderboard = () => {
-    const lb   = data.leaderboard || {};
-    const rows = safe(lb.rows);
+// ── Paste this import at the top of PresenceEyeAnalytics.jsx ──────────────
+// import { maskName, maskEmail } from '../../components/PrivacyMask.jsx';
 
-    const handlePeriodChange = p => {
-      setLbPeriod(p);
-      setLbSearch('');
-      load('leaderboard', { period: p });
-    };
+// ── Replace the existing Leaderboard const with this one ──────────────────
 
-    const handleSort = key => {
-      setLbSort(s => s.key === key
+// ─────────────────────────────────────────────────────────────────────────────
+// LEADERBOARD SECTION — Fixed version
+//
+// Fixes:
+//   1. Unique React keys — uses ownerId + index so duplicate names never clash
+//   2. PrivacyMask applied everywhere names/emails appear
+//   3. Expanded remote sub-rows also use unique keys
+// ─────────────────────────────────────────────────────────────────────────────
+
+// ── Add these imports at the top of PresenceEyeAnalytics.jsx if not present ─
+// import { maskName, maskEmail } from '../../components/PrivacyMask.jsx';
+
+// ─────────────────────────────────────────────────────────────────────────────
+// LEADERBOARD — Client-side user grouping
+//
+// The existing backend returns ONE ROW PER REMOTE shaped like:
+//   { serialNumber, labelName, modelType, ownerName, totalOpens,
+//     avgOpensPerDay, lastOpenAt, firstOpenAt }
+//
+// This component groups those rows by ownerName on the client so that:
+//   • Each user appears exactly ONCE
+//   • The Remotes column shows how many remotes they own
+//   • Clicking a row expands the per-remote breakdown
+//   • Privacy masking is applied everywhere
+//
+// NO backend changes required.
+// ─────────────────────────────────────────────────────────────────────────────
+
+const Leaderboard = () => {
+  const lb      = data.leaderboard || {};
+  const rawRows = safe(lb.rows); // one row per remote from the API
+
+  const [expandedUser, setExpandedUser] = useState(null);
+
+  const handlePeriodChange = p => {
+    setLbPeriod(p);
+    setLbSearch('');
+    load('leaderboard', { period: p });
+  };
+
+  const handleSort = key => {
+    setLbSort(s =>
+      s.key === key
         ? { key, dir: s.dir === 'asc' ? 'desc' : 'asc' }
         : { key, dir: key === 'rank' ? 'asc' : 'desc' }
-      );
-    };
+    );
+  };
 
-    // Filter by search
-    const filtered = rows.filter(r => {
-      const q = lbSearch.toLowerCase();
-      if (!q) return true;
-      return (
-        r.ownerName.toLowerCase().includes(q) ||
-        r.serialNumber.toLowerCase().includes(q) ||
-        r.labelName.toLowerCase().includes(q)
-      );
+  // ── Privacy helpers ───────────────────────────────────────────────────────
+  const maskName = (fullName) => {
+    if (!fullName || fullName === 'Unknown') return 'Unknown';
+    const parts = fullName.trim().split(/\s+/);
+    if (parts.length === 1) return parts[0];
+    return `${parts[0]} ${parts[1][0].toUpperCase()}.`;
+  };
+  const maskEmail = (email) => {
+    if (!email) return null;
+    const at = email.indexOf('@');
+    if (at === -1) return `${email.slice(0, 3)}***`;
+    const local  = email.slice(0, at);
+    const domain = email.slice(at);
+    return `${local.slice(0, 3)}${'*'.repeat(Math.max(3, local.length - 3))}${domain}`;
+  };
+
+  // ── Group raw per-remote rows → one entry per owner ───────────────────────
+  // Key by ownerName (the only stable identifier the old API gives us).
+  // If two different people share a name this merges them — acceptable until
+  // the backend sends ownerEmail or ownerId as a disambiguator.
+  const userMap = rawRows.reduce((acc, row) => {
+    const name = row.ownerName || 'Unknown';
+    if (!acc[name]) {
+      acc[name] = {
+        ownerName:     name,
+        ownerEmail:    row.ownerEmail || null,   // may be undefined on old API
+        totalOpens:    0,
+        lastOpenAt:    null,
+        firstOpenAt:   null,
+        remotes:       [],
+      };
+    }
+    const u = acc[name];
+    u.totalOpens  += row.totalOpens || 0;
+    u.lastOpenAt   = !u.lastOpenAt || new Date(row.lastOpenAt) > new Date(u.lastOpenAt)
+      ? row.lastOpenAt : u.lastOpenAt;
+    u.firstOpenAt  = !u.firstOpenAt || new Date(row.firstOpenAt) < new Date(u.firstOpenAt)
+      ? row.firstOpenAt : u.firstOpenAt;
+    u.remotes.push({
+      serialNumber:   row.serialNumber,
+      labelName:      row.labelName  || 'Unnamed Remote',
+      modelType:      row.modelType  || '—',
+      totalOpens:     row.totalOpens || 0,
+      avgOpensPerDay: row.avgOpensPerDay || 0,
+      lastOpenAt:     row.lastOpenAt,
     });
+    return acc;
+  }, {});
 
-    // Sort
-    const sorted = [...filtered].sort((a, b) => {
-      let va, vb;
-      if (lbSort.key === 'rank') {
-        va = rows.indexOf(a);
-        vb = rows.indexOf(b);
-      } else if (lbSort.key === 'opens') {
-        va = a.totalOpens || 0;
-        vb = b.totalOpens || 0;
-      } else if (lbSort.key === 'avg') {
-        va = a.avgOpensPerDay || 0;
-        vb = b.avgOpensPerDay || 0;
-      } else if (lbSort.key === 'last') {
-        va = new Date(a.lastOpenAt || 0).getTime();
-        vb = new Date(b.lastOpenAt || 0).getTime();
-      } else if (lbSort.key === 'name') {
-        va = a.ownerName.toLowerCase();
-        vb = b.ownerName.toLowerCase();
-      }
-      if (va < vb) return lbSort.dir === 'asc' ? -1 : 1;
-      if (va > vb) return lbSort.dir === 'asc' ?  1 : -1;
-      return 0;
-    });
-
-    const SortIcon = ({ k }) => {
-      if (lbSort.key !== k) return <span className="opacity-20 ml-1">↕</span>;
-      return lbSort.dir === 'asc'
-        ? <MdArrowUpward size={11} className="inline ml-1 opacity-70"/>
-        : <MdArrowDownward size={11} className="inline ml-1 opacity-70"/>;
-    };
-
-    const RankBadge = ({ rank }) => {
-      if (rank === 0) return (
-        <div className="w-7 h-7 rounded-full flex items-center justify-center text-sm font-black bg-yellow-400 text-yellow-900">🥇</div>
-      );
-      if (rank === 1) return (
-        <div className="w-7 h-7 rounded-full flex items-center justify-center text-sm font-black bg-gray-300 text-gray-700">🥈</div>
-      );
-      if (rank === 2) return (
-        <div className="w-7 h-7 rounded-full flex items-center justify-center text-sm font-black bg-amber-600/30 text-amber-800">🥉</div>
-      );
-      return (
-        <div className="w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-black bg-gray-100 text-gray-500">
-          {rank + 1}
-        </div>
-      );
-    };
-
-    const modelColor = m => ({
-      lite:  { bg: '#6B8BD4', label: 'Lite'  },
-      max:   { bg: C.accent,  label: 'Max'   },
-      pro:   { bg: C.primary, label: 'Pro'   },
-    }[m] || { bg: C.muted, label: m?.toUpperCase() || '—' });
-
-    const timeAgo = date => {
-      if (!date) return '—';
-      const diff = Date.now() - new Date(date).getTime();
-      const m = Math.floor(diff / 60000);
-      if (m < 1)  return 'just now';
-      if (m < 60) return `${m}m ago`;
-      const h = Math.floor(m / 60);
-      if (h < 24) return `${h}h ago`;
-      const d = Math.floor(h / 24);
-      if (d < 30) return `${d}d ago`;
-      return new Date(date).toLocaleDateString('en-GB', { day:'numeric', month:'short' });
-    };
-
-    // Top 3 summary cards
-    const top3 = rows.slice(0, 3);
-
-    // Max opens for relative bar width
-    const maxOpens = sorted.length > 0
-      ? Math.max(...sorted.map(r => lbPeriod === 'avg' ? (r.avgOpensPerDay || 0) : (r.totalOpens || 0)), 1)
+  // Compute per-user avgOpensPerDay after grouping
+  const userRows = Object.values(userMap).map(u => {
+    const days = u.firstOpenAt
+      ? Math.max(1, (Date.now() - new Date(u.firstOpenAt).getTime()) / 86400000)
       : 1;
+    return {
+      ...u,
+      remoteCount:    u.remotes.length,
+      avgOpensPerDay: Math.round((u.totalOpens / days) * 100) / 100,
+    };
+  });
 
+  // Sort by totalOpens desc as default ranking
+  userRows.sort((a, b) => b.totalOpens - a.totalOpens);
 
-    const metricNum = r => lbPeriod === 'avg' ? (r.avgOpensPerDay || 0) : (r.totalOpens || 0);
+  // ── Filter ────────────────────────────────────────────────────────────────
+  const filtered = userRows.filter(u => {
+    const q = lbSearch.toLowerCase();
+    if (!q) return true;
+    const nameMatch   = u.ownerName.toLowerCase().includes(q);
+    const emailMatch  = (u.ownerEmail || '').toLowerCase().includes(q);
+    const remoteMatch = u.remotes.some(r =>
+      r.serialNumber.toLowerCase().includes(q) ||
+      r.labelName.toLowerCase().includes(q)
+    );
+    return nameMatch || emailMatch || remoteMatch;
+  });
 
-    return (
-      <div className="space-y-5 sm:space-y-8">
-        <Section icon={MdEmojiEvents} title="Customer Leaderboard" subtitle="Ranked by gate usage — one row per remote"/>
+  // ── Sort ──────────────────────────────────────────────────────────────────
+  const sorted = [...filtered].sort((a, b) => {
+    let va, vb;
+    if      (lbSort.key === 'rank')  { va = userRows.indexOf(a); vb = userRows.indexOf(b); }
+    else if (lbSort.key === 'opens') { va = a.totalOpens     || 0; vb = b.totalOpens     || 0; }
+    else if (lbSort.key === 'avg')   { va = a.avgOpensPerDay || 0; vb = b.avgOpensPerDay || 0; }
+    else if (lbSort.key === 'last')  { va = new Date(a.lastOpenAt || 0).getTime(); vb = new Date(b.lastOpenAt || 0).getTime(); }
+    else if (lbSort.key === 'name')  { va = a.ownerName.toLowerCase(); vb = b.ownerName.toLowerCase(); }
+    if (va < vb) return lbSort.dir === 'asc' ? -1 : 1;
+    if (va > vb) return lbSort.dir === 'asc' ?  1 : -1;
+    return 0;
+  });
 
-        {/* Controls */}
-        <div className="flex flex-col sm:flex-row sm:items-center gap-3 justify-between">
-          <div className="flex items-center gap-2">
-            <DurationPicker
-              value={lbPeriod}
-              onChange={handlePeriodChange}
-              options={[
-                { value: '30d', label: 'Last 30 days' },
-                { value: 'avg', label: 'Avg / day' },
-              ]}
-            />
-            {loading('leaderboard') && (
-              <span className="text-[10px] text-gray-400 font-bold animate-pulse">Loading…</span>
-            )}
-          </div>
-          {/* Search */}
-          <div className="relative w-full sm:w-64">
-            <MdFilterList size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"/>
-            <input
-              value={lbSearch}
-              onChange={e => setLbSearch(e.target.value)}
-              placeholder="Filter by name, email or serial…"
-              className="w-full border border-gray-200 rounded-xl pl-8 pr-3 py-2 text-xs text-[#1A2E2A] focus:outline-none focus:border-[#195C51] focus:ring-1 focus:ring-[#195C51]/20 transition-all"
-            />
-          </div>
+  // ── UI helpers ────────────────────────────────────────────────────────────
+  const SortIcon = ({ k }) => {
+    if (lbSort.key !== k) return <span className="opacity-20 ml-1">↕</span>;
+    return lbSort.dir === 'asc'
+      ? <MdArrowUpward   size={11} className="inline ml-1 opacity-70"/>
+      : <MdArrowDownward size={11} className="inline ml-1 opacity-70"/>;
+  };
+
+  const RankBadge = ({ rank }) => {
+    if (rank === 0) return <div className="w-7 h-7 rounded-full flex items-center justify-center text-sm bg-yellow-400 text-yellow-900">🥇</div>;
+    if (rank === 1) return <div className="w-7 h-7 rounded-full flex items-center justify-center text-sm bg-gray-300 text-gray-700">🥈</div>;
+    if (rank === 2) return <div className="w-7 h-7 rounded-full flex items-center justify-center text-sm bg-amber-600/30 text-amber-800">🥉</div>;
+    return <div className="w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-black bg-gray-100 text-gray-500">{rank + 1}</div>;
+  };
+
+  const modelColor = m => ({
+    lite: { bg: '#6B8BD4', label: 'Lite' },
+    max:  { bg: C.accent,  label: 'Max'  },
+    pro:  { bg: C.primary, label: 'Pro'  },
+  }[m] || { bg: C.muted, label: m?.toUpperCase() || '—' });
+
+  const timeAgo = date => {
+    if (!date) return '—';
+    const diff = Date.now() - new Date(date).getTime();
+    const m = Math.floor(diff / 60000);
+    if (m < 1)  return 'just now';
+    if (m < 60) return `${m}m ago`;
+    const h = Math.floor(m / 60);
+    if (h < 24) return `${h}h ago`;
+    const d = Math.floor(h / 24);
+    if (d < 30) return `${d}d ago`;
+    return new Date(date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+  };
+
+  const top3     = userRows.slice(0, 3);
+  const maxOpens = sorted.length > 0
+    ? Math.max(...sorted.map(u => lbPeriod === 'avg' ? (u.avgOpensPerDay || 0) : (u.totalOpens || 0)), 1)
+    : 1;
+  const metricNum = u => lbPeriod === 'avg' ? (u.avgOpensPerDay || 0) : (u.totalOpens || 0);
+
+  return (
+    <div className="space-y-5 sm:space-y-8">
+      <Section
+        icon={MdEmojiEvents}
+        title="Customer Leaderboard"
+        subtitle="Ranked by gate usage — one row per customer (all remotes merged)"
+      />
+
+      {/* Controls */}
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3 justify-between">
+        <div className="flex items-center gap-2">
+          <DurationPicker
+            value={lbPeriod}
+            onChange={handlePeriodChange}
+            options={[
+              { value: '30d', label: 'Last 30 days' },
+              { value: 'avg', label: 'Avg / day'    },
+            ]}
+          />
+          {loading('leaderboard') && (
+            <span className="text-[10px] text-gray-400 font-bold animate-pulse">Loading…</span>
+          )}
         </div>
+        <div className="relative w-full sm:w-72">
+          <MdFilterList size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"/>
+          <input
+            value={lbSearch}
+            onChange={e => setLbSearch(e.target.value)}
+            placeholder="Filter by name, email or serial…"
+            className="w-full border border-gray-200 rounded-xl pl-8 pr-3 py-2 text-xs text-[#1A2E2A] focus:outline-none focus:border-[#195C51] focus:ring-1 focus:ring-[#195C51]/20 transition-all"
+          />
+        </div>
+      </div>
 
-        {/* Top 3 podium */}
-        {!loading('leaderboard') && top3.length > 0 && lbSearch === '' && (
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
-            {top3.map((r, i) => {
-              const mc = modelColor(r.modelType);
-              return (
-                <div key={r.serialNumber}
-                  className={`bg-white rounded-2xl border p-4 sm:p-5 shadow-sm relative overflow-hidden
-                    ${i === 0 ? 'border-yellow-200 ring-1 ring-yellow-200/60' : 'border-gray-100'}`}>
-                  {i === 0 && (
-                    <div className="absolute top-0 right-0 w-20 h-20 bg-yellow-400/10 rounded-bl-full"/>
+      {/* Top-3 podium */}
+      {!loading('leaderboard') && top3.length > 0 && lbSearch === '' && (
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+          {top3.map((u, i) => (
+            // ✅ key = masked name + index — always unique since we already grouped
+            <div key={`${u.ownerName}-${i}`}
+              className={`bg-white rounded-2xl border p-4 sm:p-5 shadow-sm relative overflow-hidden
+                ${i === 0 ? 'border-yellow-200 ring-1 ring-yellow-200/60' : 'border-gray-100'}`}>
+              {i === 0 && <div className="absolute top-0 right-0 w-20 h-20 bg-yellow-400/10 rounded-bl-full"/>}
+              <div className="flex items-start gap-3 mb-2">
+                <RankBadge rank={i}/>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-black text-[#1A2E2A] truncate">{maskName(u.ownerName)}</p>
+                  {u.ownerEmail && (
+                    <p className="text-[9px] text-gray-400 font-mono truncate">{maskEmail(u.ownerEmail)}</p>
                   )}
-                  <div className="flex items-start gap-3 mb-3">
-                    <RankBadge rank={i}/>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm font-black text-[#1A2E2A] truncate">{r.ownerName}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2 mb-3">
-                    <span className="px-2 py-0.5 rounded-full text-[9px] font-black text-white uppercase tracking-wider"
-                      style={{ background: mc.bg }}>{mc.label}</span>
-                    <span className="text-[10px] text-gray-500 truncate">{r.labelName}</span>
-                  </div>
-                  <p className="text-2xl font-black" style={{ color: C.primary }}>
-                    {lbPeriod === 'avg' ? r.avgOpensPerDay : (r.totalOpens || 0).toLocaleString()}
-                  </p>
-                  <p className="text-[9px] font-black uppercase tracking-widest text-gray-400 mt-0.5">
-                    {lbPeriod === 'avg' ? 'avg opens / day' : 'gate opens (30d)'}
-                  </p>
-                  <p className="text-[10px] text-gray-400 mt-2">Last: {timeAgo(r.lastOpenAt)}</p>
                 </div>
-              );
-            })}
-          </div>
-        )}
-
-        {/* Full table */}
-        <Card
-          title={`All Customers — ${sorted.length} remote${sorted.length !== 1 ? 's' : ''}`}
-          subtitle={lbPeriod === '30d' ? 'Ranked by total opens in the last 30 days' : 'Ranked by average opens per day (all-time)'}
-          info={"Each row = one remote device. A customer who owns 2 remotes appears twice.\n\n30 days = total gate opens since the start of the current 30-day window.\n\nAvg / day = total all-time opens ÷ number of days since first use.\n\nLast active = timestamp of the most recent gate open event."}
-        >
-          {loading('leaderboard') ? (
-            <div className="space-y-2">
-              {Array.from({ length: 8 }).map((_, i) => (
-                <Sk key={i} cls="h-14 w-full"/>
-              ))}
+              </div>
+              {/* Remote model badges */}
+              <div className="flex flex-wrap gap-1 mb-3">
+                {u.remotes.slice(0, 3).map(r => {
+                  const mc = modelColor(r.modelType);
+                  return (
+                    <span key={r.serialNumber}
+                      className="px-1.5 py-0.5 rounded-full text-[8px] font-black text-white"
+                      style={{ background: mc.bg }}>
+                      {mc.label}
+                    </span>
+                  );
+                })}
+                {u.remoteCount > 3 && (
+                  <span className="px-1.5 py-0.5 rounded-full text-[8px] font-black bg-gray-100 text-gray-500">
+                    +{u.remoteCount - 3} more
+                  </span>
+                )}
+              </div>
+              <p className="text-2xl font-black" style={{ color: C.primary }}>
+                {lbPeriod === 'avg' ? u.avgOpensPerDay : (u.totalOpens || 0).toLocaleString()}
+              </p>
+              <p className="text-[9px] font-black uppercase tracking-widest text-gray-400 mt-0.5">
+                {lbPeriod === 'avg' ? 'avg opens / day' : 'gate opens (30d)'}
+              </p>
+              <p className="text-[10px] text-gray-400 mt-1">
+                {u.remoteCount} remote{u.remoteCount !== 1 ? 's' : ''} · Last: {timeAgo(u.lastOpenAt)}
+              </p>
             </div>
-          ) : sorted.length === 0 ? (
-            <Empty msg={lbSearch ? 'No results match your filter.' : 'No usage data yet. Gate opens will appear here as customers use the app.'}/>
-          ) : (
-            <div className="overflow-x-auto -mx-2">
-              <table className="w-full min-w-[640px] text-left border-collapse">
-                <thead>
-                  <tr className="border-b border-gray-100">
-                    {[
-                      { key: 'rank',  label: '#',           cls: 'w-12 pl-3' },
-                      { key: 'name',  label: 'Customer',    cls: 'pl-2' },
-                      { key: null,    label: 'Remote',       cls: '' },
-                      { key: 'opens', label: lbPeriod === 'avg' ? 'Avg / Day' : '30d Opens', cls: 'text-right' },
-                      { key: 'last',  label: 'Last Active', cls: 'text-right pr-3' },
-                    ].map(col => (
-                      <th key={col.label}
-                        onClick={col.key ? () => handleSort(col.key) : undefined}
-                        className={`py-3 text-[9px] font-black uppercase tracking-widest text-gray-400
-                          ${col.cls} ${col.key ? 'cursor-pointer hover:text-[#195C51] select-none transition-colors' : ''}`}>
-                        {col.label}
-                        {col.key && <SortIcon k={col.key}/>}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {sorted.map((r, i) => {
-                    const origRank = rows.indexOf(r);
-                    const mc = modelColor(r.modelType);
-                    const pct = maxOpens > 0 ? (metricNum(r) / maxOpens) * 100 : 0;
-                    const isTop = origRank < 3 && lbSearch === '';
-                    return (
-                      <tr key={r.serialNumber + i}
-                        className={`border-b border-gray-50 hover:bg-[#195C51]/3 transition-colors
-                          ${isTop && origRank === 0 ? 'bg-yellow-50/50' : ''}`}>
+          ))}
+        </div>
+      )}
+
+      {/* Full table */}
+      <Card
+        title={`All Customers — ${sorted.length} user${sorted.length !== 1 ? 's' : ''}`}
+        subtitle={
+          lbPeriod === '30d'
+            ? 'Ranked by total opens in the last 30 days (all remotes merged per user)'
+            : 'Ranked by average opens per day (all-time)'
+        }
+        info={
+          'Each row = one customer with ALL their remotes summed.\n\n' +
+          '▶ Click a row to see per-remote breakdown.\n\n' +
+          '30 days = total opens in the current 30-day window.\n' +
+          'Avg / day = combined total opens ÷ days since first use.'
+        }
+      >
+        {loading('leaderboard') ? (
+          <div className="space-y-2">
+            {Array.from({ length: 8 }).map((_, i) => <Sk key={i} cls="h-14 w-full"/>)}
+          </div>
+        ) : sorted.length === 0 ? (
+          <Empty msg={lbSearch ? 'No results match your filter.' : 'No usage data yet.'}/>
+        ) : (
+          <div className="overflow-x-auto -mx-2">
+            <table className="w-full min-w-[620px] text-left border-collapse">
+              <thead>
+                <tr className="border-b border-gray-100">
+                  {[
+                    { key: 'rank',  label: '#',                                              cls: 'w-12 pl-3'   },
+                    { key: 'name',  label: 'Customer',                                       cls: 'pl-2'        },
+                    { key: null,    label: 'Remotes',                                        cls: 'text-center' },
+                    { key: 'opens', label: lbPeriod === 'avg' ? 'Avg / Day' : '30d Opens',  cls: 'text-right'  },
+                    { key: 'last',  label: 'Last Active',                                    cls: 'text-right pr-3' },
+                  ].map(col => (
+                    <th key={col.label}
+                      onClick={col.key ? () => handleSort(col.key) : undefined}
+                      className={`py-3 text-[9px] font-black uppercase tracking-widest text-gray-400
+                        ${col.cls} ${col.key ? 'cursor-pointer hover:text-[#195C51] select-none transition-colors' : ''}`}>
+                      {col.label}{col.key && <SortIcon k={col.key}/>}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {sorted.map((u, i) => {
+                  const origRank   = userRows.indexOf(u);
+                  const pct        = maxOpens > 0 ? (metricNum(u) / maxOpens) * 100 : 0;
+                  const isTop      = origRank < 3 && lbSearch === '';
+                  // ✅ Unique key: ownerName is unique AFTER grouping + index safety net
+                  const uid        = `${u.ownerName}__${i}`;
+                  const isExpanded = expandedUser === uid;
+
+                  return (
+                    <React.Fragment key={uid}>
+                      {/* ── User row ── */}
+                      <tr
+                        onClick={() => setExpandedUser(isExpanded ? null : uid)}
+                        className={`border-b border-gray-50 hover:bg-[#195C51]/[0.03] transition-colors cursor-pointer
+                          ${isTop && origRank === 0 ? 'bg-yellow-50/50' : ''}
+                          ${isExpanded ? 'bg-[#195C51]/[0.04]' : ''}`}
+                      >
                         {/* Rank */}
                         <td className="py-3 pl-3 pr-2 w-12">
                           <RankBadge rank={lbSearch ? i : origRank}/>
                         </td>
+
                         {/* Customer */}
                         <td className="py-3 pl-2 pr-4">
                           <div className="flex items-center gap-2.5">
-                            <div className="w-8 h-8 rounded-xl flex items-center justify-center text-white text-[11px] font-black flex-shrink-0"
+                            <div
+                              className="w-8 h-8 rounded-xl flex items-center justify-center text-white text-[11px] font-black flex-shrink-0"
                               style={{ background: C.primary }}>
-                              {(r.ownerName || '?')[0].toUpperCase()}
+                              {(u.ownerName || '?')[0].toUpperCase()}
                             </div>
                             <div className="min-w-0">
-                              <p className="text-xs font-black text-[#1A2E2A] truncate">{r.ownerName}</p>
-                                    </div>
-                          </div>
-                        </td>
-                        {/* Remote */}
-                        <td className="py-3 pr-4">
-                          <div className="flex items-center gap-2">
-                            <span className="px-2 py-0.5 rounded-full text-[9px] font-black text-white uppercase tracking-wider flex-shrink-0"
-                              style={{ background: mc.bg }}>{mc.label}</span>
-                            <div className="min-w-0">
-                              <p className="text-[11px] font-bold text-gray-700 truncate">{r.labelName}</p>
-                              <p className="text-[9px] text-gray-400 font-mono">{r.serialNumber}</p>
+                              <p className="text-xs font-black text-[#1A2E2A] truncate">
+                                {maskName(u.ownerName)}
+                              </p>
+                              {u.ownerEmail && (
+                                <p className="text-[9px] text-gray-400 font-mono truncate">
+                                  {maskEmail(u.ownerEmail)}
+                                </p>
+                              )}
                             </div>
                           </div>
                         </td>
+
+                        {/* ✅ Remote count — now correctly reads u.remoteCount */}
+                        <td className="py-3 pr-4 text-center">
+                          <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-[#195C51]/10 text-[#195C51] text-[10px] font-black">
+                            {u.remoteCount}
+                          </span>
+                        </td>
+
                         {/* Opens + bar */}
                         <td className="py-3 pr-4 text-right">
                           <p className="text-sm font-black text-[#1A2E2A]">
-                            {lbPeriod === 'avg' ? r.avgOpensPerDay : (r.totalOpens || 0).toLocaleString()}
+                            {lbPeriod === 'avg'
+                              ? u.avgOpensPerDay
+                              : (u.totalOpens || 0).toLocaleString()}
                           </p>
                           <div className="mt-1 h-1 bg-gray-100 rounded-full overflow-hidden w-20 ml-auto">
-                            <div className="h-full rounded-full transition-all duration-500"
-                              style={{ width: `${pct}%`, background: isTop && origRank === 0 ? '#F59E0B' : C.primary }}/>
+                            <div
+                              className="h-full rounded-full transition-all duration-500"
+                              style={{
+                                width:      `${pct}%`,
+                                background: isTop && origRank === 0 ? '#F59E0B' : C.primary,
+                              }}
+                            />
                           </div>
                         </td>
+
                         {/* Last active */}
                         <td className="py-3 pr-3 text-right">
-                          <p className="text-xs font-bold text-gray-600">{timeAgo(r.lastOpenAt)}</p>
-                          {r.lastOpenAt && (
+                          <p className="text-xs font-bold text-gray-600">{timeAgo(u.lastOpenAt)}</p>
+                          {u.lastOpenAt && (
                             <p className="text-[9px] text-gray-400">
-                              {new Date(r.lastOpenAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: '2-digit' })}
+                              {new Date(u.lastOpenAt).toLocaleDateString('en-GB', {
+                                day: 'numeric', month: 'short', year: '2-digit',
+                              })}
                             </p>
                           )}
                         </td>
                       </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </Card>
-      </div>
-    );
-  };
 
-
+                      {/* ── Expanded remote sub-rows ── */}
+                      {isExpanded && u.remotes.map((r, rIdx) => {
+                        const mc = modelColor(r.modelType);
+                        return (
+                          // ✅ key = parent uid + serialNumber
+                          <tr key={`${uid}__${r.serialNumber || rIdx}`}
+                            className="bg-[#195C51]/[0.02] border-b border-[#195C51]/5">
+                            <td className="py-2 pl-5 pr-2">
+                              <div className="w-1.5 h-1.5 rounded-full bg-[#195C51]/30 mx-auto"/>
+                            </td>
+                            <td className="py-2 pl-6 pr-4" colSpan={1}>
+                              <div className="flex items-center gap-2">
+                                <span
+                                  className="px-1.5 py-0.5 rounded-full text-[8px] font-black text-white flex-shrink-0"
+                                  style={{ background: mc.bg }}>
+                                  {mc.label}
+                                </span>
+                                <div className="min-w-0">
+                                  <p className="text-[10px] font-bold text-gray-600 truncate">{r.labelName}</p>
+                                  <p className="text-[9px] text-gray-400 font-mono">{r.serialNumber}</p>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="py-2 text-center">
+                              <span className="text-[9px] text-gray-300">—</span>
+                            </td>
+                            <td className="py-2 pr-4 text-right">
+                              <p className="text-[11px] font-black text-gray-500">
+                                {lbPeriod === 'avg'
+                                  ? (r.avgOpensPerDay || 0)
+                                  : (r.totalOpens    || 0).toLocaleString()}
+                              </p>
+                            </td>
+                            <td className="py-2 pr-3 text-right">
+                              <p className="text-[10px] text-gray-400">{timeAgo(r.lastOpenAt)}</p>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </React.Fragment>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </Card>
+    </div>
+  );
+};
   // ─── Render ───────────────────────────────────────────────────────────────
   return (
     <div className="space-y-5 sm:space-y-8 pb-16">

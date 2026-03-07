@@ -1,140 +1,216 @@
+// src/pages/home/ContactUs.jsx
 import React, { useRef, useState } from 'react';
-import { TbBrandGmail, TbMapPin, TbPhone, TbSend } from "react-icons/tb";
+import { TbBrandGmail, TbMapPin, TbSend } from "react-icons/tb";
 import { FaGithub, FaInstagram, FaWhatsapp } from "react-icons/fa";
 import emailjs from '@emailjs/browser';
 import { publicKey, viteemailserviceid, viteemailtemplate } from "../../utils/variable.js";
 
 function ContactUs() {
     const form = useRef();
-    const [res, setRes] = useState("");
+    const [res, setRes]         = useState("");
     const [loading, setLoading] = useState(false);
+    const [focused, setFocused] = useState({});
+    const [filled,  setFilled]  = useState({});
 
     const sendEmail = (e) => {
         e.preventDefault();
         setLoading(true);
-        emailjs.sendForm(viteemailserviceid, viteemailtemplate, form.current, { publicKey: publicKey })
+        emailjs
+            .sendForm(viteemailserviceid, viteemailtemplate, form.current, { publicKey })
             .then(() => setRes("Message sent successfully."))
-            .catch(() => setRes("Failed to send message."))
+            .catch(() => setRes("Failed to send message. Please try again."))
             .finally(() => {
                 setLoading(false);
                 e.target.reset();
+                setFilled({});
             });
     };
 
+    const handleFocus = (name) => setFocused(p => ({ ...p, [name]: true }));
+    const handleBlur  = (name, val) => {
+        setFocused(p => ({ ...p, [name]: false }));
+        setFilled(p => ({ ...p, [name]: val.trim().length > 0 }));
+    };
+
+    const isFloating = (name) => focused[name] || filled[name];
+
     return (
-        <section className="bg-[#F8F9FA] min-h-screen pb-20 relative overflow-hidden">
-            {/* Decorative Background Elements */}
-            <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-[#195C51]/5 rounded-full blur-[120px]"></div>
-            <div className="absolute bottom-0 right-0 w-[30%] h-[30%] bg-[#195C51]/10 rounded-full blur-[100px]"></div>
+        <section className="min-h-screen bg-gradient-to-br from-[#0B121A] via-[#0e1c17] to-[#111827] relative overflow-hidden flex items-center justify-center py-20 px-4">
 
-            <div className="container mx-auto px-6 pt-12">
-                <div className="google-card overflow-hidden border-none shadow-2xl bg-white rounded-[3rem] grid lg:grid-cols-12 min-h-[80vh]">
-                    
-                    {/* LEFT SIDE: DARK INFO PANEL */}
-                    <div className="lg:col-span-4 bg-[#0B121A] p-10 md:p-16 text-white flex flex-col justify-between relative overflow-hidden">
-                        {/* Abstract Pattern Overlay */}
-                        <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: 'radial-gradient(#195C51 1px, transparent 1px)', backgroundSize: '20px 20px' }}></div>
-                        
-                        <div className="relative z-10 space-y-12">
-                            <div className="space-y-4">
-                                <h2 className="text-[#195C51] font-black uppercase tracking-[0.3em] text-xs">Reach Out</h2>
-                                <h1 className="text-4xl md:text-5xl font-bold leading-tight tracking-tighter">
-                                    Let’s start a <span className="text-[#195C51]">conversation.</span>
-                                </h1>
-                            </div>
+            {/* ── Decorative blobs ── */}
+            <div className="pointer-events-none absolute inset-0 overflow-hidden">
+                <div className="absolute -top-32 -left-32 w-[500px] h-[500px] rounded-full bg-[#195C51]/20 blur-[120px]" />
+                <div className="absolute bottom-0 right-0 w-[400px] h-[400px] rounded-full bg-[#195C51]/10 blur-[100px]" />
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[600px] rounded-full bg-[#195C51]/5 blur-[150px]" />
+                {/* Dot grid */}
+                <div
+                    className="absolute inset-0 opacity-[0.06]"
+                    style={{ backgroundImage: 'radial-gradient(#195C51 1px, transparent 1px)', backgroundSize: '28px 28px' }}
+                />
+            </div>
 
-                            <div className="space-y-8">
-                                <div className="flex items-center gap-6 group">
-                                    <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center text-[#195C51] border border-white/10 group-hover:bg-[#195C51] group-hover:text-white transition-all">
-                                        <TbBrandGmail size={24} />
-                                    </div>
-                                    <div>
-                                        <p className="text-[10px] font-black uppercase tracking-widest text-gray-500">Email</p>
-                                        <p className="text-lg font-medium text-gray-200">rw.byose@gmail.com</p>
-                                    </div>
-                                </div>
+            {/* ── Card ── */}
+            <div className="relative z-10 w-full max-w-5xl">
 
-                                <div className="flex items-center gap-6 group">
-                                    <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center text-[#195C51] border border-white/10 group-hover:bg-[#195C51] group-hover:text-white transition-all">
-                                        <FaWhatsapp size={24} />
-                                    </div>
-                                    <div>
-                                        <p className="text-[10px] font-black uppercase tracking-widest text-gray-500">Whatsapp</p>
-                                        <p className="text-lg font-medium text-gray-200">+250 798 736 159</p>
-                                    </div>
-                                </div>
+                {/* Top label */}
+                <p className="text-center text-[#195C51] font-black uppercase tracking-[0.35em] text-[11px] mb-4">
+                    Get in touch
+                </p>
+                <h1 className="text-center text-white font-bold text-4xl md:text-5xl mb-12 leading-tight">
+                    Let's start a <span className="text-[#2DC87A]">conversation.</span>
+                </h1>
 
-                                <div className="flex items-center gap-6 group">
-                                    <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center text-[#195C51] border border-white/10 group-hover:bg-[#195C51] group-hover:text-white transition-all">
-                                        <TbMapPin size={24} />
-                                    </div>
-                                    <div>
-                                        <p className="text-[10px] font-black uppercase tracking-widest text-gray-500">HQ</p>
-                                        <p className="text-lg font-medium text-gray-200">Kigali, Rwanda</p>
-                                    </div>
-                                </div>
-                            </div>
+                <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl overflow-hidden shadow-2xl grid lg:grid-cols-5">
+
+                    {/* ── LEFT: contact info ── */}
+                    <div className="lg:col-span-2 bg-[#195C51]/90 backdrop-blur-sm p-8 md:p-10 flex flex-col justify-between gap-10 relative overflow-hidden">
+                        {/* Decorative ring */}
+                        <div className="absolute -bottom-16 -right-16 w-60 h-60 rounded-full border-2 border-white/10" />
+                        <div className="absolute -bottom-8 -right-8 w-36 h-36 rounded-full border border-white/10" />
+
+                        <div>
+                            <h2 className="text-2xl font-bold text-white mb-2 leading-snug">
+                                Contact<br/>Information
+                            </h2>
+                            <p className="text-white/50 text-sm">
+                                Fill in the form and we will get back to you within 24 hours.
+                            </p>
                         </div>
 
-                        <div className="relative z-10 pt-12 flex gap-4">
+                        <div className="space-y-7 relative z-10">
                             {[
-                                { icon: FaInstagram, url: "https://www.instagram.com/_.byose._/" },
-                                { icon: FaGithub, url: "https://github.com/FutureMarkRwanda" }
-                            ].map((social, idx) => (
-                                <a key={idx} href={social.url} target="_blank" rel="noreferrer"
-                                   className="p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-[#195C51] transition-all">
-                                    <social.icon size={20} />
+                                { icon: TbBrandGmail,  label: 'Email',    value: 'rw.byose@gmail.com' },
+                                { icon: FaWhatsapp,    label: 'WhatsApp', value: '+250 798 736 159' },
+                                { icon: TbMapPin,      label: 'HQ',       value: 'Kigali, Rwanda' },
+                            ].map(({ icon: Icon, label, value }) => (
+                                <div key={label} className="flex items-center gap-4 group">
+                                    <div className="w-10 h-10 rounded-xl bg-white/15 flex items-center justify-center text-white group-hover:bg-white/25 transition-colors flex-shrink-0">
+                                        <Icon size={18} />
+                                    </div>
+                                    <div>
+                                        <p className="text-[10px] font-black uppercase tracking-widest text-white/40">{label}</p>
+                                        <p className="text-sm font-semibold text-white">{value}</p>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Social icons */}
+                        <div className="flex gap-3 relative z-10">
+                            {[
+                                { Icon: FaInstagram, url: 'https://www.instagram.com/_.byose._/' },
+                                { Icon: FaGithub,    url: 'https://github.com/FutureMarkRwanda' },
+                            ].map(({ Icon, url }, i) => (
+                                <a key={i} href={url} target="_blank" rel="noreferrer"
+                                   className="w-9 h-9 rounded-xl bg-white/15 hover:bg-white/30 flex items-center justify-center text-white transition-colors">
+                                    <Icon size={16} />
                                 </a>
                             ))}
                         </div>
                     </div>
 
-                    {/* RIGHT SIDE: FORM AREA */}
-                    <div className="lg:col-span-8 p-10 md:p-20 bg-white">
-                        <div className="max-w-2xl">
-                            <p className="text-gray-600 font-medium mb-12 italic text-lg">
-                                "Solving the world's problems starts with a single message. Tell us what you're building."
-                            </p>
+                    {/* ── RIGHT: form ── */}
+                    <div className="lg:col-span-3 p-8 md:p-12">
+                        <p className="text-white/60 text-sm italic mb-10 leading-relaxed">
+                            "Solving the world's problems starts with a single message. Tell us what you're building."
+                        </p>
 
-                            <form ref={form} onSubmit={sendEmail} className="space-y-10">
-                                <div className="grid md:grid-cols-2 gap-10">
-                                    <div className="relative group">
-                                        <input type="text" name="name" required 
-                                               className="w-full bg-transparent border-b-2 border-gray-500 py-3 outline-none focus:border-[#195C51] transition-colors peer text-gray-800 font-medium" />
-                                        <label className="absolute left-0 top-3 text-gray-600 pointer-events-none transition-all peer-focus:-top-4 peer-focus:text-[10px] peer-focus:font-black peer-focus:uppercase peer-focus:tracking-widest peer-focus:text-[#195C51] peer-valid:-top-4 peer-valid:text-[10px]">Full Name</label>
+                        <form ref={form} onSubmit={sendEmail} className="space-y-8">
+
+                            {/* Row: Name + Email */}
+                            <div className="grid md:grid-cols-2 gap-6">
+                                {[
+                                    { name: 'name',  type: 'text',  label: 'Full Name' },
+                                    { name: 'email', type: 'email', label: 'Email Address' },
+                                ].map(({ name, type, label }) => (
+                                    <div key={name} className="relative">
+                                        <label
+                                            className={`absolute left-0 pointer-events-none transition-all duration-200 font-semibold
+                                                ${isFloating(name)
+                                                    ? 'top-[-18px] text-[10px] uppercase tracking-widest text-[#2DC87A]'
+                                                    : 'top-3 text-sm text-white/50'
+                                                }`}
+                                        >
+                                            {label}
+                                        </label>
+                                        <input
+                                            type={type}
+                                            name={name}
+                                            required
+                                            onFocus={() => handleFocus(name)}
+                                            onBlur={e => handleBlur(name, e.target.value)}
+                                            className="w-full bg-transparent border-b-2 border-white/20 py-3 outline-none focus:border-[#2DC87A] transition-colors text-white text-sm font-medium placeholder-transparent"
+                                        />
                                     </div>
-                                    <div className="relative group">
-                                        <input type="email" name="email" required 
-                                               className="w-full bg-transparent border-b-2 border-gray-500 py-3 outline-none focus:border-[#195C51] transition-colors peer text-gray-800 font-medium" />
-                                        <label className="absolute left-0 top-3 text-gray-600 pointer-events-none transition-all peer-focus:-top-4 peer-focus:text-[10px] peer-focus:font-black peer-focus:uppercase peer-focus:tracking-widest peer-focus:text-[#195C51] peer-valid:-top-4 peer-valid:text-[10px]">Email Address</label>
-                                    </div>
-                                </div>
-
-                                <div className="relative group">
-                                    <textarea name="message" required 
-                                              className="w-full bg-[#F8F9FA] rounded-3xl p-6 outline-none focus:ring-2 focus:ring-[#195C51]/20 transition-all h-40 resize-none text-gray-800"></textarea>
-                                    <label className="absolute left-6 top-6 text-gray-600 pointer-events-none transition-all group-focus-within:-top-4 group-focus-within:left-2 group-focus-within:text-[10px] group-focus-within:font-black group-focus-within:uppercase group-focus-within:text-[#195C51]">Your Message</label>
-                                </div>
-
-                                <div className="flex flex-col sm:flex-row items-center gap-8">
-                                    <button type="submit" disabled={loading}
-                                            className="w-full sm:w-auto bg-[#195C51] text-white px-12 py-5 rounded-2xl font-bold hover:bg-[#0E3A32] shadow-xl transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-3">
-                                        {loading ? "Transmitting..." : <>Send Pulse <TbSend size={20}/></>}
-                                    </button>
-                                    {res && <span className="text-sm font-black uppercase tracking-widest text-[#195C51] animate-pulse">{res}</span>}
-                                </div>
-                            </form>
-                        </div>
-
-                        {/* Integrated Map Preview (Small & Subtle) */}
-                        {/* <div className="mt-20 opacity-50 hover:opacity-100 transition-opacity">
-                            <h4 className="text-[10px] font-black uppercase tracking-widest text-gray-300 mb-4">Network Node: Kigali/RW</h4>
-                            <div className="h-48 rounded-[2rem] overflow-hidden grayscale border border-gray-500">
-                                <iframe
-                                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3987.507959722124!2d30.058176301332598!3d-1.9499429990886152!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x19dca4260034b84f%3A0xca04c4970ca3e25a!2sKN%204%20Ave%2C%20Kigali!5e0!3m2!1sen!2srw!4v1770418428525!5m2!1sen!2srw"
-                                    width="100%" height="100%" className="border-0" allowFullScreen="" loading="lazy"></iframe>
+                                ))}
                             </div>
-                        </div> */}
+
+                            {/* Subject */}
+                            <div className="relative">
+                                <label
+                                    className={`absolute left-0 pointer-events-none transition-all duration-200 font-semibold
+                                        ${isFloating('subject')
+                                            ? 'top-[-18px] text-[10px] uppercase tracking-widest text-[#2DC87A]'
+                                            : 'top-3 text-sm text-white/50'
+                                        }`}
+                                >
+                                    Subject
+                                </label>
+                                <input
+                                    type="text"
+                                    name="subject"
+                                    onFocus={() => handleFocus('subject')}
+                                    onBlur={e => handleBlur('subject', e.target.value)}
+                                    className="w-full bg-transparent border-b-2 border-white/20 py-3 outline-none focus:border-[#2DC87A] transition-colors text-white text-sm font-medium"
+                                />
+                            </div>
+
+                            {/* Message */}
+                            <div className="relative">
+                                <label
+                                    className={`pointer-events-none transition-all duration-200 font-semibold block mb-2
+                                        ${isFloating('message')
+                                            ? 'text-[10px] uppercase tracking-widest text-[#2DC87A]'
+                                            : 'text-sm text-white/50'
+                                        }`}
+                                >
+                                    Your Message
+                                </label>
+                                <textarea
+                                    name="message"
+                                    required
+                                    rows={5}
+                                    onFocus={() => handleFocus('message')}
+                                    onBlur={e => handleBlur('message', e.target.value)}
+                                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 outline-none focus:border-[#2DC87A] focus:bg-white/8 transition-all resize-none text-white text-sm font-medium placeholder-white/20"
+                                    placeholder="Tell us what's on your mind…"
+                                />
+                            </div>
+
+                            {/* Submit row */}
+                            <div className="flex flex-col sm:flex-row items-center gap-5 pt-2">
+                                <button
+                                    type="submit"
+                                    disabled={loading}
+                                    className="group w-full sm:w-auto bg-[#2DC87A] hover:bg-[#26ae6a] disabled:opacity-50 disabled:cursor-not-allowed text-white font-black px-10 py-4 rounded-2xl flex items-center justify-center gap-3 shadow-lg shadow-[#2DC87A]/20 hover:shadow-[#2DC87A]/40 transition-all active:scale-95"
+                                >
+                                    <span>{loading ? 'Transmitting…' : 'Send Message'}</span>
+                                    <TbSend
+                                        size={18}
+                                        className={`transition-transform ${loading ? 'animate-pulse' : 'group-hover:translate-x-1 group-hover:-translate-y-1'}`}
+                                    />
+                                </button>
+
+                                {res && (
+                                    <span
+                                        className={`text-xs font-black uppercase tracking-widest animate-pulse
+                                            ${res.startsWith('Message sent') ? 'text-[#2DC87A]' : 'text-red-400'}`}
+                                    >
+                                        {res}
+                                    </span>
+                                )}
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>

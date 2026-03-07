@@ -1,12 +1,8 @@
 import { useRef, useState } from 'react';
-import ImageSlider from "../ImageSlider.jsx";
-import DownloadApp from "./DownloadApp.jsx";
-import { presence_eye_lite_images } from "../../utils/data.js";
 import emailjs from "@emailjs/browser";
 import { publicKey, viteemailserviceid, viteemailtemplate } from "../../utils/variable.js";
-import Video from "../Video.jsx";
-import { MdClose, MdAutoAwesome } from "react-icons/md";
-
+import { MdClose } from "react-icons/md";
+import ButtonsPage from './ButtonsPage.jsx';
 
 function PresenceEyeLatest() {
     const [showForm, setShowForm] = useState(false);
@@ -26,116 +22,7 @@ function PresenceEyeLatest() {
     return (
         <div className="space-y-32 py-6">
             {/* Buttons Product Card */}
-<section className="container mx-auto px-6 pb-16">
-  <a href="/presence-eye/buttons" style={{ textDecoration: 'none' }}>
-    <div style={{
-      background: 'linear-gradient(135deg, #0B121A, #112018)',
-      borderRadius: 24, padding: '40px 32px',
-      display: 'flex', flexDirection: 'column', gap: 16,
-      border: '1px solid rgba(25,92,81,0.25)',
-      cursor: 'pointer',
-      transition: 'box-shadow 0.3s',
-    }}
-    onMouseOver={e => e.currentTarget.style.boxShadow='0 16px 48px rgba(25,92,81,0.2)'}
-    onMouseOut={e => e.currentTarget.style.boxShadow='none'}
-    >
-      <span style={{ fontSize: 10, fontWeight: 700, color: '#195C51', letterSpacing: '0.2em', textTransform: 'uppercase' }}>
-        New · BYOSE Tech
-      </span>
-      <h2 style={{ fontFamily: 'DM Serif Display, serif', fontSize: 'clamp(1.8rem,4vw,3rem)', color: '#fff', margin: 0, lineHeight: 1.1 }}>
-        Buttons —<br />Wireless Gate Control
-      </h2>
-      <p style={{ color: '#6B7280', fontSize: 15, maxWidth: 480, margin: 0, lineHeight: 1.65 }}>
-        Extend your gate remote's range, share access with the whole household, and control your gate from anywhere. One small device. Zero replacements.
-      </p>
-      <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 4 }}>
-        {['WiFi Enabled','Multi-user','Plug & Play','App Controlled'].map(t => (
-          <span key={t} style={{
-            padding: '5px 12px', borderRadius: 50,
-            background: 'rgba(25,92,81,0.15)', color: '#195C51',
-            fontSize: 11, fontWeight: 600, letterSpacing: '0.06em',
-          }}>{t}</span>
-        ))}
-      </div>
-<div 
-  style={{ 
-    marginTop: 20,
-    display: 'inline-flex',
-    alignItems: 'center',
-    gap: 12,
-    padding: '12px 24px',
-    borderRadius: '12px',
-    background: 'rgba(45, 212, 191, 0.05)', // Very faint tint
-    border: '1px solid rgba(45, 212, 191, 0.1)',
-    color: '#FFFFFF', 
-    fontWeight: 700, 
-    fontSize: 14, 
-    letterSpacing: '0.06em',
-    transition: 'all 0.3s ease',
-    width: 'fit-content'
-  }}
-  onMouseOver={e => {
-    e.currentTarget.style.background = 'rgba(45, 212, 191, 0.15)';
-    e.currentTarget.style.borderColor = 'rgba(45, 212, 191, 0.4)';
-    e.currentTarget.querySelector('.arrow').style.transform = 'translateX(5px)';
-  }}
-  onMouseOut={e => {
-    e.currentTarget.style.background = 'rgba(45, 212, 191, 0.05)';
-    e.currentTarget.style.borderColor = 'rgba(45, 212, 191, 0.1)';
-    e.currentTarget.querySelector('.arrow').style.transform = 'translateX(0)';
-  }}
->
-  EXPLORE BUTTONS 
-  <span className="arrow" style={{ color: '#2DD4BF', transition: 'transform 0.3s ease' }}>→</span>
-</div>
-    </div>
-  </a>
-</section>
-            {/* Product Showcase */}
-            <div className="container mx-auto px-6">
-                <div className="grid lg:grid-cols-2 gap-16 items-center">
-                    <div className="google-card p-2 bg-[#F5F5F5] overflow-hidden">
-                        <ImageSlider className="h-[50vh] md:h-[60vh]" image_size="object-cover" images={presence_eye_lite_images} />
-                    </div>
-
-                    <div className="space-y-8">
-                        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#195C51]/10 text-[#195C51] text-xs font-bold uppercase tracking-widest">
-                            <MdAutoAwesome /> Smart Extension
-                        </div>
-                        <h2 className="text-4xl md:text-6xl font-bold text-[#333333]">
-                            PresenceEye <span className="text-[#195C51]">Lite</span>
-                        </h2>
-                        <p className="text-xl text-gray-500 font-light leading-relaxed max-w-lg">
-                            Elevate your power management. A precision-engineered multisocket extension that bridges the gap between manual control and AI automation.
-                        </p>
-                       
-                    </div>
-
-                </div>
-            </div>
-
-            {/* Video Feature */}
-            <section className="bg-[#F5F5F5] py-24 rounded-[4rem] mx-4">
-                <div className="container mx-auto px-6 text-center space-y-12">
-                    <h3 className="text-2xl font-bold text-[#333333]">See it in action</h3>
-                    <Video url="https://www.youtube.com/watch?v=DybOjpvrGY8" />
-                </div>
-            </section>
-
-        
-
-            {/* Futuristic CTA Footer */}
-            <div className="relative h-[80vh] flex items-center justify-center overflow-hidden rounded-[4rem] mx-4 mb-10 bg-[#0B121A]">
-                <div className="absolute inset-0 opacity-40">
-                    <img src="https://res.cloudinary.com/ddsojj7zo/image/upload/v1744275689/byose%20org%20site/mzyjdg98r7xzholutufg.png" className="w-full h-full object-cover blur-sm" alt="" />
-                </div>
-                <div className="relative z-10 text-center space-y-6 px-6">
-                    <h4 className="text-[#195C51] font-black uppercase tracking-[0.4em] text-xs">Autonomous Living</h4>
-                    <h1 className="text-5xl md:text-8xl font-bold text-white leading-none tracking-tighter">
-                        Turn Every Room <br/> Into a <span className="text-[#195C51]">Genius.</span>
-                    </h1>
-                </div>
-            </div>
+             <ButtonsPage/>
 
             {/* Order Modal */}
             {showForm && (
