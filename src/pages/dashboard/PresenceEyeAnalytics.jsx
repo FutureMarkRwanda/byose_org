@@ -1855,6 +1855,23 @@ const MapView = () => {
   };
 
 
+
+// ─────────────────────────────────────────────────────────────────────────────
+// LEADERBOARD — Client-side user grouping
+//
+// The existing backend returns ONE ROW PER REMOTE shaped like:
+//   { serialNumber, labelName, modelType, ownerName, totalOpens,
+//     avgOpensPerDay, lastOpenAt, firstOpenAt }
+//
+// This component groups those rows by ownerName on the client so that:
+//   • Each user appears exactly ONCE
+//   • The Remotes column shows how many remotes they own
+//   • Clicking a row expands the per-remote breakdown
+//   • Privacy masking is applied everywhere
+//
+// NO backend changes required.
+// ─────────────────────────────────────────────────────────────────────────────
+
 // ─────────────────────────────────────────────────────────────────────────────
 // LEADERBOARD — Client-side user grouping
 //
@@ -2075,10 +2092,10 @@ const Leaderboard = () => {
               </div>
               {/* Remote model badges */}
               <div className="flex flex-wrap gap-1 mb-3">
-                {u.remotes.slice(0, 3).map(r => {
+                {u.remotes.slice(0, 3).map((r, rIdx) => {
                   const mc = modelColor(r.modelType);
                   return (
-                    <span key={r.serialNumber}
+                    <span key={r.serialNumber || `${u.ownerName}__badge__${rIdx}`}
                       className="px-1.5 py-0.5 rounded-full text-[8px] font-black text-white"
                       style={{ background: mc.bg }}>
                       {mc.label}
@@ -2086,7 +2103,7 @@ const Leaderboard = () => {
                   );
                 })}
                 {u.remoteCount > 3 && (
-                  <span key="__more" className="px-1.5 py-0.5 rounded-full text-[8px] font-black bg-gray-100 text-gray-500">
+                  <span key={`${u.ownerName}__more`} className="px-1.5 py-0.5 rounded-full text-[8px] font-black bg-gray-100 text-gray-500">
                     +{u.remoteCount - 3} more
                   </span>
                 )}
@@ -2134,7 +2151,7 @@ const Leaderboard = () => {
                   {[
                     { key: 'rank',  label: '#',                                              cls: 'w-12 pl-3'   },
                     { key: 'name',  label: 'Customer',                                       cls: 'pl-2'        },
-                    { key: null,    label: 'Remotes',                                        cls: 'text-center' },
+                    { key: null,    label: 'Remotes / Serial',                                    cls: ''        },
                     { key: 'opens', label: lbPeriod === 'avg' ? 'Avg / Day' : '30d Opens',  cls: 'text-right'  },
                     { key: 'last',  label: 'Last Active',                                    cls: 'text-right pr-3' },
                   ].map(col => (
@@ -2191,11 +2208,20 @@ const Leaderboard = () => {
                           </div>
                         </td>
 
-                        {/* ✅ Remote count — now correctly reads u.remoteCount */}
-                        <td className="py-3 pr-4 text-center">
-                          <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-[#195C51]/10 text-[#195C51] text-[10px] font-black">
-                            {u.remoteCount}
-                          </span>
+                        {/* Remotes — serial numbers listed, click row to expand */}
+                        <td className="py-3 pr-4">
+                          <div className="flex flex-col gap-0.5">
+                            {u.remotes.slice(0, 2).map((r, rIdx) => (
+                              <span key={r.serialNumber || `${uid}__serial__${rIdx}`} className="text-[9px] font-mono text-gray-400 leading-tight">
+                                {r.serialNumber}
+                              </span>
+                            ))}
+                            {u.remoteCount > 2 && (
+                              <span key={`${uid}__more`} className="text-[9px] font-black text-[#195C51]">
+                                +{u.remoteCount - 2} more ▾
+                              </span>
+                            )}
+                          </div>
                         </td>
 
                         {/* Opens + bar */}
@@ -2247,8 +2273,12 @@ const Leaderboard = () => {
                                   {mc.label}
                                 </span>
                                 <div className="min-w-0">
-                                  <p className="text-[10px] font-bold text-gray-600 truncate">{r.labelName}</p>
-                                  <p className="text-[9px] text-gray-400 font-mono">{r.serialNumber}</p>
+                                  <p className="text-[10px] font-bold text-gray-600 font-mono truncate">
+                                    {r.serialNumber}
+                                    {r.labelName && (
+                                      <span className="font-sans font-normal text-gray-400 ml-1">({r.labelName})</span>
+                                    )}
+                                  </p>
                                 </div>
                               </div>
                             </td>
