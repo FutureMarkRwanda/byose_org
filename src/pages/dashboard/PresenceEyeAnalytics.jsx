@@ -827,7 +827,14 @@ export default function PresenceEyeAnalytics() {
     );
   };
 
-//  from view device geo location
+// MapView — Leaflet + CartoDB Voyager (Google Maps style)
+// Replace the const MapView = () => { ... } inside PresenceEyeAnalytics.jsx
+//
+// Changes:
+//  • Status = isEnabled (green = Enabled, gray = Disabled) — NOT online/offline
+//  • Filter pills: "Enabled" / "Disabled"
+//  • KPI labels: "Enabled" / "Disabled"
+//  • Owner names masked via maskName() in popup, sidebar, and detail strip
 
 const MapView = () => {
   const locations = safe(data.locations);
@@ -838,48 +845,46 @@ const MapView = () => {
 
   const [selected,     setSelected]     = useState(null);
   const [leafletReady, setLeafletReady] = useState(false);
-  const [filterModel,  setFilterModel]  = useState('all');
-  const [filterStatus, setFilterStatus] = useState('all');
+  const [filterModel,  setFilterModel]  = useState("all");
+  const [filterStatus, setFilterStatus] = useState("all"); // 'all'|'enabled'|'disabled'
 
   const hasLocations = locations.length > 0;
-  const models       = ['all', ...new Set(locations.map(d => d.modelType).filter(Boolean))];
+  const models       = ["all", ...new Set(locations.map(d => d.modelType).filter(Boolean))];
 
-  const getenabled = d => Boolean( d.isEnabled);
+  // Status is purely the owner's enable/disable toggle stored on the Remote document
+  const isEnabled = d => Boolean(d.isEnabled);
 
   const filtered = locations.filter(d => {
-    if (filterModel  !== 'all' && d.modelType !== filterModel) return false;
-    if (filterStatus === 'enabled'  && !getenabled(d)) return false;
-    if (filterStatus === 'disabled' &&  getenabled(d)) return false;
+    if (filterModel  !== "all" && d.modelType !== filterModel) return false;
+    if (filterStatus === "enabled"  && !isEnabled(d)) return false;
+    if (filterStatus === "disabled" &&  isEnabled(d)) return false;
     return true;
   });
 
-  const enabledCount  = locations.filter(d =>  getenabled(d)).length;
-  const disabledCount = locations.filter(d => !getenabled(d)).length;
+  const enabledCount  = locations.filter(d =>  isEnabled(d)).length;
+  const disabledCount = locations.filter(d => !isEnabled(d)).length;
 
-  // ── Privacy helpers ───────────────────────────────────────────────────────
-  // If you've imported PrivacyMask.jsx, replace these with:
-  //   import { maskName, maskEmail } from '../../components/PrivacyMask.jsx';
+  // ── Privacy helper ────────────────────────────────────────────────────────
   const maskName = (fullName) => {
-    if (!fullName || fullName === 'Unknown') return 'Unknown';
+    if (!fullName || fullName === "Unknown") return "Unknown";
     const parts = fullName.trim().split(/\s+/);
     if (parts.length === 1) return parts[0];
     return `${parts[0]} ${parts[1][0].toUpperCase()}.`;
   };
-
   const maskEmail = (email) => {
     if (!email) return null;
-    const at     = email.indexOf('@');
+    const at = email.indexOf("@");
     if (at === -1) return `${email.slice(0, 3)}***`;
     const local  = email.slice(0, at);
     const domain = email.slice(at);
-    return `${local.slice(0, 3)}${'*'.repeat(Math.max(3, local.length - 3))}${domain}`;
+    return `${local.slice(0, 3)}${"*".repeat(Math.max(3, local.length - 3))}${domain}`;
   };
 
   // ── Inject pulse keyframe once ────────────────────────────────────────────
   useEffect(() => {
-    if (document.getElementById('lf-pulse-style')) return;
-    const s = document.createElement('style');
-    s.id = 'lf-pulse-style';
+    if (document.getElementById("lf-pulse-style")) return;
+    const s = document.createElement("style");
+    s.id = "lf-pulse-style";
     s.textContent = `
       @keyframes lf-pulse {
         0%   { transform: scale(1);   opacity: 0.75; }
@@ -901,22 +906,22 @@ const MapView = () => {
     document.head.appendChild(s);
   }, []);
 
-  // ── Load Leaflet dynamically ──────────────────────────────────────────────
+  // ── Load Leaflet ──────────────────────────────────────────────────────────
   useEffect(() => {
     if (window.L) { setLeafletReady(true); return; }
 
-    if (!document.getElementById('leaflet-css')) {
-      const link = document.createElement('link');
-      link.id   = 'leaflet-css';
-      link.rel  = 'stylesheet';
-      link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+    if (!document.getElementById("leaflet-css")) {
+      const link = document.createElement("link");
+      link.id   = "leaflet-css";
+      link.rel  = "stylesheet";
+      link.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
       document.head.appendChild(link);
     }
 
-    const script  = document.createElement('script');
-    script.src    = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
-    script.onload = () => setLeafletReady(true);
-    script.onerror= () => console.warn('[MapView] Leaflet failed to load');
+    const script    = document.createElement("script");
+    script.src      = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
+    script.onload   = () => setLeafletReady(true);
+    script.onerror  = () => console.warn("[MapView] Leaflet failed to load");
     document.head.appendChild(script);
   }, []);
 
@@ -928,15 +933,15 @@ const MapView = () => {
     if (!leafletRef.current) {
       leafletRef.current = L.map(mapRef.current, { zoomControl: true });
 
-      // CartoDB Voyager — Google Maps aesthetic, free, no API key
+      // CartoDB Voyager — Google Maps aesthetic, free, no key needed
       L.tileLayer(
-        'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+        "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
         {
           attribution:
             '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>' +
             ' &copy; <a href="https://carto.com/attributions">CARTO</a>',
-          subdomains: 'abcd',
-          maxZoom:    20,
+          subdomains: "abcd",
+          maxZoom: 20,
         }
       ).addTo(leafletRef.current);
     }
@@ -951,19 +956,20 @@ const MapView = () => {
     const bounds = [];
 
     filtered.forEach(d => {
-      const enabled      = getenabled(d);
-      const dotColor    = enabled ? '#22C55E' : '#9CA3AF';
-      const strokeColor = enabled ? '#16A34A' : '#6B7280';
-      const modelLetter = (d.modelType || '?')[0].toUpperCase();
+      const enabled     = isEnabled(d);
+      // Green = enabled, gray = disabled
+      const dotColor    = enabled ? "#22C55E" : "#9CA3AF";
+      const strokeColor = enabled ? "#16A34A" : "#6B7280";
+      const modelLetter = (d.modelType || "?")[0].toUpperCase();
 
-      // ✅ Masked display values for popup — never show full name/email
       const displayName  = maskName(d.owner);
       const displayEmail = maskEmail(d.ownerEmail);
 
-      const pulseDiv = enabled ? `<div class="lf-pulse-ring"></div>` : '';
+      // Pulsing ring only on enabled devices
+      const pulseDiv = enabled ? `<div class="lf-pulse-ring"></div>` : "";
 
       const icon = L.divIcon({
-        className: '',
+        className: "",
         html: `
           <div style="position:relative;width:36px;height:46px;">
             ${pulseDiv}
@@ -987,34 +993,33 @@ const MapView = () => {
 
       const marker = L.marker([d.lat, d.lng], { icon });
 
-      // ✅ Popup uses masked name and email
       marker.bindPopup(`
         <div style="font-family:system-ui,sans-serif;min-width:190px;padding:4px 0">
           <div style="display:flex;align-items:center;gap:7px;margin-bottom:7px">
             <div style="
               width:9px;height:9px;border-radius:50%;
               background:${dotColor};flex-shrink:0;
-              ${enabled ? `box-shadow:0 0 0 3px ${dotColor}33` : ''}
+              ${enabled ? `box-shadow:0 0 0 3px ${dotColor}33` : ""}
             "></div>
             <strong style="font-size:13px;color:#1A2E2A">${d.label || d.serialNumber}</strong>
           </div>
           <p style="font-size:10px;color:#6B7280;margin:0 0 7px">${d.serialNumber}</p>
           <div style="background:#F8F9FA;border-radius:8px;padding:8px 10px;font-size:11px;line-height:1.9">
-            <div><b>Model:</b> ${(d.modelType || 'unknown').toUpperCase()}</div>
+            <div><b>Model:</b> ${(d.modelType || "unknown").toUpperCase()}</div>
             <div><b>Status:</b>
               <span style="color:${dotColor};font-weight:700">
-                ${enabled ? '● Enabled' : '● Disabled'}
+                ${enabled ? "● Enabled" : "● Disabled"}
               </span>
             </div>
-            ${displayName  ? `<div><b>Owner:</b> ${displayName}</div>`  : ''}
-            ${displayEmail ? `<div><b>Email:</b> <span style="font-family:monospace">${displayEmail}</span></div>` : ''}
-            ${d.address    ? `<div><b>Address:</b> ${d.address}</div>`  : ''}
+            ${displayName  ? `<div><b>Owner:</b> ${displayName}</div>`  : ""}
+            ${displayEmail ? `<div><b>Email:</b> <span style="font-family:monospace">${displayEmail}</span></div>` : ""}
+            ${d.address    ? `<div><b>Address:</b> ${d.address}</div>`  : ""}
             <div><b>Coords:</b> ${d.lat.toFixed(5)}, ${d.lng.toFixed(5)}</div>
           </div>
         </div>
       `, { maxWidth: 260 });
 
-      marker.on('click', () => setSelected(d));
+      marker.on("click", () => setSelected(d));
       marker.addTo(map);
       markersRef.current.push(marker);
       bounds.push([d.lat, d.lng]);
@@ -1048,14 +1053,14 @@ const MapView = () => {
     <div className="space-y-5 sm:space-y-8">
       <Section icon={MdMap} title="Device Locations" subtitle="Where are your sold devices deployed?"/>
 
-      {/* Stats */}
+      {/* KPI stats — Enabled / Disabled */}
       <div className="grid grid-cols-3 gap-3">
-        <KPI label="Devices on Map" value={locations.length} sub="With GPS data"     loading={loading('map')} color={C.primary}/>
-        <KPI label="Enabled"         value={enabledCount}      sub="Currently enabled"  loading={loading('map')} color="#22C55E"/>
-        <KPI label="Disabled"        value={disabledCount}     sub="Currently disabled" loading={loading('map')} color="#9CA3AF"/>
+        <KPI label="Devices on Map" value={locations.length} sub="With GPS data"            loading={loading("map")} color={C.primary}/>
+        <KPI label="Enabled"        value={enabledCount}     sub="Enabled by owner"          loading={loading("map")} color="#22C55E"/>
+        <KPI label="Disabled"       value={disabledCount}    sub="Disabled by owner"         loading={loading("map")} color="#9CA3AF"/>
       </div>
 
-      {loading('map') ? (
+      {loading("map") ? (
         <Sk cls="h-[500px] w-full"/>
       ) : !hasLocations ? (
         <div className="bg-white rounded-2xl border border-gray-100 p-10 flex flex-col items-center gap-4">
@@ -1063,12 +1068,12 @@ const MapView = () => {
           <div className="text-center">
             <p className="font-black text-[#1A2E2A]">No device locations available</p>
             <p className="text-xs text-gray-400 mt-1 max-w-sm">
-              Devices report GPS coordinates via{' '}
-              <code className="bg-gray-100 px-1 rounded">Remote.location.coordinates</code>{' '}
+              Devices report GPS coordinates via{" "}
+              <code className="bg-gray-100 px-1 rounded">Remote.location.coordinates</code>{" "}
               when first paired.
             </p>
           </div>
-          <button onClick={() => load('map')}
+          <button onClick={() => load("map")}
             className="flex items-center gap-2 px-4 py-2 bg-[#195C51] text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-[#1E7060] transition-colors">
             <MdRefresh size={14}/> Refresh
           </button>
@@ -1078,37 +1083,39 @@ const MapView = () => {
 
           {/* Filters */}
           <div className="flex flex-wrap items-center gap-3">
+            {/* Model */}
             <div className="flex items-center gap-2">
               <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">Model</span>
               <div className="flex bg-gray-100 rounded-xl p-0.5 gap-0.5">
                 {models.map(m => (
                   <button key={m} onClick={() => setFilterModel(m)}
                     className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all
-                      ${filterModel===m ? 'bg-[#195C51] text-white shadow-sm' : 'text-gray-500 hover:text-[#195C51]'}`}>
+                      ${filterModel === m ? "bg-[#195C51] text-white shadow-sm" : "text-gray-500 hover:text-[#195C51]"}`}>
                     {m}
                   </button>
                 ))}
               </div>
             </div>
+
+            {/* Status — Enabled / Disabled */}
             <div className="flex items-center gap-2">
               <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">Status</span>
               <div className="flex bg-gray-100 rounded-xl p-0.5 gap-0.5">
                 {[
-                  { value: 'all',     label: 'All'     },
-                  { value: 'enabled',  label: 'Enabled'  },
-                  { value: 'disabled', label: 'Disabled' },
+                  { value: "all",      label: "All"      },
+                  { value: "enabled",  label: "Enabled"  },
+                  { value: "disabled", label: "Disabled" },
                 ].map(s => (
                   <button key={s.value} onClick={() => setFilterStatus(s.value)}
                     className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all
-                      ${filterStatus===s.value ? 'bg-[#195C51] text-white shadow-sm' : 'text-gray-500 hover:text-[#195C51]'}`}>
+                      ${filterStatus === s.value ? "bg-[#195C51] text-white shadow-sm" : "text-gray-500 hover:text-[#195C51]"}`}>
                     {s.label}
                   </button>
                 ))}
               </div>
             </div>
-            <span className="text-[10px] text-gray-400 ml-auto">
-              {filtered.length} of {locations.length} shown
-            </span>
+
+            <span className="text-[10px] text-gray-400 ml-auto">{filtered.length} of {locations.length} shown</span>
           </div>
 
           {/* Map + Sidebar */}
@@ -1118,7 +1125,7 @@ const MapView = () => {
             <div className="lg:col-span-2 bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
               <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
                 <p className="text-[10px] font-black uppercase tracking-widest text-[#1A2E2A]">
-                  {filtered.length} device{filtered.length !== 1 ? 's' : ''} visible
+                  {filtered.length} device{filtered.length !== 1 ? "s" : ""} visible
                 </p>
                 <div className="flex items-center gap-4 text-[9px] font-bold text-gray-400">
                   <span className="flex items-center gap-1.5">
@@ -1144,7 +1151,7 @@ const MapView = () => {
                   </div>
                 </div>
               ) : (
-                <div ref={mapRef} style={{ height: 440, width: '100%', zIndex: 0 }}/>
+                <div ref={mapRef} style={{ height: 440, width: "100%", zIndex: 0 }}/>
               )}
             </div>
 
@@ -1160,16 +1167,16 @@ const MapView = () => {
                     <p className="text-xs text-gray-400">No devices match filters</p>
                   </div>
                 ) : filtered.map(d => {
-                  const enabled = getenabled(d);
+                  const enabled = isEnabled(d);
                   return (
                     <button key={d.serialNumber} onClick={() => flyTo(d)}
                       className={`w-full text-left px-4 py-3 border-b border-gray-50 hover:bg-[#195C51]/5 transition-colors
                         ${selected?.serialNumber === d.serialNumber
-                          ? 'bg-[#195C51]/8 border-l-[3px] border-l-[#195C51]'
-                          : ''}`}>
+                          ? "bg-[#195C51]/8 border-l-[3px] border-l-[#195C51]"
+                          : ""}`}>
                       <div className="flex items-start gap-2.5">
 
-                        {/* enabled dot */}
+                        {/* Enabled / disabled dot */}
                         <div className="flex-shrink-0 mt-1.5">
                           {enabled ? (
                             <span className="relative flex h-2.5 w-2.5">
@@ -1188,7 +1195,7 @@ const MapView = () => {
                           <p className="text-[9px] text-gray-400 mt-0.5 truncate">
                             {d.address || `${d.lat?.toFixed(4)}, ${d.lng?.toFixed(4)}`}
                           </p>
-                          {/* ✅ Masked owner name in sidebar */}
+                          {/* Masked owner name */}
                           {d.owner && (
                             <p className="text-[9px] text-[#195C51] font-bold mt-0.5 truncate">
                               {maskName(d.owner)}
@@ -1199,12 +1206,12 @@ const MapView = () => {
                         <div className="flex-shrink-0 text-right">
                           <span
                             className="text-[8px] font-black text-white px-1.5 py-0.5 rounded-md uppercase"
-                            style={{ background: enabled ? '#195C51' : '#9CA3AF' }}>
-                            {d.modelType || '?'}
+                            style={{ background: enabled ? "#195C51" : "#9CA3AF" }}>
+                            {d.modelType || "?"}
                           </span>
                           <p className="text-[8px] mt-0.5 font-bold"
-                            style={{ color: enabled ? '#22C55E' : '#9CA3AF' }}>
-                            {enabled ? 'enabled' : 'disabled'}
+                            style={{ color: enabled ? "#22C55E" : "#9CA3AF" }}>
+                            {enabled ? "Enabled" : "Disabled"}
                           </p>
                         </div>
                       </div>
@@ -1217,7 +1224,7 @@ const MapView = () => {
 
           {/* Selected device strip */}
           {selected && (() => {
-            const enabled = getenabled(selected);
+            const enabled = isEnabled(selected);
             return (
               <div className="bg-[#1A2E2A] text-white rounded-2xl px-5 py-4 flex flex-wrap gap-5 items-center">
                 <div className="flex-shrink-0">
@@ -1237,25 +1244,25 @@ const MapView = () => {
                 <div className="h-8 w-px bg-white/10 hidden sm:block"/>
                 <div>
                   <p className="text-[9px] text-gray-400 uppercase tracking-widest font-bold">Model</p>
-                  <p className="text-xs font-black">{selected.modelType?.toUpperCase() || '—'}</p>
+                  <p className="text-xs font-black">{selected.modelType?.toUpperCase() || "—"}</p>
                 </div>
                 <div>
                   <p className="text-[9px] text-gray-400 uppercase tracking-widest font-bold">Status</p>
-                  <p className="text-xs font-black" style={{ color: enabled ? '#22C55E' : '#9CA3AF' }}>
-                    {enabled ? '● Enabled' : '● Disabled'}
+                  <p className="text-xs font-black" style={{ color: enabled ? "#22C55E" : "#9CA3AF" }}>
+                    {enabled ? "● Enabled" : "● Disabled"}
                   </p>
                 </div>
                 {selected.owner && (
                   <div>
                     <p className="text-[9px] text-gray-400 uppercase tracking-widest font-bold">Owner</p>
-                    {/* ✅ Masked in detail strip */}
+                    {/* Masked */}
                     <p className="text-xs font-black">{maskName(selected.owner)}</p>
                   </div>
                 )}
                 {selected.ownerEmail && (
                   <div>
                     <p className="text-[9px] text-gray-400 uppercase tracking-widest font-bold">Email</p>
-                    {/* ✅ Masked in detail strip */}
+                    {/* Masked */}
                     <p className="text-xs font-black font-mono">{maskEmail(selected.ownerEmail)}</p>
                   </div>
                 )}
@@ -1281,7 +1288,6 @@ const MapView = () => {
     </div>
   );
 };
-
   // ═══════════════════════════════════════════════════════════════════════════
   // PLANS MANAGEMENT
   // ═══════════════════════════════════════════════════════════════════════════
@@ -1848,33 +1854,6 @@ const MapView = () => {
     );
   };
 
-// LEADERBOARD SECTION — Drop-in replacement for the Leaderboard const inside
-// PresenceEyeAnalytics.jsx
-//
-// Changes vs original:
-//  • Groups by USER (one row per person), not per remote
-//  • Merges stats across all their remotes
-//  • Shows a collapsible remotes sub-list per user
-//  • Uses MaskedUserCard from PrivacyMask for name/email display
-//  • Subtitle updated: "one row per customer"
-// ─────────────────────────────────────────────────────────────────────────────
-
-// ── Paste this import at the top of PresenceEyeAnalytics.jsx ──────────────
-// import { maskName, maskEmail } from '../../components/PrivacyMask.jsx';
-
-// ── Replace the existing Leaderboard const with this one ──────────────────
-
-// ─────────────────────────────────────────────────────────────────────────────
-// LEADERBOARD SECTION — Fixed version
-//
-// Fixes:
-//   1. Unique React keys — uses ownerId + index so duplicate names never clash
-//   2. PrivacyMask applied everywhere names/emails appear
-//   3. Expanded remote sub-rows also use unique keys
-// ─────────────────────────────────────────────────────────────────────────────
-
-// ── Add these imports at the top of PresenceEyeAnalytics.jsx if not present ─
-// import { maskName, maskEmail } from '../../components/PrivacyMask.jsx';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // LEADERBOARD — Client-side user grouping
@@ -2107,7 +2086,7 @@ const Leaderboard = () => {
                   );
                 })}
                 {u.remoteCount > 3 && (
-                  <span className="px-1.5 py-0.5 rounded-full text-[8px] font-black bg-gray-100 text-gray-500">
+                  <span key="__more" className="px-1.5 py-0.5 rounded-full text-[8px] font-black bg-gray-100 text-gray-500">
                     +{u.remoteCount - 3} more
                   </span>
                 )}
