@@ -1890,8 +1890,7 @@ const MapView = () => {
 
 const Leaderboard = () => {
   const lb      = data.leaderboard || {};
-  const rawRows = safe(lb.rows); // one row per remote from the API
-
+const userRows = safe(lb.rows);
   const [expandedUser, setExpandedUser] = useState(null);
 
   const handlePeriodChange = p => {
@@ -1924,52 +1923,6 @@ const Leaderboard = () => {
     return `${local.slice(0, 3)}${'*'.repeat(Math.max(3, local.length - 3))}${domain}`;
   };
 
-  // ── Group raw per-remote rows → one entry per owner ───────────────────────
-  // Key by ownerName (the only stable identifier the old API gives us).
-  // If two different people share a name this merges them — acceptable until
-  // the backend sends ownerEmail or ownerId as a disambiguator.
-  const userMap = rawRows.reduce((acc, row) => {
-    const name = row.ownerName || 'Unknown';
-    if (!acc[name]) {
-      acc[name] = {
-        ownerName:     name,
-        ownerEmail:    row.ownerEmail || null,   // may be undefined on old API
-        totalOpens:    0,
-        lastOpenAt:    null,
-        firstOpenAt:   null,
-        remotes:       [],
-      };
-    }
-    const u = acc[name];
-    u.totalOpens  += row.totalOpens || 0;
-    u.lastOpenAt   = !u.lastOpenAt || new Date(row.lastOpenAt) > new Date(u.lastOpenAt)
-      ? row.lastOpenAt : u.lastOpenAt;
-    u.firstOpenAt  = !u.firstOpenAt || new Date(row.firstOpenAt) < new Date(u.firstOpenAt)
-      ? row.firstOpenAt : u.firstOpenAt;
-    const sn = row.serialNumber || '';
-    const ln = (row.labelName && row.labelName !== 'No name') ? row.labelName : '';
-    u.remotes.push({
-      serialNumber:   sn,
-      labelName:      ln || sn || 'Remote',   // label → serial → fallback
-      modelType:      row.modelType  || '—',
-      totalOpens:     row.totalOpens || 0,
-      avgOpensPerDay: row.avgOpensPerDay || 0,
-      lastOpenAt:     row.lastOpenAt,
-    });
-    return acc;
-  }, {});
-
-  // Compute per-user avgOpensPerDay after grouping
-  const userRows = Object.values(userMap).map(u => {
-    const days = u.firstOpenAt
-      ? Math.max(1, (Date.now() - new Date(u.firstOpenAt).getTime()) / 86400000)
-      : 1;
-    return {
-      ...u,
-      remoteCount:    u.remotes.length,
-      avgOpensPerDay: Math.round((u.totalOpens / days) * 100) / 100,
-    };
-  });
 
   // Sort by totalOpens desc as default ranking
   userRows.sort((a, b) => b.totalOpens - a.totalOpens);
