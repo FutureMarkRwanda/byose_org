@@ -11,6 +11,7 @@ export async function fetchData(url, token) {
                 "x-api-key": API_KEY,
             },
         });
+        
         return {data: response.data, message: response.data.message};
     } catch (error) {
         let errorMessage = "Server is down";
