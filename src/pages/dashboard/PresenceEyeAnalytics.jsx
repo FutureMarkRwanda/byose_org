@@ -1946,9 +1946,11 @@ const Leaderboard = () => {
       ? row.lastOpenAt : u.lastOpenAt;
     u.firstOpenAt  = !u.firstOpenAt || new Date(row.firstOpenAt) < new Date(u.firstOpenAt)
       ? row.firstOpenAt : u.firstOpenAt;
+    const sn = row.serialNumber || '';
+    const ln = (row.labelName && row.labelName !== 'No name') ? row.labelName : '';
     u.remotes.push({
-      serialNumber:   row.serialNumber,
-      labelName:      row.labelName  || 'Unnamed Remote',
+      serialNumber:   sn,
+      labelName:      ln || sn || 'Remote',   // label → serial → fallback
       modelType:      row.modelType  || '—',
       totalOpens:     row.totalOpens || 0,
       avgOpensPerDay: row.avgOpensPerDay || 0,
@@ -2095,7 +2097,7 @@ const Leaderboard = () => {
                 {u.remotes.slice(0, 3).map((r, rIdx) => {
                   const mc = modelColor(r.modelType);
                   return (
-                    <span key={r.serialNumber || `${u.ownerName}__badge__${rIdx}`}
+                    <span key={`${u.ownerName}__${i}__badge__${rIdx}`}
                       className="px-1.5 py-0.5 rounded-full text-[8px] font-black text-white"
                       style={{ background: mc.bg }}>
                       {mc.label}
@@ -2210,14 +2212,15 @@ const Leaderboard = () => {
 
                         {/* Remotes — serial numbers listed, click row to expand */}
                         <td className="py-3 pr-4">
-                          <div className="flex flex-col gap-0.5">
+                          <div className="flex flex-col gap-1">
                             {u.remotes.slice(0, 2).map((r, rIdx) => (
-                              <span key={r.serialNumber || `${uid}__serial__${rIdx}`} className="text-[9px] font-mono text-gray-400 leading-tight">
-                                {r.serialNumber}
-                              </span>
+                              <div key={rIdx} className="leading-tight">
+                                <p className="text-[11px] font-bold text-gray-800">{r.labelName}</p>
+                                <p className="text-[9px] font-mono text-gray-400">{r.serialNumber !== '—' ? r.serialNumber : ''}</p>
+                              </div>
                             ))}
                             {u.remoteCount > 2 && (
-                              <span key={`${uid}__more`} className="text-[9px] font-black text-[#195C51]">
+                              <span className="text-[9px] font-black text-[#195C51]">
                                 +{u.remoteCount - 2} more ▾
                               </span>
                             )}
@@ -2260,7 +2263,7 @@ const Leaderboard = () => {
                         const mc = modelColor(r.modelType);
                         return (
                           // ✅ key = parent uid + serialNumber
-                          <tr key={`${uid}__${r.serialNumber || rIdx}`}
+                          <tr key={`${uid}__sub__${rIdx}`}
                             className="bg-[#195C51]/[0.02] border-b border-[#195C51]/5">
                             <td className="py-2 pl-5 pr-2">
                               <div className="w-1.5 h-1.5 rounded-full bg-[#195C51]/30 mx-auto"/>
@@ -2273,12 +2276,10 @@ const Leaderboard = () => {
                                   {mc.label}
                                 </span>
                                 <div className="min-w-0">
-                                  <p className="text-[10px] font-bold text-gray-600 font-mono truncate">
-                                    {r.serialNumber}
-                                    {r.labelName && (
-                                      <span className="font-sans font-normal text-gray-400 ml-1">({r.labelName})</span>
-                                    )}
-                                  </p>
+                                  <p className="text-[11px] font-bold text-gray-800 truncate">{r.labelName}</p>
+                                  {r.serialNumber !== '—' && (
+                                    <p className="text-[9px] font-mono text-gray-400 truncate">{r.serialNumber}</p>
+                                  )}
                                 </div>
                               </div>
                             </td>
