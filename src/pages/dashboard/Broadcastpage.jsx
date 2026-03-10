@@ -9,7 +9,7 @@ import { presence_server } from "../../config/server_api.js";
 // Border    #E2E8E6   subtle cool-green tint
 // Text-1    #111C1A   headings
 // Text-2    #4B5E5A   body copy
-// Text-dim  #8FA39F   muted / labels
+// Text-dim  #00000099   muted / labels
 // Text-ph   #A8BEBB   placeholder
 
 const cls = (...args) => args.filter(Boolean).join(" ");
@@ -23,7 +23,7 @@ const inputCls = [
 ].join(" ");
 
 const labelCls =
-    "block text-[10px] tracking-[0.18em] uppercase text-[#8FA39F] font-semibold mb-1.5";
+    "block text-[10px] tracking-[0.18em] uppercase text-[#00000099] font-semibold mb-1.5";
 
 // ─── Badge ────────────────────────────────────────────────────────────────────
 // eslint-disable-next-line react/prop-types
@@ -61,7 +61,7 @@ function StatCard({ label, value, accent = "green" }) {
     const num    = { green: "text-[#195C51]",       gold: "text-amber-600",   red: "text-red-500",   slate: "text-slate-500" };
     return (
         <div className={cls("bg-white rounded-xl border p-4 shadow-sm", border[accent] || border.green)}>
-            <p className="text-[10px] font-semibold tracking-[0.18em] uppercase text-[#8FA39F] mb-1">{label}</p>
+            <p className="text-[10px] font-semibold tracking-[0.18em] uppercase text-[#00000099] mb-1">{label}</p>
             <p className={cls("text-3xl font-bold tabular-nums", num[accent] || num.green)}>{value}</p>
         </div>
     );
@@ -154,7 +154,7 @@ export default function BroadcastPage() {
                     <h1 className="text-2xl font-bold text-[#111C1A] tracking-tight leading-none mb-1">
                         Broadcast Centre
                     </h1>
-                    <p className="text-sm text-[#8FA39F]">Send system alerts and product updates to verified users</p>
+                    <p className="text-sm text-[#00000099]">Send system alerts and product updates to verified users</p>
                 </div>
 
                 {/* Tab bar */}
@@ -165,7 +165,7 @@ export default function BroadcastPage() {
                                 "flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-medium transition-all duration-150",
                                 activeTab === t.id
                                     ? "bg-[#195C51] text-white shadow-sm"
-                                    : "text-[#8FA39F] hover:text-[#111C1A] hover:bg-[#F4F6F5]"
+                                    : "text-[#00000099] hover:text-[#111C1A] hover:bg-[#F4F6F5]"
                             )}>
                             <span className="text-xs">{t.icon}</span>
                             {t.label}
@@ -202,7 +202,7 @@ function ComposePanel({ showToast }) {
                                 "flex items-center gap-2 pb-4 text-sm font-medium border-b-2 transition-all",
                                 emailType === t.id
                                     ? "border-[#195C51] text-[#195C51]"
-                                    : "border-transparent text-[#8FA39F] hover:text-[#4B5E5A]"
+                                    : "border-transparent text-[#00000099] hover:text-[#4B5E5A]"
                             )}>
                             {t.label}
                             <Badge color={t.badgeColor}>{t.badge}</Badge>
@@ -470,7 +470,7 @@ function AudienceSidebar() {
                                 "py-2.5 rounded-lg text-xs font-semibold tracking-widest uppercase transition-all border",
                                 audienceType === opt
                                     ? "bg-[#195C51] text-white border-[#195C51] shadow-sm"
-                                    : "bg-white text-[#8FA39F] border-[#E2E8E6] hover:border-[#195C51]/40 hover:text-[#195C51]"
+                                    : "bg-white text-[#00000099] border-[#E2E8E6] hover:border-[#195C51]/40 hover:text-[#195C51]"
                             )}>
                             {opt === "ALL" ? "All Users" : "Selected"}
                         </button>
@@ -539,7 +539,7 @@ function AudienceSidebar() {
                                             {user.name && (
                                                 <p className="text-xs font-medium text-[#111C1A] truncate">{user.name}</p>
                                             )}
-                                            <p className="text-[11px] text-[#8FA39F] truncate">{user.email}</p>
+                                            <p className="text-[11px] text-[#00000099] truncate">{user.email}</p>
                                         </div>
                                     </label>
                                 ))}
@@ -634,7 +634,7 @@ function HistoryPanel({ showToast, detailId, setDetailId }) {
                                     <tr className="border-b border-[#E2E8E6] bg-[#F9FBFA]">
                                         {["Type", "Subject / Headline", "Audience", "Sent", "Failed", "Date", ""].map(h => (
                                             <th key={h}
-                                                className="text-left text-[10px] uppercase tracking-widest text-[#8FA39F]
+                                                className="text-left text-[10px] uppercase tracking-widest text-[#00000099]
                                                            font-semibold px-4 py-3 first:pl-6 last:pr-6">
                                                 {h}
                                             </th>
@@ -670,7 +670,7 @@ function HistoryPanel({ showToast, detailId, setDetailId }) {
                                                     b.failedCount > 0 ? "text-red-500" : "text-[#C5D2CF]"
                                                 )}>{b.failedCount}</span>
                                             </td>
-                                            <td className="px-4 py-3 text-[11px] text-[#8FA39F] whitespace-nowrap">
+                                            <td className="px-4 py-3 text-[11px] text-[#00000099] whitespace-nowrap">
                                                 {new Date(b.createdAt).toLocaleDateString("en-US", {
                                                     month: "short", day: "numeric",
                                                     hour: "2-digit", minute: "2-digit"
@@ -732,7 +732,7 @@ function DetailDrawer({ detail, loading, onClose, onResend, resending }) {
                 <p className={labelCls} style={{ margin: 0 }}>Broadcast Detail</p>
                 <button onClick={onClose}
                     className="w-7 h-7 rounded-full flex items-center justify-center
-                               text-[#8FA39F] hover:text-[#111C1A] hover:bg-[#E2E8E6] transition-all text-base">
+                               text-[#00000099] hover:text-[#111C1A] hover:bg-[#E2E8E6] transition-all text-base">
                     ×
                 </button>
             </div>
@@ -745,7 +745,7 @@ function DetailDrawer({ detail, loading, onClose, onResend, resending }) {
                         <div className="flex items-start justify-between gap-2">
                             <div>
                                 <p className="text-sm font-semibold text-[#111C1A] leading-snug">{detail.subject}</p>
-                                <p className="text-[11px] text-[#8FA39F] mt-0.5">
+                                <p className="text-[11px] text-[#00000099] mt-0.5">
                                     {new Date(detail.createdAt).toLocaleString("en-US", {
                                         dateStyle: "medium", timeStyle: "short"
                                     })}
@@ -795,7 +795,7 @@ function DetailDrawer({ detail, loading, onClose, onResend, resending }) {
                                             {r.user?.name && (
                                                 <p className="text-[11px] font-medium text-[#111C1A] truncate">{r.user.name}</p>
                                             )}
-                                            <p className="text-[10px] text-[#8FA39F] truncate">{r.email}</p>
+                                            <p className="text-[10px] text-[#00000099] truncate">{r.email}</p>
                                         </div>
                                     </div>
                                     <div className="flex-shrink-0 ml-2">
