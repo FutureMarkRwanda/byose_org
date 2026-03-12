@@ -24,6 +24,7 @@ import Progress from "./components/presence_eye/PresenceEyeProgress.jsx";
 import AccountDeletation from "./pages/home/AccountDeletation.jsx";
 import PresenceEyeResetPassword from "./pages/auth/PresenceEyeResetPassword.jsx";
 import ButtonsPage from "./components/presence_eye/ButtonsPage.jsx";
+import DownloadPage from "./pages/dashboard/PresenceEyeDownload.jsx";
 
 function DashboardLayout() {
   return (
@@ -134,6 +135,10 @@ function App() {
         <Route
           path="/presence-eye/forgot-password"
           element={<PresenceEyeResetPassword />}
+        />
+        <Route
+          path="/download"
+          element={<DownloadPage />}
         />
       </Routes>
     </div>
