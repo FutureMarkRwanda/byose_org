@@ -301,7 +301,7 @@ export default function DownloadPage() {
 
                         <p className="pe-fade-up pe-delay-3 text-slate-400 text-lg md:text-xl max-w-xl
                                       leading-relaxed font-light">
-                            Intelligent attendance and presence management for teams that operate at the highest level.
+                           Control, monitor, and interact with your devices anytime, anywhere.
                         </p>
 
                         {/* CTA row */}
@@ -466,7 +466,7 @@ export default function DownloadPage() {
                                     Prefer to stay in your browser?
                                 </p>
                                 <p className="text-sm font-light" style={{ color: "#6B7F90" }}>
-                                    The full Presence Eye experience is available on desktop without any download.
+                                    The full Presence Eye experience isn&#39;t available yet on desktop.
                                 </p>
                             </div>
                             <a href="https://presence-eye.byose.info"
