@@ -9,6 +9,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 
 const PLAY_STORE = 'https://play.google.com/store/apps/details?id=info.byose.presenceeye&pcampaignid=web_share';
+const APPLE_STORE = 'https://apps.apple.com/us/app/presence-eye/id6758922721';
 
 const C = {
   brand:     '#195C51',
@@ -711,7 +712,7 @@ export default function ButtonsPage() {
               transition:'color .3s, border-color .3s',
             }}>What is it exactly?</a>
           </div>
-
+            <div className='bp-float gap-6' style={{ marginTop:40, display:'flex', justifyContent:'center' }}>
           {/* Play Store */}
           <div style={{ marginTop:28, display:'flex', justifyContent:'center' }}>
             <a href={PLAY_STORE} target="_blank" rel="noopener noreferrer" style={{
@@ -728,6 +729,23 @@ export default function ButtonsPage() {
                 <div style={{ fontSize:14, color:'#fff', fontWeight:700 }}>Google Play</div>
               </div>
             </a>
+          </div>
+          <div style={{ marginTop:28, display:'flex', justifyContent:'center' }}>
+            <a href={APPLE_STORE} target="_blank" rel="noopener noreferrer" style={{
+              display:'inline-flex', alignItems:'center', gap:12,
+              background:'rgba(255,255,255,.05)', border:'1px solid rgba(255,255,255,.1)',
+              borderRadius:14, padding:'10px 20px', textDecoration:'none',
+              backdropFilter:'blur(10px)', transition:'all .3s',
+            }}
+            onMouseOver={e => { e.currentTarget.style.background='rgba(25,92,81,.15)'; e.currentTarget.style.borderColor='rgba(25,92,81,.4)'; }}
+            onMouseOut={e  => { e.currentTarget.style.background='rgba(255,255,255,.05)'; e.currentTarget.style.borderColor='rgba(255,255,255,.1)'; }}>
+              <span style={{ fontSize:26, lineHeight:1 }}>▶</span>
+              <div>
+                <div style={{ fontSize:9, color:'#9CA3AF', letterSpacing:'.1em', textTransform:'uppercase', fontWeight:600 }}>Available on</div>
+                <div style={{ fontSize:14, color:'#fff', fontWeight:700 }}>App Store</div>
+              </div>
+            </a>
+          </div>
           </div>
         </div>
 
@@ -830,6 +848,7 @@ export default function ButtonsPage() {
                 <span key={t} style={{ padding:'7px 15px', borderRadius:50, background:C.brandFade, color:C.brand, fontSize:12, fontWeight:700, letterSpacing:'.05em' }}>{t}</span>
               ))}
             </div>
+            <div className='gap-10 flex'>
             <a href={PLAY_STORE} target="_blank" rel="noopener noreferrer" style={{
               display:'inline-flex', alignItems:'center', gap:12,
               background:C.dark, border:`1px solid rgba(25,92,81,.3)`,
@@ -843,6 +862,20 @@ export default function ButtonsPage() {
                 <div style={{ fontSize:14, color:'#fff', fontWeight:700 }}>Google Play</div>
               </div>
             </a>
+               <a href={APPLE_STORE} target="_blank" rel="noopener noreferrer" style={{
+              display:'inline-flex', alignItems:'center', gap:12,
+              background:C.dark, border:`1px solid rgba(25,92,81,.3)`,
+              borderRadius:14, padding:'12px 22px', textDecoration:'none', transition:'box-shadow .3s',
+            }}
+            onMouseOver={e => e.currentTarget.style.boxShadow=`0 8px 24px rgba(25,92,81,.3)`}
+            onMouseOut={e  => e.currentTarget.style.boxShadow='none'}>
+              <span style={{ fontSize:26 }}>▶</span>
+              <div>
+                <div style={{ fontSize:9, color:'#6B7280', letterSpacing:'.1em', textTransform:'uppercase' }}>Download on</div>
+                <div style={{ fontSize:14, color:'#fff', fontWeight:700 }}>Apple Store</div>
+              </div>
+            </a>
+            </div>
           </div>
         </div>
       </section>
@@ -931,33 +964,43 @@ export default function ButtonsPage() {
       {/* ════════════════════════════════════════
           CTA FOOTER
       ════════════════════════════════════════ */}
-      <section style={{ margin:'0 16px 48px', background:C.dark, borderRadius:36, padding:'clamp(60px,8vw,100px) 24px', textAlign:'center', position:'relative', overflow:'hidden' }}>
-        <div style={{ position:'absolute', inset:0, background:`radial-gradient(ellipse at 50% -10%,rgba(25,92,81,.35) 0%,transparent 55%)`, pointerEvents:'none' }} />
-        {[160,280,420].map((s, i) => (
-          <div key={i} style={{ position:'absolute', top:0, left:'50%', width:s, height:s, borderRadius:'50%', border:`1px solid rgba(25,92,81,${.14 - i * .04})`, transform:'translate(-50%,-60%)', pointerEvents:'none' }} />
-        ))}
-        <div style={{ position:'relative', zIndex:1 }}>
-          <span style={{ fontSize:11, fontWeight:700, color:C.brand, letterSpacing:'.2em', textTransform:'uppercase' }}>Get Early Access</span>
-          <h2 style={{ fontSize:'clamp(2.2rem,6vw,5rem)', color:'#fff', margin:'16px 0 8px', lineHeight:1.05, letterSpacing:'-.03em', fontWeight:800 }}>
-            Open your gate<br/>
-            <span style={{ background:`linear-gradient(90deg,${C.brand} 20%,${C.brandL} 40%,#4EB8A6 60%,${C.brand} 80%)`, backgroundSize:'200% auto', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text', animation:'bp-shimmer 3s linear infinite' }}>
-              with one tap.
-            </span>
-          </h2>
-          <p style={{ color:'#4B5563', fontSize:16, marginBottom:40 }}>
-            Be among the first households to go fully digital.
-          </p>
-          <div style={{ display:'flex', gap:14, justifyContent:'center', flexWrap:'wrap', alignItems:'center' }}>
-            <a href="/contact" className="bp-cta" style={{ textDecoration:'none' }}>Contact Us — Get Started</a>
-            <a href={PLAY_STORE} target="_blank" rel="noopener noreferrer" style={{ display:'inline-flex', alignItems:'center', gap:10, background:'rgba(255,255,255,.05)', border:'1px solid rgba(255,255,255,.12)', borderRadius:50, padding:'14px 24px', textDecoration:'none', transition:'all .3s' }}
-            onMouseOver={e => e.currentTarget.style.background='rgba(25,92,81,.15)'}
-            onMouseOut={e  => e.currentTarget.style.background='rgba(255,255,255,.05)'}>
-              <span style={{ fontSize:20 }}>▶</span>
-              <span style={{ fontSize:13, color:'#fff', fontWeight:700, letterSpacing:'.04em' }}>Download on Google Play</span>
-            </a>
-          </div>
-        </div>
-      </section>
+<section style={{ margin:'0 16px 48px', background:C.dark, borderRadius:36, padding:'clamp(60px,8vw,100px) 24px', textAlign:'center', position:'relative', overflow:'hidden' }}>
+  <div style={{ position:'absolute', inset:0, background:`radial-gradient(ellipse at 50% -10%,rgba(25,92,81,.35) 0%,transparent 55%)`, pointerEvents:'none' }} />
+  {[160,280,420].map((s, i) => (
+    <div key={i} style={{ position:'absolute', top:0, left:'50%', width:s, height:s, borderRadius:'50%', border:`1px solid rgba(25,92,81,${.14 - i * .04})`, transform:'translate(-50%,-60%)', pointerEvents:'none' }} />
+  ))}
+  <div style={{ position:'relative', zIndex:1 }}>
+    <span style={{ fontSize:11, fontWeight:700, color:C.brand, letterSpacing:'.2em', textTransform:'uppercase' }}>Get Early Access</span>
+    <h2 style={{ fontSize:'clamp(2.2rem,6vw,5rem)', color:'#fff', margin:'16px 0 8px', lineHeight:1.05, letterSpacing:'-.03em', fontWeight:800 }}>
+      Open your gate<br/>
+      <span style={{ background:`linear-gradient(90deg,${C.brand} 20%,${C.brandL} 40%,#4EB8A6 60%,${C.brand} 80%)`, backgroundSize:'200% auto', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text', animation:'bp-shimmer 3s linear infinite' }}>
+        with one tap.
+      </span>
+    </h2>
+    <p style={{ color:'#4B5563', fontSize:16, marginBottom:40 }}>
+      Be among the first households to go fully digital.
+    </p>
+    <div style={{ display:'flex', gap:14, justifyContent:'center', flexWrap:'wrap', alignItems:'center' }}>
+      <a href="/contact" className="bp-cta" style={{ textDecoration:'none' }}>Contact Us — Get Started</a>
+      <a href={APPLE_STORE} target="_blank" rel="noopener noreferrer"
+        style={{ display:'inline-flex', alignItems:'center', gap:10, background:'rgba(255,255,255,.05)', border:'1px solid rgba(255,255,255,.12)', borderRadius:50, padding:'14px 24px', textDecoration:'none', transition:'all .3s' }}
+        onMouseOver={e => e.currentTarget.style.background='rgba(25,92,81,.15)'}
+        onMouseOut={e  => e.currentTarget.style.background='rgba(255,255,255,.05)'}>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style={{ color:'#fff' }}>
+          <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
+        </svg>
+        <span style={{ fontSize:13, color:'#fff', fontWeight:700, letterSpacing:'.04em' }}>Download on App Store</span>
+      </a>
+      <a href={PLAY_STORE} target="_blank" rel="noopener noreferrer"
+        style={{ display:'inline-flex', alignItems:'center', gap:10, background:'rgba(255,255,255,.05)', border:'1px solid rgba(255,255,255,.12)', borderRadius:50, padding:'14px 24px', textDecoration:'none', transition:'all .3s' }}
+        onMouseOver={e => e.currentTarget.style.background='rgba(25,92,81,.15)'}
+        onMouseOut={e  => e.currentTarget.style.background='rgba(255,255,255,.05)'}>
+        <span style={{ fontSize:20 }}>▶</span>
+        <span style={{ fontSize:13, color:'#fff', fontWeight:700, letterSpacing:'.04em' }}>Download on Google Play</span>
+      </a>
+    </div>
+  </div>
+</section>
 
     </div>
   );
