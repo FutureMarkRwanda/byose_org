@@ -16,7 +16,7 @@ function ProfileCard({ name, image, role, link }) {
                 {/* 2. THE IMAGE CONTAINER */}
                 <div className="absolute inset-0 overflow-hidden rounded-[3rem] bg-[#F5F5F5] google-card border-none shadow-none group-hover:shadow-2xl group-hover:shadow-[#195C51]/10 transition-all duration-500">
                     <img 
-                        className="w-full h-full object-cover grayscale opacity-80 group-hover:grayscale-0 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700 ease-in-out"
+                        className="w-full h-full object-cover grayscale opacity-95 group-hover:grayscale-0 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700 ease-in-out"
                         src={image}
                         alt={name}
                         loading="lazy"

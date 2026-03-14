@@ -35,7 +35,7 @@ function ContactUs() {
     const isFloating = (name) => focused[name] || filled[name];
 
     return (
-        <section className="min-h-screen bg-gradient-to-br from-[#0B121A] via-[#0e1c17] to-[#111827] relative overflow-hidden flex items-center justify-center py-20 px-4">
+        <section className="min-h-screen bg-gradient-to-br from-[#0B121A] via-[#0e1c17] to-[#111827] relative overflow-hidden flex items-center justify-center py-20 my-10 px-4">
 
             {/* ── Decorative blobs ── */}
             <div className="pointer-events-none absolute inset-0 overflow-hidden">
