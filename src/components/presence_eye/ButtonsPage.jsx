@@ -686,7 +686,7 @@ export default function ButtonsPage() {
           </h1>
 
           {/* ONE-LINE VALUE PROP — crystal clear */}
-          <p style={{ fontFamily:'Syne,sans-serif', fontSize:'clamp(1.05rem,2.8vw,1.5rem)', color:'#9CA3AF', fontWeight:500, marginBottom:20, letterSpacing:'-.01em' }}>
+          <p style={{ fontFamily:'Syne,sans-serif', fontSize:'clamp(1.05rem,2.8vw,1.5rem)', color:'#9CA3AF', fontWeight:700, marginBottom:20, letterSpacing:'-.01em' }}>
             Turn your physical gate remote into a smart, app-controlled device.
           </p>
 
@@ -697,9 +697,9 @@ export default function ButtonsPage() {
             backdropFilter:'blur(12px)',
           }}>
             <p style={{ fontSize:'clamp(13px,2vw,15px)', color:'#6B7280', lineHeight:1.8, margin:0 }}>
-              Buttons is a <span style={{ color:'#fff', fontWeight:600 }}>small hardware device</span> you clip onto your existing gate remote.
-              It connects to your Wi-Fi so you can <span style={{ color:'#fff', fontWeight:600 }}>open your gate from anywhere</span> using your phone —
-              and <span style={{ color:'#fff', fontWeight:600 }}>share access</span> with family without buying extra remotes.
+              Buttons is a <span style={{ color:'#fff', fontWeight:700 }}>small hardware device</span> you clip onto your existing gate remote.
+              It connects to your Wi-Fi so you can <span style={{ color:'#fff', fontWeight:700 }}>open your gate from anywhere</span> using your phone —
+              and <span style={{ color:'#fff', fontWeight:700 }}>share access</span> with family without buying extra remotes.
             </p>
           </div>
 
@@ -714,7 +714,7 @@ export default function ButtonsPage() {
           </div>
             <div className='bp-float gap-6' style={{ marginTop:40, display:'flex', justifyContent:'center' }}>
           {/* Play Store */}
-          <div style={{ marginTop:28, display:'flex', justifyContent:'center' }}>
+          <div style={{ marginTop:38, display:'flex', justifyContent:'center' }}>
             <a href={PLAY_STORE} target="_blank" rel="noopener noreferrer" style={{
               display:'inline-flex', alignItems:'center', gap:12,
               background:'rgba(255,255,255,.05)', border:'1px solid rgba(255,255,255,.1)',
@@ -730,7 +730,7 @@ export default function ButtonsPage() {
               </div>
             </a>
           </div>
-          <div style={{ marginTop:28, display:'flex', justifyContent:'center' }}>
+          <div style={{ marginTop:38, display:'flex', justifyContent:'center' }}>
             <a href={APPLE_STORE} target="_blank" rel="noopener noreferrer" style={{
               display:'inline-flex', alignItems:'center', gap:12,
               background:'rgba(255,255,255,.05)', border:'1px solid rgba(255,255,255,.1)',
@@ -742,7 +742,7 @@ export default function ButtonsPage() {
               <span style={{ fontSize:26, lineHeight:1 }}>▶</span>
               <div>
                 <div style={{ fontSize:9, color:'#9CA3AF', letterSpacing:'.1em', textTransform:'uppercase', fontWeight:600 }}>Available on</div>
-                <div style={{ fontSize:14, color:'#fff', fontWeight:700 }}>App Store</div>
+                <div style={{ fontSize:14, color:'#fff', fontWeight:700 }}>Apple Store</div>
               </div>
             </a>
           </div>
@@ -964,7 +964,7 @@ export default function ButtonsPage() {
       {/* ════════════════════════════════════════
           CTA FOOTER
       ════════════════════════════════════════ */}
-<section style={{ margin:'0 16px 48px', background:C.dark, borderRadius:36, padding:'clamp(60px,8vw,100px) 24px', textAlign:'center', position:'relative', overflow:'hidden' }}>
+<section style={{ margin:'80px 16px 48px', background:C.dark, borderRadius:36, padding:'clamp(60px,8vw,100px) 24px', textAlign:'center', position:'relative', overflow:'hidden' }}>
   <div style={{ position:'absolute', inset:0, background:`radial-gradient(ellipse at 50% -10%,rgba(25,92,81,.35) 0%,transparent 55%)`, pointerEvents:'none' }} />
   {[160,280,420].map((s, i) => (
     <div key={i} style={{ position:'absolute', top:0, left:'50%', width:s, height:s, borderRadius:'50%', border:`1px solid rgba(25,92,81,${.14 - i * .04})`, transform:'translate(-50%,-60%)', pointerEvents:'none' }} />
@@ -989,7 +989,7 @@ export default function ButtonsPage() {
         <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style={{ color:'#fff' }}>
           <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
         </svg>
-        <span style={{ fontSize:13, color:'#fff', fontWeight:700, letterSpacing:'.04em' }}>Download on App Store</span>
+        <span style={{ fontSize:13, color:'#fff', fontWeight:700, letterSpacing:'.04em' }}>Download on Apple Store</span>
       </a>
       <a href={PLAY_STORE} target="_blank" rel="noopener noreferrer"
         style={{ display:'inline-flex', alignItems:'center', gap:10, background:'rgba(255,255,255,.05)', border:'1px solid rgba(255,255,255,.12)', borderRadius:50, padding:'14px 24px', textDecoration:'none', transition:'all .3s' }}
