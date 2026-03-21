@@ -7,7 +7,6 @@ import {
     ArrowRightOnRectangleIcon,
 } from "@heroicons/react/24/outline";
 
-// Dashboard Pages
 import AdminMovies from "./pages/dashboard/AdminMovies.jsx";
 import PresenceEyeAdmin from "./pages/dashboard/PresenceEye.jsx";
 import Feedbacks from "./pages/dashboard/Feedbacks.jsx";
@@ -15,8 +14,6 @@ import DashboardOverview from "./pages/dashboard/DashboardOverview.jsx";
 import AddMovie from "./pages/dashboard/AddMovie.jsx";
 import CreatePost from "./pages/dashboard/CreatePost.jsx";
 import UpdateLocation from "./pages/dashboard/UpdateLocation.jsx";
-
-import PresenceEyeSubscriptions from "./pages/dashboard/PresenceEyeSubscriptions.jsx";
 import PresenceEyeAnalytics from "./pages/dashboard/PresenceEyeAnalytics.jsx";
 
 // Auth Pages
@@ -89,11 +86,6 @@ export const routes = [
                         name: "Update Location",
                         path: "presence-eye-buttons/location",
                         element: <UpdateLocation/>,
-                    },
-                    {
-                        name: "Active Subscriptions",
-                        path: "presence-eye-buttons/subscriptions",
-                        element: <PresenceEyeSubscriptions/>,
                     },
                     {
                         name: "Broadcasters",

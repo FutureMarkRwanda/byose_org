@@ -120,12 +120,10 @@ function Footer() {
             Solutions Everywhere.
           </p>
           <div className="flex gap-8 text-xs font-bold uppercase tracking-widest text-gray-500">
-            <a href="#" className="hover:text-white">
+            <a href="https://www.byose.info/presence-eye/terms-policy" className="hover:text-white">
               Privacy Policy
             </a>
-            <a href="#" className="hover:text-white">
-              Terms of Service
-            </a>
+         
           </div>
         </div>
       </div>
