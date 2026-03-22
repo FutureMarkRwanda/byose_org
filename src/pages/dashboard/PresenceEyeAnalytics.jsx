@@ -722,16 +722,7 @@ export default function PresenceEyeAnalytics() {
           ov.activeUsers?.wau ?? "—"
         }`,
         info: "How many people actually used the app this month — meaning they opened their gate at least once. DAU = today, WAU = this week.",
-      },
-      {
-        icon: MdAttachMoney,
-        color: C.accent,
-        label: "Monthly Revenue",
-        value: fmt(ov.revenue?.mrr || 0),
-        sub: `ARPU: ${fmt(ov.revenue?.arpu || 0)}`,
-        info: "The total subscription money coming in each month. ARPU is the average amount each paying customer brings in. Formula: MRR ÷ active subscribers.",
-      },
-      {
+      },{
         icon: MdDevices,
         color: "#6B8BD4",
         label: "Devices Sold",
@@ -1789,13 +1780,6 @@ export default function PresenceEyeAnalytics() {
         info: "Devices that haven't connected in more than 3 days.",
       },
       {
-        label: "Avg Uptime",
-        value: `${rel.avgDailyUptimeHours ?? "—"}h`,
-        sub: "Per device — 30d avg",
-        color: C.accent,
-        info: "On average, how many hours per day is each device online.",
-      },
-      {
         label: "Aging Stock",
         value: hw.agingInventory,
         sub: "In warehouse >60 days",
@@ -1936,314 +1920,419 @@ export default function PresenceEyeAnalytics() {
   // ═══════════════════════════════════════════════════════════════════════════
   // MAP VIEW
   // ═══════════════════════════════════════════════════════════════════════════
-  const MapView = () => {
-    const locations = safe(data.locations);
-    const mapRef = useRef(null);
-    const leafletRef = useRef(null);
-    const markersRef = useRef([]);
-    const [selected, setSelected] = useState(null);
-    const [leafletReady, setLeafletReady] = useState(false);
-    const [filterModel, setFilterModel] = useState("all");
-    const [filterStatus, setFilterStatus] = useState("all");
-    const hasLocations = locations.length > 0;
-    const models = [
-      "all",
-      ...new Set(locations.map((d) => d.modelType).filter(Boolean)),
-    ];
-    const isEnabled = (d) => Boolean(d.isEnabled);
-    const filtered = locations.filter((d) => {
-      if (filterModel !== "all" && d.modelType !== filterModel) return false;
-      if (filterStatus === "enabled" && !isEnabled(d)) return false;
-      if (filterStatus === "disabled" && isEnabled(d)) return false;
-      return true;
-    });
-    const enabledCount = locations.filter((d) => isEnabled(d)).length;
-    const disabledCount = locations.filter((d) => !isEnabled(d)).length;
-    const maskName = (n) => {
-      if (!n || n === "Unknown") return "Unknown";
-      const p = n.trim().split(/\s+/);
-      return p.length === 1 ? p[0] : `${p[0]} ${p[1][0].toUpperCase()}.`;
-    };
-    const maskEmail = (e) => {
-      if (!e) return null;
-      const at = e.indexOf("@");
-      if (at === -1) return `${e.slice(0, 3)}***`;
-      return `${e.slice(0, 3)}${"*".repeat(Math.max(3, at - 3))}${e.slice(at)}`;
-    };
-    useEffect(() => {
-      if (document.getElementById("lf-pulse-style")) return;
-      const s = document.createElement("style");
-      s.id = "lf-pulse-style";
-      s.textContent = `@keyframes lf-pulse{0%{transform:scale(1);opacity:.75}70%{transform:scale(2.4);opacity:0}100%{transform:scale(2.4);opacity:0}}.lf-pulse-ring{position:absolute;top:50%;left:50%;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;background:#22C55E;animation:lf-pulse 1.8s ease-out infinite;pointer-events:none;z-index:0}`;
-      document.head.appendChild(s);
-    }, []);
-    useEffect(() => {
-      if (window.L) {
-        setLeafletReady(true);
-        return;
-      }
-      if (!document.getElementById("leaflet-css")) {
-        const link = document.createElement("link");
-        link.id = "leaflet-css";
-        link.rel = "stylesheet";
-        link.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
-        document.head.appendChild(link);
-      }
-      const script = document.createElement("script");
-      script.src = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
-      script.onload = () => setLeafletReady(true);
-      document.head.appendChild(script);
-    }, []);
-    useEffect(() => {
-      if (!leafletReady || !mapRef.current || !hasLocations) return;
-      const L = window.L;
-      if (!leafletRef.current) {
-        leafletRef.current = L.map(mapRef.current, { zoomControl: true });
-        L.tileLayer(
-          "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
-          {
-            attribution: "&copy; OpenStreetMap &copy; CARTO",
-            subdomains: "abcd",
-            maxZoom: 20,
-          },
-        ).addTo(leafletRef.current);
-      }
-      const map = leafletRef.current;
-      markersRef.current.forEach((m) => m.remove());
-      markersRef.current = [];
-      if (filtered.length === 0) return;
-      const bounds = [];
-      filtered.forEach((d) => {
-        const enabled = isEnabled(d);
-        const dotColor = enabled ? "#22C55E" : "#9CA3AF";
-        const strokeColor = enabled ? "#16A34A" : "#6B7280";
-        const modelLetter = (d.modelType || "?")[0].toUpperCase();
-        const displayName = maskName(d.owner);
-        const displayEmail = maskEmail(d.ownerEmail);
-        const pulseDiv = enabled ? `<div class="lf-pulse-ring"></div>` : "";
-        const icon = L.divIcon({
-          className: "",
-          html: `<div style="position:relative;width:36px;height:46px;">${pulseDiv}<div style="position:absolute;top:0;left:0;width:36px;height:46px;filter:drop-shadow(0 3px 6px rgba(0,0,0,0.22));z-index:1;"><svg viewBox="0 0 36 46" xmlns="http://www.w3.org/2000/svg" width="36" height="46"><path d="M18 0C8.059 0 0 8.059 0 18c0 11.941 18 28 18 28S36 29.941 36 18C36 8.059 27.941 0 18 0z" fill="${dotColor}" stroke="${strokeColor}" stroke-width="1.4"/><circle cx="18" cy="18" r="9" fill="white" opacity="0.93"/><text x="18" y="22.5" text-anchor="middle" font-size="10" font-weight="900" fill="${strokeColor}" font-family="system-ui,sans-serif">${modelLetter}</text></svg></div></div>`,
-          iconSize: [36, 46],
-          iconAnchor: [18, 46],
-          popupAnchor: [0, -48],
-        });
-        const marker = L.marker([d.lat, d.lng], { icon });
-        marker.bindPopup(
-          `<div style="font-family:system-ui;min-width:190px;padding:4px 0"><strong style="font-size:13px">${
-            d.label || d.serialNumber
-          }</strong><p style="font-size:10px;color:#6B7280;margin:4px 0">${
-            d.serialNumber
-          }</p><div style="background:#F8F9FA;border-radius:8px;padding:8px;font-size:11px;line-height:1.9"><div><b>Model:</b> ${(
-            d.modelType || "?"
-          ).toUpperCase()}</div><div><b>Status:</b> <span style="color:${dotColor};font-weight:700">${
-            enabled ? "● Enabled" : "● Disabled"
-          }</span></div>${
-            displayName ? `<div><b>Owner:</b> ${displayName}</div>` : ""
-          }${displayEmail ? `<div><b>Email:</b> ${displayEmail}</div>` : ""}${
-            d.address ? `<div><b>Address:</b> ${d.address}</div>` : ""
-          }</div></div>`,
-          { maxWidth: 260 },
-        );
-        marker.on("click", () => setSelected(d));
-        marker.addTo(map);
-        markersRef.current.push(marker);
-        bounds.push([d.lat, d.lng]);
-      });
-      if (bounds.length > 0)
-        map.fitBounds(bounds, { padding: [48, 48], maxZoom: 14 });
-    }, [leafletReady, filtered.length, filterModel, filterStatus, locations]);
-    useEffect(() => {
-      return () => {
-        if (leafletRef.current) {
-          leafletRef.current.remove();
-          leafletRef.current = null;
-        }
-      };
-    }, []);
-    const flyTo = (d) => {
-      setSelected(d);
-      if (!leafletRef.current) return;
-      leafletRef.current.flyTo([d.lat, d.lng], 16, { duration: 1.1 });
-      const idx = filtered.findIndex((f) => f.serialNumber === d.serialNumber);
-      const marker = markersRef.current[idx];
-      if (marker) marker.openPopup();
-    };
+const MapView = () => {
+  const locations = safe(data.locations);
 
-    return (
-      <div className="space-y-5 sm:space-y-8">
-        <Section
-          icon={MdMap}
-          title="Device Locations"
-          subtitle="Where are your sold devices deployed?"
-        />
-        <div className="grid grid-cols-3 gap-3">
-          <KPI
-            label="Devices on Map"
-            value={locations.length}
-            sub="With GPS data"
-            loading={loading("map")}
-            color={C.primary}
-          />
-          <KPI
-            label="Enabled"
-            value={enabledCount}
-            sub="Enabled by owner"
-            loading={loading("map")}
-            color="#22C55E"
-          />
-          <KPI
-            label="Disabled"
-            value={disabledCount}
-            sub="Disabled by owner"
-            loading={loading("map")}
-            color="#9CA3AF"
-          />
-        </div>
-        {loading("map") ? (
-          <Sk cls="h-[500px] w-full" />
-        ) : !hasLocations ? (
-          <div className="bg-white rounded-2xl border border-gray-200 p-10 flex flex-col items-center gap-4">
-            <MdLocationOn size={40} className="text-gray-200" />
-            <p className="font-black text-[#1A2E2A]">
-              No device locations available
-            </p>
-            <button
-              onClick={() => load("map")}
-              className="flex items-center gap-2 px-4 py-2 bg-[#195C51] text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-[#1E7060] transition-colors"
-            >
-              <MdRefresh size={14} /> Refresh
-            </button>
-          </div>
-        ) : (
-          <div className="flex flex-col gap-4">
-            <div className="flex flex-wrap items-center gap-3">
-              <div className="flex items-center gap-2">
-                <span className="text-[10px] font-black uppercase tracking-widest text-gray-600">
-                  Model
-                </span>
-                <div className="flex bg-gray-100 rounded-xl p-0.5 gap-0.5">
-                  {models.map((m) => (
-                    <button
-                      key={m}
-                      onClick={() => setFilterModel(m)}
-                      className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${
-                        filterModel === m
-                          ? "bg-[#195C51] text-white shadow-sm"
-                          : "text-gray-600 hover:text-[#195C51]"
-                      }`}
-                    >
-                      {m}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-[10px] font-black uppercase tracking-widest text-gray-600">
-                  Status
-                </span>
-                <div className="flex bg-gray-100 rounded-xl p-0.5 gap-0.5">
-                  {[
-                    { value: "all", label: "All" },
-                    { value: "enabled", label: "Enabled" },
-                    { value: "disabled", label: "Disabled" },
-                  ].map((s) => (
-                    <button
-                      key={s.value}
-                      onClick={() => setFilterStatus(s.value)}
-                      className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${
-                        filterStatus === s.value
-                          ? "bg-[#195C51] text-white shadow-sm"
-                          : "text-gray-600 hover:text-[#195C51]"
-                      }`}
-                    >
-                      {s.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <span className="text-[10px] text-gray-500 ml-auto">
-                {filtered.length} of {locations.length} shown
-              </span>
-            </div>
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-              <div className="lg:col-span-2 bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
-                {!leafletReady ? (
-                  <div className="h-[440px] flex items-center justify-center bg-gray-50">
-                    <div className="w-8 h-8 border-2 border-[#195C51] border-t-transparent rounded-full animate-spin" />
-                  </div>
-                ) : (
-                  <div
-                    ref={mapRef}
-                    style={{ height: 440, width: "100%", zIndex: 0 }}
-                  />
-                )}
-              </div>
-              <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden flex flex-col">
-                <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-[#1A2E2A]">
-                    Devices
-                  </p>
-                  <p className="text-[10px] text-gray-500">
-                    {filtered.length} listed
-                  </p>
-                </div>
-                <div
-                  className="overflow-y-auto flex-1"
-                  style={{ maxHeight: 440 }}
-                >
-                  {filtered.map((d) => {
-                    const enabled = isEnabled(d);
-                    return (
-                      <button
-                        key={d.serialNumber}
-                        onClick={() => flyTo(d)}
-                        className={`w-full text-left px-4 py-3 border-b border-gray-50 hover:bg-[#195C51]/5 transition-colors ${
-                          selected?.serialNumber === d.serialNumber
-                            ? "bg-[#195C51]/8 border-l-[3px] border-l-[#195C51]"
-                            : ""
-                        }`}
-                      >
-                        <div className="flex items-start gap-2.5">
-                          <div className="flex-shrink-0 mt-1.5">
-                            {enabled ? (
-                              <span className="relative flex h-2.5 w-2.5">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-60" />
-                                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500" />
-                              </span>
-                            ) : (
-                              <span className="w-2.5 h-2.5 rounded-full bg-gray-400 inline-block" />
-                            )}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-[11px] font-black text-[#1A2E2A] truncate">
-                              {d.label || d.serialNumber}
-                            </p>
-                            <p className="text-[9px] text-gray-500 mt-0.5 truncate">
-                              {d.address ||
-                                `${d.lat?.toFixed(4)}, ${d.lng?.toFixed(4)}`}
-                            </p>
-                          </div>
-                          <span
-                            className="text-[8px] font-black text-white px-1.5 py-0.5 rounded-md"
-                            style={{
-                              background: enabled ? "#195C51" : "#9CA3AF",
-                            }}
-                          >
-                            {d.modelType || "?"}
-                          </span>
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-    );
+  const mapRef     = useRef(null);
+  const leafletRef = useRef(null);
+  const markersRef = useRef([]);
+
+  const [selected,     setSelected]     = useState(null);
+  const [leafletReady, setLeafletReady] = useState(false);
+  const [filterModel,  setFilterModel]  = useState('all');
+  const [filterStatus, setFilterStatus] = useState('all');
+
+  const hasLocations = locations.length > 0;
+  const models       = ['all', ...new Set(locations.map(d => d.modelType).filter(Boolean))];
+
+  const isEnabled = d => Boolean(d.isEnabled);
+
+  const filtered = locations.filter(d => {
+    if (filterModel  !== 'all' && d.modelType !== filterModel) return false;
+    if (filterStatus === 'enabled'  && !isEnabled(d)) return false;
+    if (filterStatus === 'disabled' &&  isEnabled(d)) return false;
+    return true;
+  });
+
+  const enabledCount  = locations.filter(d =>  isEnabled(d)).length;
+  const disabledCount = locations.filter(d => !isEnabled(d)).length;
+
+  const maskName = (fullName) => {
+    if (!fullName || fullName === 'Unknown') return 'Unknown';
+    const parts = fullName.trim().split(/\s+/);
+    if (parts.length === 1) return parts[0];
+    return `${parts[0]} ${parts[1][0].toUpperCase()}.`;
   };
+  const maskEmail = (email) => {
+    if (!email) return null;
+    const at = email.indexOf('@');
+    if (at === -1) return `${email.slice(0, 3)}***`;
+    return `${email.slice(0, 3)}${'*'.repeat(Math.max(3, at - 3))}${email.slice(at)}`;
+  };
+
+  useEffect(() => {
+    if (document.getElementById('lf-pulse-style')) return;
+    const s = document.createElement('style');
+    s.id = 'lf-pulse-style';
+    s.textContent = `
+      @keyframes lf-pulse {
+        0%   { transform: scale(1);   opacity: 0.75; }
+        70%  { transform: scale(2.4); opacity: 0;    }
+        100% { transform: scale(2.4); opacity: 0;    }
+      }
+      .lf-pulse-ring {
+        position: absolute; top: 50%; left: 50%;
+        width: 14px; height: 14px; margin: -7px 0 0 -7px;
+        border-radius: 50%; background: #22C55E;
+        animation: lf-pulse 1.8s ease-out infinite;
+        pointer-events: none; z-index: 0;
+      }
+    `;
+    document.head.appendChild(s);
+  }, []);
+
+  useEffect(() => {
+    if (window.L) { setLeafletReady(true); return; }
+    if (!document.getElementById('leaflet-css')) {
+      const link = document.createElement('link');
+      link.id = 'leaflet-css'; link.rel = 'stylesheet';
+      link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+      document.head.appendChild(link);
+    }
+    const script   = document.createElement('script');
+    script.src     = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+    script.onload  = () => setLeafletReady(true);
+    script.onerror = () => console.warn('[MapView] Leaflet failed to load');
+    document.head.appendChild(script);
+  }, []);
+
+  useEffect(() => {
+    if (!leafletReady || !mapRef.current || !hasLocations) return;
+    const L = window.L;
+
+    if (!leafletRef.current) {
+      leafletRef.current = L.map(mapRef.current, { zoomControl: true });
+      L.tileLayer(
+        'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+        {
+          attribution: '&copy; OpenStreetMap &copy; CARTO',
+          subdomains: 'abcd',
+          maxZoom: 20,
+        }
+      ).addTo(leafletRef.current);
+    }
+
+    const map = leafletRef.current;
+    markersRef.current.forEach(m => m.remove());
+    markersRef.current = [];
+
+    if (filtered.length === 0) return;
+
+    const bounds = [];
+
+    filtered.forEach(d => {
+      const enabled     = isEnabled(d);
+      const dotColor    = enabled ? '#22C55E' : '#9CA3AF';
+      const strokeColor = enabled ? '#16A34A' : '#6B7280';
+      const modelLetter = (d.modelType || '?')[0].toUpperCase();
+      const displayName  = maskName(d.owner);
+      const displayEmail = maskEmail(d.ownerEmail);
+      const pulseDiv = enabled ? `<div class="lf-pulse-ring"></div>` : '';
+
+      const icon = L.divIcon({
+        className: '',
+        html: `
+          <div style="position:relative;width:36px;height:46px;">
+            ${pulseDiv}
+            <div style="position:absolute;top:0;left:0;width:36px;height:46px;
+              filter:drop-shadow(0 3px 6px rgba(0,0,0,0.22));z-index:1;">
+              <svg viewBox="0 0 36 46" xmlns="http://www.w3.org/2000/svg" width="36" height="46">
+                <path d="M18 0C8.059 0 0 8.059 0 18c0 11.941 18 28 18 28S36 29.941 36 18C36 8.059 27.941 0 18 0z"
+                  fill="${dotColor}" stroke="${strokeColor}" stroke-width="1.4"/>
+                <circle cx="18" cy="18" r="9" fill="white" opacity="0.93"/>
+                <text x="18" y="22.5" text-anchor="middle" font-size="10" font-weight="900"
+                  fill="${strokeColor}" font-family="system-ui,sans-serif">${modelLetter}</text>
+              </svg>
+            </div>
+          </div>`,
+        iconSize:    [36, 46],
+        iconAnchor:  [18, 46],
+        popupAnchor: [0, -48],
+      });
+
+      const marker = L.marker([d.lat, d.lng], { icon });
+
+      // Popup — serial number is the title now
+      marker.bindPopup(`
+        <div style="font-family:system-ui,sans-serif;min-width:200px;padding:4px 0">
+          <div style="display:flex;align-items:center;gap:7px;margin-bottom:4px">
+            <div style="width:9px;height:9px;border-radius:50%;background:${dotColor};flex-shrink:0;
+              ${enabled ? `box-shadow:0 0 0 3px ${dotColor}33` : ''}"></div>
+            <strong style="font-size:13px;color:#1A2E2A;font-family:monospace">${d.serialNumber}</strong>
+          </div>
+          ${d.label ? `<p style="font-size:10px;color:#6B7280;margin:0 0 7px;padding-left:16px">${d.label}</p>` : ''}
+          <div style="background:#F8F9FA;border-radius:8px;padding:8px 10px;font-size:11px;line-height:1.9">
+            <div><b>Model:</b> ${(d.modelType || 'unknown').toUpperCase()}</div>
+            <div><b>Status:</b> <span style="color:${dotColor};font-weight:700">${enabled ? '● Enabled' : '● Disabled'}</span></div>
+            ${displayName  ? `<div><b>Owner:</b> ${displayName}</div>`  : ''}
+            ${displayEmail ? `<div><b>Email:</b> <span style="font-family:monospace">${displayEmail}</span></div>` : ''}
+            ${d.address    ? `<div><b>Address:</b> ${d.address}</div>`  : ''}
+            <div><b>Coords:</b> ${d.lat.toFixed(5)}, ${d.lng.toFixed(5)}</div>
+          </div>
+        </div>
+      `, { maxWidth: 260 });
+
+      marker.on('click', () => setSelected(d));
+      marker.addTo(map);
+      markersRef.current.push(marker);
+      bounds.push([d.lat, d.lng]);
+    });
+
+    if (bounds.length > 0) map.fitBounds(bounds, { padding: [48, 48], maxZoom: 14 });
+  }, [leafletReady, filtered.length, filterModel, filterStatus, locations]);
+
+  useEffect(() => {
+    return () => {
+      if (leafletRef.current) { leafletRef.current.remove(); leafletRef.current = null; }
+    };
+  }, []);
+
+  const flyTo = (d) => {
+    setSelected(d);
+    if (!leafletRef.current) return;
+    leafletRef.current.flyTo([d.lat, d.lng], 16, { duration: 1.1 });
+    const idx    = filtered.findIndex(f => f.serialNumber === d.serialNumber);
+    const marker = markersRef.current[idx];
+    if (marker) marker.openPopup();
+  };
+
+  return (
+    <div className="space-y-5 sm:space-y-8">
+      <Section icon={MdMap} title="Device Locations" subtitle="Where are your sold devices deployed?"/>
+
+      <div className="grid grid-cols-3 gap-3">
+        <KPI label="Devices on Map" value={locations.length} sub="With GPS data"   loading={loading('map')} color={C.primary}/>
+        <KPI label="Enabled"        value={enabledCount}     sub="Enabled by owner" loading={loading('map')} color="#22C55E"/>
+        <KPI label="Disabled"       value={disabledCount}    sub="Disabled by owner"loading={loading('map')} color="#9CA3AF"/>
+      </div>
+
+      {loading('map') ? (
+        <Sk cls="h-[500px] w-full"/>
+      ) : !hasLocations ? (
+        <div className="bg-white rounded-2xl border border-gray-100 p-10 flex flex-col items-center gap-4">
+          <MdLocationOn size={40} className="text-gray-200"/>
+          <div className="text-center">
+            <p className="font-black text-[#1A2E2A]">No device locations available</p>
+            <p className="text-xs text-gray-500 mt-1 max-w-sm">
+              Devices report GPS coordinates via{' '}
+              <code className="bg-gray-100 px-1 rounded">Remote.location.coordinates</code>{' '}
+              when first paired.
+            </p>
+          </div>
+          <button onClick={() => load('map')}
+            className="flex items-center gap-2 px-4 py-2 bg-[#195C51] text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-[#1E7060] transition-colors">
+            <MdRefresh size={14}/> Refresh
+          </button>
+        </div>
+      ) : (
+        <div className="flex flex-col gap-4">
+
+          {/* Filters */}
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-black uppercase tracking-widest text-gray-500">Model</span>
+              <div className="flex bg-gray-100 rounded-xl p-0.5 gap-0.5">
+                {models.map(m => (
+                  <button key={m} onClick={() => setFilterModel(m)}
+                    className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all
+                      ${filterModel === m ? 'bg-[#195C51] text-white shadow-sm' : 'text-gray-600 hover:text-[#195C51]'}`}>
+                    {m}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-black uppercase tracking-widest text-gray-500">Status</span>
+              <div className="flex bg-gray-100 rounded-xl p-0.5 gap-0.5">
+                {[
+                  { value: 'all',      label: 'All'      },
+                  { value: 'enabled',  label: 'Enabled'  },
+                  { value: 'disabled', label: 'Disabled' },
+                ].map(s => (
+                  <button key={s.value} onClick={() => setFilterStatus(s.value)}
+                    className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all
+                      ${filterStatus === s.value ? 'bg-[#195C51] text-white shadow-sm' : 'text-gray-600 hover:text-[#195C51]'}`}>
+                    {s.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <span className="text-[10px] text-gray-500 ml-auto">{filtered.length} of {locations.length} shown</span>
+          </div>
+
+          {/* Map + Sidebar */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+
+            {/* Leaflet map */}
+            <div className="lg:col-span-2 bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+              <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+                <p className="text-[10px] font-black uppercase tracking-widest text-[#1A2E2A]">
+                  {filtered.length} device{filtered.length !== 1 ? 's' : ''} visible
+                </p>
+                <div className="flex items-center gap-4 text-[9px] font-bold text-gray-500">
+                  <span className="flex items-center gap-1.5">
+                    <span className="relative flex h-2.5 w-2.5">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-60"/>
+                      <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"/>
+                    </span>
+                    Enabled
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <span className="w-2.5 h-2.5 rounded-full bg-gray-400 inline-block"/>
+                    Disabled
+                  </span>
+                  <span className="text-gray-400">· Letter = model type</span>
+                </div>
+              </div>
+              {!leafletReady ? (
+                <div className="h-[440px] flex items-center justify-center bg-gray-50">
+                  <div className="flex flex-col items-center gap-2">
+                    <div className="w-8 h-8 border-2 border-[#195C51] border-t-transparent rounded-full animate-spin"/>
+                    <p className="text-xs text-gray-500">Loading map…</p>
+                  </div>
+                </div>
+              ) : (
+                <div ref={mapRef} style={{ height: 440, width: '100%', zIndex: 0 }}/>
+              )}
+            </div>
+
+            {/* Sidebar device list */}
+            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden flex flex-col">
+              <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
+                <p className="text-[10px] font-black uppercase tracking-widest text-[#1A2E2A]">Devices</p>
+                <p className="text-[10px] text-gray-500">{filtered.length} listed</p>
+              </div>
+              <div className="overflow-y-auto flex-1" style={{ maxHeight: 440 }}>
+                {filtered.length === 0 ? (
+                  <div className="flex items-center justify-center h-24">
+                    <p className="text-xs text-gray-500">No devices match filters</p>
+                  </div>
+                ) : filtered.map(d => {
+                  const enabled = isEnabled(d);
+                  return (
+                    <button key={d.serialNumber} onClick={() => flyTo(d)}
+                      className={`w-full text-left px-4 py-3 border-b border-gray-50 hover:bg-[#195C51]/5 transition-colors
+                        ${selected?.serialNumber === d.serialNumber
+                          ? 'bg-[#195C51]/[0.06] border-l-[3px] border-l-[#195C51]'
+                          : ''}`}>
+                      <div className="flex items-start gap-2.5">
+                        <div className="flex-shrink-0 mt-1.5">
+                          {enabled ? (
+                            <span className="relative flex h-2.5 w-2.5">
+                              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-60"/>
+                              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"/>
+                            </span>
+                          ) : (
+                            <span className="w-2.5 h-2.5 rounded-full bg-gray-400 inline-block"/>
+                          )}
+                        </div>
+
+                        <div className="flex-1 min-w-0">
+                          {/* Serial number — primary */}
+                          <p className="text-[11px] font-black text-[#1A2E2A] truncate font-mono leading-tight">
+                            {d.serialNumber}
+                          </p>
+                          {/* Label — secondary */}
+                          {d.label && (
+                            <p className="text-[9px] text-gray-500 truncate mt-0.5">{d.label}</p>
+                          )}
+                          {/* Address */}
+                          <p className="text-[9px] text-gray-400 truncate mt-0.5">
+                            {d.address || `${d.lat?.toFixed(4)}, ${d.lng?.toFixed(4)}`}
+                          </p>
+                          {d.owner && (
+                            <p className="text-[9px] text-[#195C51] font-bold mt-0.5 truncate">
+                              {maskName(d.owner)}
+                            </p>
+                          )}
+                        </div>
+
+                        <div className="flex-shrink-0 text-right">
+                          <span className="text-[8px] font-black text-white px-1.5 py-0.5 rounded-md uppercase"
+                            style={{ background: enabled ? '#195C51' : '#9CA3AF' }}>
+                            {d.modelType || '?'}
+                          </span>
+                          <p className="text-[8px] mt-0.5 font-bold" style={{ color: enabled ? '#22C55E' : '#9CA3AF' }}>
+                            {enabled ? 'Enabled' : 'Disabled'}
+                          </p>
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+          {/* Selected device strip */}
+          {selected && (() => {
+            const enabled = isEnabled(selected);
+            return (
+              <div className="bg-[#1A2E2A] text-white rounded-2xl px-5 py-4 flex flex-wrap gap-5 items-center">
+                <div className="flex-shrink-0">
+                  {enabled ? (
+                    <span className="relative flex h-3 w-3">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-60"/>
+                      <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"/>
+                    </span>
+                  ) : (
+                    <span className="w-3 h-3 rounded-full bg-gray-500 inline-block"/>
+                  )}
+                </div>
+
+                {/* Serial number primary, label secondary */}
+                <div>
+                  <p className="text-sm font-black font-mono">{selected.serialNumber}</p>
+                  {selected.label && <p className="text-[10px] text-gray-400">{selected.label}</p>}
+                </div>
+
+                <div className="h-8 w-px bg-white/10 hidden sm:block"/>
+                <div>
+                  <p className="text-[9px] text-gray-400 uppercase tracking-widest font-bold">Model</p>
+                  <p className="text-xs font-black">{selected.modelType?.toUpperCase() || '—'}</p>
+                </div>
+                <div>
+                  <p className="text-[9px] text-gray-400 uppercase tracking-widest font-bold">Status</p>
+                  <p className="text-xs font-black" style={{ color: enabled ? '#22C55E' : '#9CA3AF' }}>
+                    {enabled ? '● Enabled' : '● Disabled'}
+                  </p>
+                </div>
+                {selected.owner && (
+                  <div>
+                    <p className="text-[9px] text-gray-400 uppercase tracking-widest font-bold">Owner</p>
+                    <p className="text-xs font-black">{maskName(selected.owner)}</p>
+                  </div>
+                )}
+                {selected.ownerEmail && (
+                  <div>
+                    <p className="text-[9px] text-gray-400 uppercase tracking-widest font-bold">Email</p>
+                    <p className="text-xs font-black font-mono">{maskEmail(selected.ownerEmail)}</p>
+                  </div>
+                )}
+                <div>
+                  <p className="text-[9px] text-gray-400 uppercase tracking-widest font-bold">Coordinates</p>
+                  <p className="text-xs font-black">{selected.lat?.toFixed(5)}, {selected.lng?.toFixed(5)}</p>
+                </div>
+                {selected.address && (
+                  <div>
+                    <p className="text-[9px] text-gray-400 uppercase tracking-widest font-bold">Address</p>
+                    <p className="text-xs font-black">{selected.address}</p>
+                  </div>
+                )}
+                <button onClick={() => setSelected(null)}
+                  className="ml-auto text-gray-400 hover:text-white transition-colors">
+                  <MdClose size={16}/>
+                </button>
+              </div>
+            );
+          })()}
+        </div>
+      )}
+    </div>
+  );
+};
 
   // ═══════════════════════════════════════════════════════════════════════════
   // PLANS MANAGEMENT — improved card visibility
@@ -2383,29 +2472,6 @@ export default function PresenceEyeAnalytics() {
       }
     };
 
-    const handleDelete = async (planId) => {
-      if (!window.confirm("Delete this plan? This cannot be undone.")) return;
-      setDeleting(planId);
-      try {
-        const res = await fetch(
-          `${presence_server}/api/analytics/plans/${planId}`,
-          {
-            method: "DELETE",
-            headers: apiHeaders(),
-          },
-        );
-        const d = await res.json();
-        if (!res.ok) {
-          alert(d.message || "Delete failed");
-          return;
-        }
-        load("plans");
-      } catch (e) {
-        alert(e.message);
-      } finally {
-        setDeleting(null);
-      }
-    };
 
     const renderPlanForm = () => (
       <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-1">
@@ -2790,14 +2856,7 @@ export default function PresenceEyeAnalytics() {
                         </>
                       )}
                     </button>
-                    <button
-                      onClick={() => handleDelete(p._id)}
-                      disabled={deleting === p._id}
-                      className="ml-auto flex items-center gap-1.5 px-3 py-2 text-xs font-black text-red-500 bg-white border border-red-100 rounded-xl hover:bg-red-50 hover:border-red-200 transition-all disabled:opacity-40"
-                    >
-                      <MdDelete size={14} />{" "}
-                      {deleting === p._id ? "…" : "Delete"}
-                    </button>
+
                   </div>
                 </div>
               );
@@ -3515,16 +3574,10 @@ const DailyReport = () => {
                           <td className="py-3 pr-4">
                             <div className="flex flex-col gap-1">
                               {u.remotes.slice(0, 2).map((r, rIdx) => (
-                                <div key={rIdx} className="leading-tight">
-                                  <p className="text-[11px] font-bold text-gray-800">
-                                    {r.labelName}
-                                  </p>
-                                  <p className="text-[9px] font-mono text-gray-500">
-                                    {r.serialNumber !== "—"
-                                      ? r.serialNumber
-                                      : ""}
-                                  </p>
-                                </div>
+<div key={rIdx} className="leading-tight">
+  <p className="text-[11px] font-black text-[#1A2E2A] font-mono">{r.serialNumber !== '—' ? r.serialNumber : '—'}</p>
+  <p className="text-[9px] text-gray-500">{r.labelName}</p>
+</div>
                               ))}
                               {u.remoteCount > 2 && (
                                 <span className="text-[9px] font-black text-[#195C51]">
@@ -3590,14 +3643,8 @@ const DailyReport = () => {
                                       {mc.label}
                                     </span>
                                     <div className="min-w-0">
-                                      <p className="text-[11px] font-bold text-gray-800 truncate">
-                                        {r.labelName}
-                                      </p>
-                                      {r.serialNumber !== "—" && (
-                                        <p className="text-[9px] font-mono text-gray-500 truncate">
-                                          {r.serialNumber}
-                                        </p>
-                                      )}
+<p className="text-[11px] font-black text-[#1A2E2A] font-mono truncate">{r.serialNumber !== '—' ? r.serialNumber : '—'}</p>
+<p className="text-[9px] text-gray-500 truncate">{r.labelName}</p>
                                     </div>
                                   </div>
                                 </td>
