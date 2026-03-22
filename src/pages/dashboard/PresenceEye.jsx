@@ -3,16 +3,8 @@
 //  1. Users table — name masked to "First L.", email & phone masked via PrivacyMask helpers
 //  2. Mobile user cards — same masking applied
 //  3. MapView filter labels reverted to "Enabled" / "Disabled" (not Online/Offline)
-
-import React, { useEffect, useMemo, useState } from "react";
-import {
-  combineInitials,
-  copyToClipboard,
-  fetchData,
-  formatDate,
-  getOwnerLabel,
-  returnToken,
-} from "../../utils/helper.js";
+import { combineInitials, copyToClipboard, fetchData, formatDate, getOwnerLabel, patchData, returnToken } from '../../utils/helper.js';
+import  { useEffect, useMemo, useState } from "react";
 import { presence_server } from "../../config/server_api.js";
 import AddRemoteModal from "../../components/AddRemoteModal.jsx";
 import { useNotification } from "../../context/NotificationContext.jsx";
@@ -21,9 +13,6 @@ import RemoteDetailsModal from "../../components/RemoteDetailsModal.jsx";
 import ExtensionModal from "../../components/ExtensionModal.jsx";
 import {
   MdAdd,
-  MdOutlineDevices,
-  MdPeopleOutline,
-  MdExtension,
   MdSearch,
   MdChevronLeft,
   MdChevronRight,
@@ -90,7 +79,7 @@ const TabButton = ({ active, onClick, children }) => (
   <button
     onClick={onClick}
     className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all
-      ${active ? "bg-[#195C51] text-white shadow-sm" : "text-gray-400 hover:text-[#195C51]"}`}
+      ${active ? "bg-[#195C51] text-white shadow-sm" : "text-gray-600 hover:text-[#195C51]"}`}
   >
     {children}
   </button>
@@ -112,6 +101,36 @@ export default function PresenceEyeAdmin() {
   const [selectedUser,      setSelectedUser]      = useState(null);
   const [selectedRemote,    setSelectedRemote]    = useState(null);
   const [selectedExtension, setSelectedExtension] = useState(null);
+
+const handleAddingHardware = async (remoteId) => {
+  try {
+    const result = await patchData(
+      `${presence_server}/buttons/remotes/hardware/${remoteId}`,
+      {},
+      returnToken()
+    );
+    if (result.error) throw new Error(result.error);
+    showNotification('Hardware added successfully', 'success');
+    load();
+  } catch (error) {
+    showNotification(error.message, 'error');
+  }
+};
+
+const handleTestingHardware = async (remoteId) => {
+  try {
+    const result = await patchData(
+      `${presence_server}/buttons/remotes/hardware/${remoteId}`,
+      {},
+      returnToken()
+    );
+    if (result.error) throw new Error(result.error);
+    showNotification('Hardware status updated', 'success');
+    load();
+  } catch (error) {
+    showNotification(error.message, 'error');
+  }
+};
 
   async function load() {
     setLoading(true);
@@ -202,7 +221,7 @@ export default function PresenceEyeAdmin() {
 
         <div className="relative group">
           <MdSearch
-            className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#195C51]"
+            className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600 group-focus-within:text-[#195C51]"
             size={18}
           />
           <input
@@ -223,30 +242,30 @@ export default function PresenceEyeAdmin() {
               <tr>
                 {activeTab === "remotes" && (
                   <>
-                    <th className="px-5 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">Identity</th>
-                    <th className="px-5 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">Pins</th>
-                    <th className="px-5 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">Status</th>
-                    <th className="px-5 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">Created</th>
-                    <th className="px-5 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400 text-right">Action</th>
+                    <th className="px-5 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-600">Identity</th>
+                    <th className="px-5 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-600">Pins</th>
+                    <th className="px-5 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-600">Status</th>
+                    <th className="px-5 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-600">Created</th>
+                    <th className="px-5 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-600 text-right">Action</th>
                   </>
                 )}
                 {activeTab === "users" && (
                   <>
-                    <th className="px-5 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">User</th>
-                    <th className="px-5 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">Email</th>
-                    <th className="px-5 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">Phone</th>
-                    <th className="px-5 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">Device Units</th>
-                    <th className="px-5 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">Registered</th>
-                    <th className="px-5 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400 text-right">Action</th>
+                    <th className="px-5 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-600">User</th>
+                    <th className="px-5 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-600">Email</th>
+                    <th className="px-5 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-600">Phone</th>
+                    <th className="px-5 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-600">Device Units</th>
+                    <th className="px-5 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-600">Registered</th>
+                    <th className="px-5 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-600 text-right">Action</th>
                   </>
                 )}
                 {activeTab === "extensions" && (
                   <>
-                    <th className="px-5 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">Device Label</th>
-                    <th className="px-5 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">Serial</th>
-                    <th className="px-5 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">Owner</th>
-                    <th className="px-5 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">Status</th>
-                    <th className="px-5 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400 text-right">Action</th>
+                    <th className="px-5 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-600">Device Label</th>
+                    <th className="px-5 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-600">Serial</th>
+                    <th className="px-5 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-600">Owner</th>
+                    <th className="px-5 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-600">Status</th>
+                    <th className="px-5 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-600 text-right">Action</th>
                   </>
                 )}
               </tr>
@@ -260,11 +279,11 @@ export default function PresenceEyeAdmin() {
                     <>
                       <td className="px-5 py-4">
                         <div className="font-bold text-[#333333] text-sm">{item.serialNumber}</div>
-                        <div className="text-[10px] text-gray-400 font-bold uppercase">{item.manufacture}</div>
+                        <div className="text-[10px] text-gray-600 font-bold uppercase">{item.manufacture}</div>
                       </td>
                       <td className="px-5 py-4 text-xs font-medium text-gray-500">{item.buttons?.length || 0} Pins</td>
                       <td className="px-5 py-4"><StatusBadge state={item.state} /></td>
-                      <td className="px-5 py-4 text-xs font-medium text-gray-400">{formatDate(item.createdAt)}</td>
+                      <td className="px-5 py-4 text-xs font-medium text-gray-600">{formatDate(item.createdAt)}</td>
                       <td className="px-5 py-4 text-right">
                         <button
                           onClick={() => setSelectedRemote(item)}
@@ -301,7 +320,7 @@ export default function PresenceEyeAdmin() {
                       <td className="px-5 py-4 text-xs font-medium text-gray-600">
                         {(item.extensions?.length || 0) + (item.buttons?.length || 0)} Units
                       </td>
-                      <td className="px-5 py-4 text-xs text-gray-400">{formatDate(item.createdAt)}</td>
+                      <td className="px-5 py-4 text-xs text-gray-600">{formatDate(item.createdAt)}</td>
                       <td className="px-5 py-4 text-right">
                         <button
                           onClick={() => setSelectedUser(item)}
@@ -318,9 +337,9 @@ export default function PresenceEyeAdmin() {
                     <>
                       <td className="px-5 py-4">
                         <div className="font-bold text-[#333333] text-sm">{item.labelName || "Digital Twin"}</div>
-                        <div className="text-[10px] text-gray-400 font-bold uppercase">{item.modelType}</div>
+                        <div className="text-[10px] text-gray-600 font-bold uppercase">{item.modelType}</div>
                       </td>
-                      <td className="px-5 py-4 text-xs font-mono text-gray-400">{item.serialNumber}</td>
+                      <td className="px-5 py-4 text-xs font-mono text-gray-600">{item.serialNumber}</td>
                       <td className="px-5 py-4 text-sm font-medium text-gray-600">
                         {typeof item.owner === "object" ? getOwnerLabel(item.owner) : item.owner || "Unassigned"}
                       </td>
@@ -343,7 +362,7 @@ export default function PresenceEyeAdmin() {
 
         {/* Pagination */}
         <div className="px-5 py-3 bg-[#F5F5F5]/30 border-t border-gray-50 flex items-center justify-between">
-          <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">
+          <p className="text-[10px] font-black uppercase tracking-widest text-gray-600">
             Page {currentPage} of {totalPages || 1}
           </p>
           <div className="flex gap-2">
@@ -367,7 +386,7 @@ export default function PresenceEyeAdmin() {
         {loading && (
           <div className="p-16 text-center space-y-4">
             <div className="w-10 h-10 border-4 border-[#195C51]/10 border-t-[#195C51] rounded-full animate-spin mx-auto" />
-            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-400">Retrieving Cloud Data...</p>
+            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-600">Retrieving Cloud Data...</p>
           </div>
         )}
       </div>
@@ -381,7 +400,7 @@ export default function PresenceEyeAdmin() {
         )}
         {!loading && paginatedData.length === 0 && (
           <div className="google-card bg-white p-10 text-center">
-            <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">No records found.</p>
+            <p className="text-[10px] font-black uppercase tracking-widest text-gray-600">No records found.</p>
           </div>
         )}
         {!loading && paginatedData.map((item) => (
@@ -392,7 +411,7 @@ export default function PresenceEyeAdmin() {
                 <div className="flex items-start justify-between">
                   <div>
                     <p className="font-bold text-[#333333] text-sm">{item.serialNumber}</p>
-                    <p className="text-[10px] text-gray-400 font-bold uppercase">{item.manufacture}</p>
+                    <p className="text-[10px] text-gray-600 font-bold uppercase">{item.manufacture}</p>
                   </div>
                   <StatusBadge state={item.state} />
                 </div>
@@ -422,12 +441,12 @@ export default function PresenceEyeAdmin() {
                       {maskName(item.firstName, item.lastName)}
                     </p>
                     {/* Masked email */}
-                    <p className="text-xs text-gray-400 font-mono">
+                    <p className="text-xs text-gray-600 font-mono">
                       {maskEmail(item.email)}
                     </p>
                     {/* Masked phone */}
                     {(item.phone || item.phoneNumber) && (
-                      <p className="text-xs text-gray-400 font-mono">
+                      <p className="text-xs text-gray-600 font-mono">
                         {maskPhone(item.phone || item.phoneNumber)}
                       </p>
                     )}
@@ -451,7 +470,7 @@ export default function PresenceEyeAdmin() {
                 <div className="flex items-start justify-between">
                   <div>
                     <p className="font-bold text-[#333333] text-sm">{item.labelName || "Digital Twin"}</p>
-                    <p className="text-[10px] text-gray-400 font-mono">{item.serialNumber}</p>
+                    <p className="text-[10px] text-gray-600 font-mono">{item.serialNumber}</p>
                   </div>
                   <StatusBadge state={item.status} />
                 </div>
@@ -472,7 +491,7 @@ export default function PresenceEyeAdmin() {
         {/* Mobile Pagination */}
         {totalPages > 1 && (
           <div className="flex items-center justify-between py-2">
-            <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">
+            <span className="text-[10px] font-black uppercase tracking-widest text-gray-600">
               {currentPage} / {totalPages}
             </span>
             <div className="flex gap-2">
@@ -503,16 +522,17 @@ export default function PresenceEyeAdmin() {
           copyToClipboard={copyToClipboard}
         />
       )}
-      {selectedRemote && (
-        <RemoteDetailsModal
-          remote={selectedRemote}
-          onClose={() => setSelectedRemote(null)}
-          onUpdate={load}
-          onAddHardware={handleAddingHardware}
-          onTestHardware={handleTestingHardware}
-          onToggleStatus={handleRemoteStatus}
-        />
-      )}
+{selectedRemote && (
+  <RemoteDetailsModal
+    remote={selectedRemote}
+    onClose={() => setSelectedRemote(null)}
+    onUpdate={load}
+    handleAddHadware={handleAddingHardware}
+    handleTestingHardware={handleTestingHardware}
+    handleRemoteStatus={handleRemoteStatus}
+    copyToClipboard={copyToClipboard} 
+  />
+)}
       {selectedExtension && (
         <ExtensionModal
           extension={selectedExtension}
