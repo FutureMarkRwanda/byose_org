@@ -1,15 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
-import {
-  ChevronDownIcon,
-  ArrowLeftOnRectangleIcon,
-  XMarkIcon,
-} from "@heroicons/react/24/solid";
+import { ChevronDownIcon, ArrowLeftOnRectangleIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { handleLogout } from "../../utils/helper.js";
-import {
-  useMaterialTailwindController,
-  setOpenSidenav,
-} from "../../context/navContext.jsx";
+import { useMaterialTailwindController, setOpenSidenav } from "../../context/navContext.jsx";
 
 export function Sidenav({ routes }) {
   const [openDropdown, setOpenDropdown] = useState(null);
@@ -17,24 +10,19 @@ export function Sidenav({ routes }) {
   const { openSidenav } = controller;
   const { pathname } = useLocation();
 
-  // Auto-open dropdown if current path is a sub-page
   useEffect(() => {
     routes.forEach((group) => {
       group.pages.forEach((page) => {
-        if (
-          page.isDropdown &&
-          page.subPages.some((sub) => pathname.includes(sub.path))
-        ) {
+        if (page.isDropdown && page.subPages.some((sub) => pathname.includes(sub.path))) {
           setOpenDropdown(page.name);
         }
       });
     });
   }, [pathname, routes]);
 
-  // Close sidenav on route change for mobile
   useEffect(() => {
     setOpenSidenav(dispatch, false);
-  }, [pathname]);
+  }, [pathname, dispatch]);
 
   const toggleDropdown = (name) => {
     setOpenDropdown(openDropdown === name ? null : name);
@@ -42,121 +30,113 @@ export function Sidenav({ routes }) {
 
   return (
     <>
-      {/* 1. MOBILE OVERLAY (Backdrop) */}
+      {/* MOBILE OVERLAY */}
       <div
-        className={`fixed inset-0 z-40 h-full w-full bg-black/50 transition-opacity duration-300 xl:hidden ${
-          openSidenav
-            ? "opacity-100 pointer-events-auto"
-            : "opacity-0 pointer-events-none"
+        className={`fixed inset-0 z-40 bg-slate-900/20 backdrop-blur-sm transition-opacity duration-300 xl:hidden ${
+          openSidenav ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
         }`}
         onClick={() => setOpenSidenav(dispatch, false)}
       />
 
-      {/* 2. THE SIDEBAR */}
+      {/* THE SIDEBAR */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 my-3 ml-3 sm:my-4 sm:ml-4 w-[280px] sm:w-72 rounded-2xl sm:rounded-3xl bg-white border border-gray-100 shadow-xl flex flex-col overflow-hidden transition-transform duration-300 
-                ${
-                  openSidenav ? "translate-x-0" : "-translate-x-[110%]"
-                } xl:translate-x-0`}
+        className={`fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-slate-200 flex flex-col transition-transform duration-300 ${
+          openSidenav ? "translate-x-0" : "-translate-x-full"
+        } xl:translate-x-0`}
       >
         {/* Header Section */}
-        <div className="p-6 sm:p-8 border-b border-gray-50 relative">
-          {/* Close button for mobile */}
+        <div className="h-16 flex items-center px-6 border-b border-slate-200 relative shrink-0">
+          <Link
+            to="/"
+            className="flex items-center gap-3 font-semibold text-slate-900 tracking-tight"
+            onClick={() => setOpenSidenav(dispatch, false)}
+          >
+            <img src="/assets/icons/Logo03.svg" className="h-6 w-6" alt="BYOSE" />
+            BYOSE Admin
+          </Link>
           <button
             onClick={() => setOpenSidenav(dispatch, false)}
-            className="absolute top-4 right-4 p-2 text-gray-400 hover:bg-gray-100 rounded-full xl:hidden"
+            className="absolute right-4 p-1.5 text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-md xl:hidden transition-colors"
           >
             <XMarkIcon className="h-5 w-5" />
           </button>
-
-          <Link
-            to="/"
-            className="flex items-center gap-3 mb-4 sm:mb-6"
-            onClick={() => setOpenSidenav(dispatch, false)}
-          >
-            <img src="/assets/icons/Logo03.svg" className="h-7 sm:h-8" alt="BYOSE" />
-            <span className="text-lg sm:text-xl font-bold text-[#195C51]">
-              BYOSE Admin
-            </span>
-          </Link>
         </div>
 
         {/* Navigation Section */}
-        <div className="flex-grow overflow-y-auto p-3 sm:p-4 custom-scrollbar">
+        <div className="flex-1 overflow-y-auto py-6 px-4 custom-scrollbar space-y-6">
           {routes
             .filter(({ layout }) => layout === "dashboard")
             .map(({ title, pages }, key) => (
-              <div key={key} className="mb-5 sm:mb-6">
+              <div key={key}>
                 {title && (
-                  <p className="px-4 mb-2 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">
+                  <h4 className="px-2 mb-2 text-[11px] font-medium text-slate-400 uppercase tracking-wider">
                     {title}
-                  </p>
+                  </h4>
                 )}
-                <ul className="space-y-0.5 sm:space-y-1">
+                <ul className="space-y-1">
                   {pages.map((page) => (
                     <li key={page.name}>
                       {page.isDropdown ? (
-                        <div>
+                        <div className="flex flex-col">
                           <button
                             onClick={() => toggleDropdown(page.name)}
-                            className={`flex w-full items-center justify-between px-4 py-2.5 sm:py-3 rounded-xl text-sm font-medium transition-all ${
+                            className={`flex w-full items-center justify-between px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                               openDropdown === page.name
-                                ? "bg-[#195C51]/5 text-[#195C51]"
-                                : "text-gray-600 hover:bg-gray-50"
+                                ? "text-slate-900 bg-slate-100"
+                                : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
                             }`}
                           >
                             <div className="flex items-center gap-3">
-                              {page.icon}
+                              {React.cloneElement(page.icon, { className: "w-4 h-4" })}
                               {page.name}
                             </div>
                             <ChevronDownIcon
-                              className={`w-4 h-4 transition-transform ${
+                              className={`w-3.5 h-3.5 transition-transform duration-200 ${
                                 openDropdown === page.name ? "rotate-180" : ""
                               }`}
                             />
                           </button>
-                          {openDropdown === page.name && (
-                            <ul className="mt-1 ml-9 space-y-0.5 border-l border-gray-100">
-                              {page.subPages.map((sub) => (
-                                <li key={sub.path}>
-                                  <NavLink
-                                    to={`/dashboard/${sub.path}`}
-                                    onClick={() => setOpenSidenav(dispatch, false)}
-                                  >
-                                    {({ isActive }) => (
-                                      <span
-                                        className={`block px-4 py-2 text-xs font-medium rounded-lg transition-colors ${
+                          
+                          <div className={`grid transition-all duration-200 ease-in-out ${openDropdown === page.name ? "grid-rows-[1fr] opacity-100 mt-1" : "grid-rows-[0fr] opacity-0"}`}>
+                            <ul className="overflow-hidden flex flex-col gap-1 ml-5 pl-4 border-l border-slate-200">
+                              {page.subPages.map((sub) => {
+                                if (sub.hidden) return null;
+                                return (
+                                  <li key={sub.path}>
+                                    <NavLink
+                                      to={`/dashboard/${sub.path}`}
+                                      onClick={() => setOpenSidenav(dispatch, false)}
+                                      className={({ isActive }) =>
+                                        `block relative px-4 py-2 text-sm transition-colors rounded-md ${
                                           isActive
-                                            ? "text-[#195C51] bg-[#195C51]/10 font-bold"
-                                            : "text-gray-500 hover:text-[#195C51]"
-                                        }`}
-                                      >
-                                        {sub.name}
-                                      </span>
-                                    )}
-                                  </NavLink>
-                                </li>
-                              ))}
+                                            ? "text-[#195C51] font-semibold bg-[#195C51]/5 before:absolute before:left-[-1px] before:top-0 before:bottom-0 before:w-[2px] before:bg-[#195C51]"
+                                            : "text-slate-500 hover:text-slate-900 hover:bg-slate-50"
+                                        }`
+                                      }
+                                    >
+                                      {sub.name}
+                                    </NavLink>
+                                  </li>
+                                );
+                              })}
                             </ul>
-                          )}
+                          </div>
                         </div>
                       ) : (
                         <NavLink
                           to={`/dashboard/${page.path}`}
+                          end
                           onClick={() => setOpenSidenav(dispatch, false)}
+                          className={({ isActive }) =>
+                            `flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                              isActive
+                                ? "bg-[#195C51]/5 text-[#195C51] font-semibold"
+                                : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                            }`
+                          }
                         >
-                          {({ isActive }) => (
-                            <div
-                              className={`flex items-center gap-3 px-4 py-2.5 sm:py-3 rounded-xl text-sm font-medium transition-all ${
-                                isActive
-                                  ? "bg-[#195C51] text-white shadow-lg shadow-[#195C51]/20"
-                                  : "text-gray-600 hover:bg-gray-50"
-                              }`}
-                            >
-                              {page.icon}
-                              {page.name}
-                            </div>
-                          )}
+                          {React.cloneElement(page.icon, { className: "w-4 h-4" })}
+                          {page.name}
                         </NavLink>
                       )}
                     </li>
@@ -166,13 +146,13 @@ export function Sidenav({ routes }) {
             ))}
         </div>
 
-        {/* Footer Section - Logout */}
-        <div className="p-3 sm:p-4 border-t border-gray-50 bg-gray-50/50">
+        {/* Footer Section */}
+        <div className="p-4 border-t border-slate-200">
           <button
             onClick={() => handleLogout("", "/auth")}
-            className="flex w-full items-center gap-3 px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold text-red-500 hover:bg-red-50 transition-colors"
+            className="flex w-full items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors"
           >
-            <ArrowLeftOnRectangleIcon className="w-5 h-5" />
+            <ArrowLeftOnRectangleIcon className="w-4 h-4" />
             Sign Out
           </button>
         </div>

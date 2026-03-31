@@ -1,6 +1,6 @@
 import { useLocation, Link } from "react-router-dom";
-import { Navbar, IconButton, Breadcrumbs, Typography } from "@material-tailwind/react";
-import { Bars3Icon, UserCircleIcon } from "@heroicons/react/24/solid";
+import { Bars3Icon } from "@heroicons/react/24/outline";
+import { ChevronRight } from "lucide-react";
 import { useMaterialTailwindController, setOpenSidenav } from "../../context/navContext.jsx";
 
 export function DashboardNavbar() {
@@ -8,57 +8,40 @@ export function DashboardNavbar() {
     const { openSidenav } = controller;
     const { pathname } = useLocation();
     
-    // Split path and remove the "dashboard" part for breadcrumbs
     const pathParts = pathname.split("/").filter((el) => el !== "" && el !== "dashboard");
 
     return (
-        <Navbar 
-            fullWidth 
-            className="bg-white/80 backdrop-blur-md border border-gray-100 shadow-sm px-3 sm:px-6 py-2 sm:py-3 rounded-2xl sm:rounded-3xl"
-        >
-            <div className="flex items-center justify-between gap-2">
-                {/* Breadcrumbs Section */}
-                <div className="capitalize min-w-0 flex-1">
-                    <Breadcrumbs className="bg-transparent p-0 transition-all flex-wrap">
-                        <Link to="/dashboard" className="opacity-50 text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-[#195C51] hover:opacity-100 whitespace-nowrap">
-                            Command
-                        </Link>
-                        {pathParts.map((part, index) => (
-                            <Typography 
-                                key={index} 
-                                variant="small" 
-                                className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-[#333333] truncate max-w-[100px] sm:max-w-none"
-                            >
-                                {part.replace(/-/g, ' ')}
-                            </Typography>
-                        ))}
-                    </Breadcrumbs>
-                </div>
+        <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-slate-200 bg-white/80 px-4 sm:px-6 backdrop-blur-md">
+            <button
+                onClick={() => setOpenSidenav(dispatch, !openSidenav)}
+                className="xl:hidden p-2 -ml-2 text-slate-500 hover:bg-slate-100 hover:text-slate-900 rounded-md transition-colors"
+            >
+                <Bars3Icon className="h-5 w-5" />
+            </button>
 
-                <div className="flex items-center gap-2 flex-shrink-0">
-                    {/* User Profile / Status Indicator - hidden on small screens */}
-                    <div className="hidden md:flex items-center gap-3 px-4 py-2 bg-[#F5F5F5] rounded-2xl border border-gray-100">
-                        <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-                        <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500">System Online</span>
+            {/* Breadcrumbs */}
+            <nav className="flex flex-1 items-center space-x-1 text-sm font-medium text-slate-500 overflow-hidden">
+                <Link to="/dashboard" className="hover:text-slate-900 transition-colors truncate">
+                    Command
+                </Link>
+                {pathParts.map((part, index) => (
+                    <div key={index} className="flex items-center space-x-1 overflow-hidden">
+                        <ChevronRight className="h-3.5 w-3.5 shrink-0 text-slate-400" />
+                        <span className={`truncate capitalize ${index === pathParts.length - 1 ? 'text-slate-900 font-semibold' : 'hover:text-slate-900 transition-colors'}`}>
+                            {part.replace(/-/g, ' ')}
+                        </span>
                     </div>
+                ))}
+            </nav>
 
-                    {/* Mobile status dot - visible only on small screens */}
-                    <div className="flex md:hidden items-center gap-1.5 px-2 py-1.5 bg-[#F5F5F5] rounded-xl border border-gray-100">
-                        <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-                    </div>
-
-                    {/* Mobile Hamburger Button */}
-                    <IconButton
-                        variant="text"
-                        color="blue-gray"
-                        className="xl:hidden hover:bg-[#F5F5F5] rounded-xl h-9 w-9 sm:h-10 sm:w-10"
-                        onClick={() => setOpenSidenav(dispatch, !openSidenav)}
-                    >
-                        <Bars3Icon strokeWidth={3} className="h-5 w-5 sm:h-6 sm:w-6 text-[#195C51]" />
-                    </IconButton>
+            {/* Status Indicator */}
+            <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-50 rounded-md border border-slate-200">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                    <span className="text-xs font-medium text-slate-600 hidden sm:block">System Online</span>
                 </div>
             </div>
-        </Navbar>
+        </header>
     );
 }
 

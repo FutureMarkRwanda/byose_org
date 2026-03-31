@@ -1,28 +1,28 @@
-// eslint-disable-next-line
-import React, {useEffect, useRef, useState} from "react";
-import {getImageData, getOwnerLabel, lastNChars} from "../utils/helper.js";
-import {presence_server} from "../config/server_api.js";
-import {useNotification} from "../context/NotificationContext.jsx";
+// src/components/RemoteDetailsModal.jsx
+import React, { useEffect, useRef, useState } from "react";
+import { getImageData, getOwnerLabel, lastNChars } from "../utils/helper.js";
+import { presence_server } from "../config/server_api.js";
+import { useNotification } from "../context/NotificationContext.jsx";
+import { X, Download, ShieldCheck, ShieldAlert, Cpu, Power, Hash, User as UserIcon } from "lucide-react";
 
 export default function RemoteDetailsModal({
-                                               remote,
-                                               onClose,
-                                               copyToClipboard,
-                                               handleAddHadware,
-                                               handleTestingHardware,
-                                               handleRemoteStatus
-                                           }) {
-    const {showNotification} = useNotification();
-    const [gradientColor1, setGradientColor1] = useState("#2563eb");
-    const [gradientColor2, setGradientColor2] = useState("#0277bd");
+    remote,
+    onClose,
+    copyToClipboard,
+    handleAddHadware,
+    handleTestingHardware,
+    handleRemoteStatus
+}) {
+    const { showNotification } = useNotification();
+    const [gradientColor1, setGradientColor1] = useState("#195C51");
+    const [gradientColor2, setGradientColor2] = useState("#0E3A32");
     const [qrPreview, setQrPreview] = useState(null);
     const debounceRef = useRef(null);
 
     const postConfig = async () => {
-         if (!remote?.buttons || remote.buttons.length === 0) return;
-        if (debounceRef.current) {
-            clearTimeout(debounceRef.current);
-        }
+        if (!remote?.buttons || remote.buttons.length === 0) return;
+        if (debounceRef.current) clearTimeout(debounceRef.current);
+        
         debounceRef.current = setTimeout(async () => {
             const payload = {
                 data: remote.serialNumber,
@@ -30,207 +30,197 @@ export default function RemoteDetailsModal({
                     bgColor: "#FFFFFF",
                     body: "rounded-pointed",
                     bodyColor: "#000000",
-
-                    eye: "frame5",
-                    eyeBall: "ball11",
-
-                    eye1Color: "#000000",
-                    eye2Color: "#000000",
-                    eye3Color: "#000000",
-
-                    eyeBall1Color: "#000000",
-                    eyeBall2Color: "#000000",
-                    eyeBall3Color: "#000000",
-
-                    brf1: ["fh"],
-                    brf2: [],
-                    brf3: ["fh", "fv"],
-
-                    erf1: ["fh"],
-                    erf2: [],
-                    erf3: ["fh", "fv"],
-
+                    eye: "frame5", eyeBall: "ball11",
+                    eye1Color: "#000000", eye2Color: "#000000", eye3Color: "#000000",
+                    eyeBall1Color: "#000000", eyeBall2Color: "#000000", eyeBall3Color: "#000000",
+                    brf1: ["fh"], brf2: [], brf3: ["fh", "fv"],
+                    erf1: ["fh"], erf2: [], erf3: ["fh", "fv"],
                     gradientType: "linear",
-                    gradientColor1,
-                    gradientColor2,
+                    gradientColor1, gradientColor2,
                     gradientOnEyes: true,
-
                     logo: "https://www.byose.info/assets/icons/blueLogo.svg",
                     logoMode: "default",
-
-                    file: "svg",
-                    size: 1000,
-                    download: "imageUrl"
+                    file: "svg", size: 1000, download: "imageUrl"
                 }
             };
 
             const url = presence_server + "/get-qrCode";
-
             const res = await getImageData(url, payload, "");
-            if (res.data) {
-                setQrPreview(res.data);
-            }
-
-            if (res?.error) {
-                showNotification("Debounced request failed:" + res.error, "error");
-            }
-        }, 600); // ⏱️ debounce delay (ms)
-
-        return () => clearTimeout(debounceRef.current);
+            if (res.data) setQrPreview(res.data);
+            if (res?.error) showNotification("Failed to generate QR: " + res.error, "error");
+        }, 600);
     };
 
     useEffect(() => {
-        // eslint-disable-next-line react/prop-types
         if (!remote?.buttons?.length) return;
         postConfig();
+        return () => clearTimeout(debounceRef.current);
     }, [remote, gradientColor1, gradientColor2]);
 
+    const isDeployed = remote.state === 'sold';
+
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-            <div className="absolute inset-0 bg-black/80" onClick={onClose}></div>
-            <div className="relative z-50 w-full max-w-3xl bg-white rounded-lg shadow-lg overflow-auto max-h-[90vh]">
-                <div className={`flex items-start justify-between p-4 border-b border-gray-100 ${remote.state==='instore'&&'bg-green-500 text-white'}`}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={onClose}></div>
+            
+            <div className="relative z-50 w-full max-w-4xl bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-slide-up">
+                
+                {/* Header */}
+                <div className={`flex items-center justify-between px-6 py-4 border-b ${isDeployed ? 'bg-indigo-50 border-indigo-100' : 'bg-emerald-50 border-emerald-100'}`}>
                     <div>
-                        {/* eslint-disable-next-line react/prop-types */}
-                        <h3 className="text-lg font-semibold">{remote.serialNumber}</h3>
-                        {/* eslint-disable-next-line react/prop-types */}
-                        <div className="text-sm ">{remote.manufacture}</div>
+                        <div className="flex items-center gap-3">
+                            <h3 className="text-xl font-display font-bold text-slate-900">{remote.serialNumber}</h3>
+                            <span className={`px-2.5 py-0.5 rounded-full text-[10px] uppercase tracking-wider font-bold ${isDeployed ? 'bg-indigo-200 text-indigo-800' : 'bg-emerald-200 text-emerald-800'}`}>
+                                {isDeployed ? 'Deployed' : 'In Stock'}
+                            </span>
+                        </div>
+                        <p className="text-xs text-slate-500 font-medium mt-1">{remote.manufacture}</p>
                     </div>
-                    <div className="flex items-center gap-2">
-                        <div className="text-sm ">State: <span
-                            className="font-medium ml-1 capitalize">{remote.state}</span></div>
-                        <button onClick={onClose}
-                                className="px-3 py-1 text-black text-sm rounded bg-gray-100 hover:bg-gray-200">Close
-                        </button>
-                    </div>
+                    <button onClick={onClose} className="p-2 bg-white/50 hover:bg-white rounded-full text-slate-500 transition-colors">
+                        <X size={20} />
+                    </button>
                 </div>
 
-                <div className="p-4 space-y-4">
-                    <section>
-                        <h4 className="text-sm font-medium mb-2">Device Info</h4>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            <div className="text-sm text-gray-700"><span
-                                className="text-gray-500">Model:</span> {remote.modelType}</div>
-                            <div className="text-sm text-gray-700"><span
-                                className="text-gray-500">Price:</span> {remote.price ?? "—"} FRW
-                            </div>
-                            <div className="text-sm text-gray-700"><span
-                                className="text-gray-500">Hardware:</span> {remote.hasHardware ? "Yes" : "No"}</div>
-                            <div className="text-sm text-gray-700"><span
-                                className="text-gray-500">Powered By:</span> {remote.powered}</div>
-                            <div className="text-sm text-gray-700"><span
-                                className="text-gray-500">Version:</span> {remote.version}</div>
-                            <div className="text-sm text-gray-700"><span
-                                className="text-gray-500">Owner:</span> {typeof remote.owner === "object" ? getOwnerLabel(remote.owner) : remote.owner || "—"}
-                            </div>
-                        </div>
-                        <div className="mt-2 flex gap-1">
-                            {/* eslint-disable-next-line react/prop-types */}
-                            <button onClick={() => copyToClipboard(remote._id, "Remote ID")}
-                                    className="px-3 py-1 bg-gray-100 rounded text-sm hover:bg-gray-200">Copy Remote ID
-                            </button>
-                            {/* eslint-disable-next-line react/prop-types */}
-                            {!remote.hasHardware && <button onClick={() => handleAddHadware(remote._id)}
-                                                            className="px-3 py-2 bg-blue-600 text-white rounded text-sm hover:bg-blue-400">Added
-                                Hardware
-                            </button>}
-                            {/* eslint-disable-next-line react/prop-types */}
-                            {!remote.owner && <button onClick={() => handleTestingHardware(remote._id)}
-                                                      className="px-3 py-2 bg-blue-600 text-white rounded text-sm hover:bg-blue-400">Test
-                            </button>}
-                            {/* eslint-disable-next-line*/}
-                            {!remote.owner && <button onClick={() => handleRemoteStatus(remote._id, remote.isEnabled)}
-                                                      className="px-3 py-2 bg-red-600 text-white rounded text-sm hover:bg-red-400">
-                                {/* eslint-disable-next-line react/prop-types */}
-                                {remote.isEnabled ? "DISABLE" : "ENABLED"}
-                            </button>}
-                        </div>
-                    </section>
+                <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        
+                        {/* Left Column: Info & Actions */}
+                        <div className="lg:col-span-2 space-y-8">
+                            
+                            {/* Device Info */}
+                            <section>
+                                <h4 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-4 flex items-center gap-2">
+                                    <Cpu size={16} className="text-[#195C51]"/> Hardware Specifications
+                                </h4>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="bg-slate-50 p-4 rounded-xl border border-slate-100">
+                                        <p className="text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-1">Model</p>
+                                        <p className="text-sm font-semibold text-slate-900 uppercase">{remote.modelType}</p>
+                                    </div>
+                                    <div className="bg-slate-50 p-4 rounded-xl border border-slate-100">
+                                        <p className="text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-1">Has Hardware</p>
+                                        <p className="text-sm font-semibold text-slate-900">{remote.hasHardware ? "Yes" : "No"}</p>
+                                    </div>
+                                    <div className="bg-slate-50 p-4 rounded-xl border border-slate-100">
+                                        <p className="text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-1">Firmware Version</p>
+                                        <p className="text-sm font-semibold text-slate-900">{remote.version}</p>
+                                    </div>
+                                    <div className="bg-slate-50 p-4 rounded-xl border border-slate-100">
+                                        <p className="text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-1 flex items-center gap-1">
+                                            <UserIcon size={12}/> Assigned Owner
+                                        </p>
+                                        <p className={`text-sm font-semibold ${remote.owner ? 'text-[#195C51]' : 'text-slate-400 italic'}`}>
+                                            {typeof remote.owner === "object" ? getOwnerLabel(remote.owner) : remote.owner || "Unassigned"}
+                                        </p>
+                                    </div>
+                                </div>
 
-                    <section className="border-t border-gray-100 pt-4">
-                        <h4 className="text-sm font-medium mb-2">Buttons Configuration</h4>
-                        <div className="grid gap-2">
-                            {/* eslint-disable-next-line react/prop-types */}
-                            {!remote.buttons || remote.buttons.length === 0 ? (
-                                <div className="text-sm text-gray-400">No buttons configured</div>
-                            ) : (
-                                // eslint-disable-next-line react/prop-types
-                                remote.buttons.map((b) => (
-                                    <div key={b._id}
-                                         className="flex items-center justify-between bg-gray-100 p-2 rounded">
-                                        <div>
-                                            <div className="text-md font-medium">{b.labelName} <b
-                                                className={`text-xs`}>{lastNChars(b._id, 5)}</b></div>
-                                            <div className="text-xs text-gray-500 capitalize">{b.buttonType}</div>
+                                {/* Admin Actions */}
+                                <div className="flex flex-wrap gap-3 mt-4">
+                                    <button onClick={() => copyToClipboard(remote._id, "Remote ID")} className="px-4 py-2 bg-slate-100 text-slate-700 font-bold text-xs rounded-lg hover:bg-slate-200 transition-colors border border-slate-200">
+                                        Copy Remote ID
+                                    </button>
+                                    {!remote.hasHardware && (
+                                        <button onClick={() => handleAddHadware(remote._id)} className="px-4 py-2 bg-[#195C51] text-white font-bold text-xs rounded-lg hover:bg-[#0E3A32] transition-colors shadow-md">
+                                            Attach Hardware
+                                        </button>
+                                    )}
+                                    {!remote.owner && (
+                                        <button onClick={() => handleTestingHardware(remote._id)} className="px-4 py-2 bg-amber-100 text-amber-700 font-bold text-xs rounded-lg hover:bg-amber-200 border border-amber-200 transition-colors">
+                                            Run Diagnostic Test
+                                        </button>
+                                    )}
+                                    {!remote.owner && (
+                                        <button onClick={() => handleRemoteStatus(remote._id, remote.isEnabled)} className={`px-4 py-2 font-bold text-xs rounded-lg transition-colors flex items-center gap-2 ${remote.isEnabled ? 'bg-red-50 text-red-600 border border-red-200 hover:bg-red-100' : 'bg-emerald-50 text-emerald-600 border border-emerald-200 hover:bg-emerald-100'}`}>
+                                            <Power size={14} /> {remote.isEnabled ? "Disable Device" : "Enable Device"}
+                                        </button>
+                                    )}
+                                </div>
+                            </section>
+
+                            {/* Buttons Config */}
+                            <section>
+                                <h4 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-4 flex items-center gap-2">
+                                    <Hash size={16} className="text-[#195C51]"/> Pin Configuration
+                                </h4>
+                                <div className="space-y-3">
+                                    {!remote.buttons || remote.buttons.length === 0 ? (
+                                        <div className="p-6 bg-slate-50 border border-dashed border-slate-200 rounded-xl text-center">
+                                            <p className="text-sm text-slate-500 font-medium">No physical buttons configured.</p>
                                         </div>
-                                        <div className="flex items-center gap-2">
-                                            <div
-                                                className={`text-xs px-2 py-0.5 rounded ${b.status ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-600'}`}>
-                                                {b.status ? 'ON' : 'OFF'}
+                                    ) : (
+                                        remote.buttons.map((b) => (
+                                            <div key={b._id} className="flex items-center justify-between bg-white border border-slate-200 p-4 rounded-xl shadow-sm">
+                                                <div>
+                                                    <div className="flex items-center gap-2 mb-1">
+                                                        <p className="text-sm font-bold text-slate-900">{b.labelName}</p>
+                                                        <span className="text-[10px] font-mono text-slate-400 bg-slate-100 px-1.5 rounded">{lastNChars(b._id, 5)}</span>
+                                                    </div>
+                                                    <p className="text-xs text-slate-500 capitalize">{b.buttonType} switch</p>
+                                                </div>
+                                                <div className="flex items-center gap-3">
+                                                    <span className={`px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-widest ${b.status ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'}`}>
+                                                        {b.status ? 'Active' : 'Idle'}
+                                                    </span>
+                                                    <button disabled={!!remote.owner} onClick={() => copyToClipboard(b._id, "Button ID")} className="px-3 py-1.5 text-xs font-bold rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors disabled:opacity-50">
+                                                        Copy ID
+                                                    </button>
+                                                </div>
                                             </div>
-                                            {/* eslint-disable-next-line react/prop-types */}
-                                            <button disabled={remote?.owner}
-                                                    onClick={() => copyToClipboard(b._id, "Button ID")}
-                                                    className="px-2 py-1 text-xs rounded bg-white border border-gray-200 hover:bg-gray-100">
-                                                Copy ID
-                                            </button>
+                                        ))
+                                    )}
+                                </div>
+                            </section>
+                        </div>
+
+                        {/* Right Column: QR Code & Styling */}
+                        <div className="lg:col-span-1 border-t lg:border-t-0 lg:border-l border-slate-200 pt-8 lg:pt-0 lg:pl-8">
+                            <h4 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-4">Device Pairing Code</h4>
+                            
+                            <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 flex flex-col items-center">
+                                {qrPreview ? (
+                                    <div className="relative group cursor-pointer w-full aspect-square bg-white rounded-xl p-2 shadow-sm border border-slate-100"
+                                         onClick={() => {
+                                            const a = document.createElement("a");
+                                            a.href = qrPreview;
+                                            a.download = `${remote.serialNumber}_PairingQR.png`;
+                                            document.body.appendChild(a);
+                                            a.click();
+                                            document.body.removeChild(a);
+                                         }}
+                                    >
+                                        <img src={qrPreview} alt="QR Code" className="w-full h-full object-contain" />
+                                        <div className="absolute inset-0 bg-slate-900/60 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white">
+                                            <Download size={24} className="mb-2"/>
+                                            <span className="text-xs font-bold uppercase tracking-widest">Download</span>
                                         </div>
                                     </div>
-                                ))
-                            )}
-                        </div>
-                    </section>
-                    <section className="border-t border-gray-100 pt-4">
-                        <div className={`p-2`}>
-                            {qrPreview ? (
-                                <img
-                                    src={qrPreview}
-                                    alt="QR Code"
-                                    className="w-64 h-64 border rounded cursor-pointer hover:opacity-80  mx-auto"
-                                    title="Click to download QR code"
-                                    onClick={() => {
-                                        const a = document.createElement("a");
-                                        a.href = qrPreview;
-                                        a.download = `${remote.serialNumber}.png`;
-                                        document.body.appendChild(a);
-                                        a.click();
-                                        document.body.removeChild(a);
-                                    }}
-                                />
-                            ) : <div className="flex items-center justify-center h-64">
-                                <div
-                                    className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-                            </div>
-                            }
-                        </div>
-                        <h4 className="text-sm font-medium mb-2">Gradient Settings</h4>
-
-                        <div className="flex items-center gap-4">
-                            <div>
-                                <label className="text-xs text-gray-500">Gradient Color 1</label>
-                                <input
-                                    type="color"
-                                    value={gradientColor1}
-                                    onChange={(e) => setGradientColor1(e.target.value)}
-                                    className="w-10 h-10 border rounded cursor-pointer"
-                                />
-                            </div>
-
-                            <div>
-                                <label className="text-xs text-gray-500">Gradient Color 2</label>
-                                <input
-                                    type="color"
-                                    value={gradientColor2}
-                                    onChange={(e) => setGradientColor2(e.target.value)}
-                                    className="w-10 h-10 border rounded cursor-pointer"
-                                />
+                                ) : (
+                                    <div className="w-full aspect-square flex flex-col items-center justify-center text-slate-400 gap-3">
+                                        <div className="w-8 h-8 border-2 border-[#195C51] border-t-transparent rounded-full animate-spin"></div>
+                                        <p className="text-xs font-medium">Generating Code...</p>
+                                    </div>
+                                )}
+                                
+                                <div className="w-full mt-6 space-y-4">
+                                    <h5 className="text-[10px] font-black uppercase tracking-widest text-slate-500">Brand Gradient</h5>
+                                    <div className="flex items-center gap-4">
+                                        <div className="flex-1 space-y-1.5">
+                                            <label className="text-[10px] font-bold text-slate-500">Color 1</label>
+                                            <input type="color" value={gradientColor1} onChange={(e) => setGradientColor1(e.target.value)} className="w-full h-8 rounded cursor-pointer border-0 p-0" />
+                                        </div>
+                                        <div className="flex-1 space-y-1.5">
+                                            <label className="text-[10px] font-bold text-slate-500">Color 2</label>
+                                            <input type="color" value={gradientColor2} onChange={(e) => setGradientColor2(e.target.value)} className="w-full h-8 rounded cursor-pointer border-0 p-0" />
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </section>
 
+                    </div>
                 </div>
             </div>
         </div>
     );
 }
-
