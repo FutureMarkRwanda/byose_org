@@ -9,39 +9,32 @@ export function Dashboard() {
   const { openSidenav } = controller;
 
   return (
-    <div className="min-h-screen bg-[#F5F5F5] selection:bg-[#195C51]/20">
-      {/* Sidenav handles its own responsive visibility via context */}
+    <div className="min-h-screen bg-slate-50 font-sans text-slate-900 selection:bg-[#195C51]/10 selection:text-[#195C51]">
+      {/* Sidebar */}
       <Sidenav routes={routes} />
       
-      {/* 
-         Main Content Area:
-         - xl:ml-80 provides space for the fixed sidebar on desktop
-         - On mobile/tablet, no left margin (sidebar is a drawer overlay)
-         - transition-all ensures smooth movement when sidebar toggles
-      */}
-      <div className="p-3 sm:p-4 xl:ml-80 min-h-screen transition-all duration-500 ease-in-out">
+      {/* Main Content Area */}
+      <div className="xl:ml-64 min-h-screen flex flex-col transition-all duration-300 ease-in-out">
         
-        {/* Sticky Header with Backdrop Blur */}
-        <div className="sticky top-3 sm:top-4 z-40">
-          <DashboardNavbar />
-        </div>
+        {/* Sticky Header */}
+        <DashboardNavbar />
 
         {/* Dynamic Page Content */}
-        <main className="mt-6 sm:mt-10 pb-12">
-          <div className="container mx-auto">
+        <main className="flex-1 p-4 sm:p-6 lg:p-8">
+          <div className="mx-auto max-w-7xl">
             <Outlet />
           </div>
         </main>
 
         {/* Minimalist Dashboard Footer */}
-        <footer className="mt-auto py-6 border-t border-gray-200/50">
-          <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 text-center sm:text-left">
-              BYOSE Cloud Infrastructure v2.4.0
+        <footer className="py-6 border-t border-slate-200 bg-transparent">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <p className="text-xs font-medium text-slate-500 text-center sm:text-left">
+              &copy; {new Date().getFullYear()} BYOSE Infrastructure v2.4.0
             </p>
             <div className="flex gap-6">
-              <a href="#" className="text-[10px] font-bold uppercase tracking-widest text-gray-400 hover:text-[#195C51]">Help Desk</a>
-              <a href="#" className="text-[10px] font-bold uppercase tracking-widest text-gray-400 hover:text-[#195C51]">API Docs</a>
+              <a href="#" className="text-xs font-medium text-slate-500 hover:text-slate-900 transition-colors">Support</a>
+              <a href="#" className="text-xs font-medium text-slate-500 hover:text-slate-900 transition-colors">API Docs</a>
             </div>
           </div>
         </footer>
