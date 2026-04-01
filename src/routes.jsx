@@ -17,7 +17,6 @@ import Otp from "./pages/auth/otp.jsx";
 import ResetPassword from "./pages/auth/ResetPassword.jsx";
 import BroadcastPage from "./pages/dashboard/Broadcastpage.jsx";
 import {
-  Squares2X2Icon,
   CursorArrowRaysIcon,
   TvIcon,
   ArrowRightOnRectangleIcon,
