@@ -1,42 +1,51 @@
 // src/pages/dashboard/RevenueInsights.jsx
-import React, { useState, useEffect, useCallback } from 'react';
-import { 
-    CreditCard, Users, Search, ChevronLeft, ChevronRight, 
-    Plus, Edit2, Power, PowerOff, ShieldCheck, CheckCircle2, PieChart as PieChartIcon 
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import {
+    CreditCard, Users, Search, ChevronLeft, ChevronRight,
+    Plus, Edit2, Power, PowerOff, ShieldCheck, CheckCircle2,
+    PieChart as PieChartIcon, TrendingUp, Calendar, X,
+    Clock, ArrowLeft, Receipt, Download, Filter
 } from 'lucide-react';
-import { MdVerified, MdAccessTime, MdPauseCircle, MdCancel, MdTimer, MdHourglassEmpty, MdErrorOutline } from 'react-icons/md';
-import { PieChart, Pie, Cell, Tooltip as RechartsTooltip, Legend, ResponsiveContainer } from 'recharts';
+import {
+    MdVerified, MdAccessTime, MdPauseCircle, MdCancel,
+    MdTimer, MdHourglassEmpty, MdErrorOutline
+} from 'react-icons/md';
+import {
+    LineChart, Line, BarChart, Bar, PieChart, Pie, Cell,
+    Tooltip as RechartsTooltip, Legend, ResponsiveContainer,
+    XAxis, YAxis, CartesianGrid, Area, AreaChart
+} from 'recharts';
 import { fetchData, sendData, updateData, patchData, returnToken, formatDate } from '../../utils/helper.js';
 import { presence_server } from '../../config/server_api.js';
 import { useNotification } from '../../context/NotificationContext.jsx';
 import { PrivacyNameToggle } from './DeviceInsights.jsx';
 
-// --- Privacy Helper ---
+// ─── Privacy Helper ────────────────────────────────────────────────────────────
 const maskEmailLocal = (email) => {
-    if (!email) return "—";
-    const at = email.indexOf("@");
+    if (!email) return '—';
+    const at = email.indexOf('@');
     if (at === -1) return `${email.slice(0, 3)}***`;
     const local = email.slice(0, at);
     const domain = email.slice(at);
-    return `${local.slice(0, 3)}${"*".repeat(Math.max(3, local.length - 3))}${domain}`;
+    return `${local.slice(0, 3)}${'*'.repeat(Math.max(3, local.length - 3))}${domain}`;
 };
 
-// --- Shadcn-Simulated UI Components ---
-const Card = ({ children, className = "" }) => (
+// ─── UI Primitives ─────────────────────────────────────────────────────────────
+const Card = ({ children, className = '' }) => (
     <div className={`bg-white border border-slate-200 rounded-xl shadow-sm ${className}`}>{children}</div>
 );
 
 const StatusPill = ({ status }) => {
     const cfg = {
-        active: { bg: 'bg-emerald-100', text: 'text-emerald-800', border: 'border-emerald-200', icon: MdVerified, label: 'Active' },
-        trial: { bg: 'bg-blue-100', text: 'text-blue-800', border: 'border-blue-200', icon: MdAccessTime, label: 'Trial' },
-        grace_period: { bg: 'bg-amber-100', text: 'text-amber-800', border: 'border-amber-200', icon: MdPauseCircle, label: 'Grace Period' },
-        cancelled: { bg: 'bg-slate-100', text: 'text-slate-700', border: 'border-slate-300', icon: MdCancel, label: 'Cancelled' },
-        expired: { bg: 'bg-red-100', text: 'text-red-800', border: 'border-red-200', icon: MdTimer, label: 'Expired' },
-        pending: { bg: 'bg-yellow-100', text: 'text-yellow-800', border: 'border-yellow-200', icon: MdHourglassEmpty, label: 'Pending' },
-        failed: { bg: 'bg-red-100', text: 'text-red-700', border: 'border-red-200', icon: MdErrorOutline, label: 'Failed' },
+        active:       { bg: 'bg-emerald-100', text: 'text-emerald-800', border: 'border-emerald-200', icon: MdVerified,       label: 'Active' },
+        trial:        { bg: 'bg-blue-100',    text: 'text-blue-800',    border: 'border-blue-200',    icon: MdAccessTime,     label: 'Trial' },
+        grace_period: { bg: 'bg-amber-100',   text: 'text-amber-800',   border: 'border-amber-200',   icon: MdPauseCircle,    label: 'Grace Period' },
+        cancelled:    { bg: 'bg-slate-100',   text: 'text-slate-700',   border: 'border-slate-300',   icon: MdCancel,         label: 'Cancelled' },
+        expired:      { bg: 'bg-red-100',     text: 'text-red-800',     border: 'border-red-200',     icon: MdTimer,          label: 'Expired' },
+        pending:      { bg: 'bg-yellow-100',  text: 'text-yellow-800',  border: 'border-yellow-200',  icon: MdHourglassEmpty, label: 'Pending' },
+        failed:       { bg: 'bg-red-100',     text: 'text-red-700',     border: 'border-red-200',     icon: MdErrorOutline,   label: 'Failed' },
     }[status?.toLowerCase()] || { bg: 'bg-gray-100', text: 'text-gray-600', border: 'border-gray-200', icon: ShieldCheck, label: status };
-    
+
     const Icon = cfg.icon;
     return (
         <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border ${cfg.bg} ${cfg.text} ${cfg.border}`}>
@@ -45,24 +54,476 @@ const StatusPill = ({ status }) => {
     );
 };
 
+// ─── Revenue Trend Chart ───────────────────────────────────────────────────────
+const RevenueTrendChart = ({ token }) => {
+    const [trendData, setTrendData]   = useState([]);
+    const [loading, setLoading]       = useState(true);
+    const [timePeriod, setTimePeriod] = useState('this_year'); // this_month | this_year | custom
+    const [customFrom, setCustomFrom] = useState('');
+    const [customTo, setCustomTo]     = useState('');
+    const [totalRevenue, setTotalRevenue] = useState(null);
+    const [currency, setCurrency]     = useState('RWF');
+
+    const buildQuery = useCallback(() => {
+        const today = new Date();
+        let from, to;
+        if (timePeriod === 'this_month') {
+            from = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().slice(0, 10);
+            to   = today.toISOString().slice(0, 10);
+        } else if (timePeriod === 'this_year') {
+            from = new Date(today.getFullYear(), 0, 1).toISOString().slice(0, 10);
+            to   = today.toISOString().slice(0, 10);
+        } else {
+            from = customFrom;
+            to   = customTo;
+        }
+        return { from, to };
+    }, [timePeriod, customFrom, customTo]);
+
+    const loadTrend = useCallback(async () => {
+        const { from, to } = buildQuery();
+        if (!from || !to) return;
+        setLoading(true);
+        try {
+            const res = await fetchData(
+                `${presence_server}/api/subscriptions/admin/revenue/trend?from=${from}&to=${to}`,
+                token
+            );
+            if (res.data) {
+                const raw = res.data.trend || res.data.data?.trend || [];
+                setTrendData(raw);
+
+                // Compute total from trend data
+                const total = raw.reduce((sum, d) => sum + (d.revenue || d.amount || d.total || 0), 0);
+                setTotalRevenue(total);
+                if (raw[0]?.currency) setCurrency(raw[0].currency);
+            }
+        } catch (err) {
+            console.error('Revenue trend error:', err);
+        }
+        setLoading(false);
+    }, [buildQuery, token]);
+
+    // Also load from the summary endpoint for total
+    const loadSummaryTotal = useCallback(async () => {
+        const { from, to } = buildQuery();
+        if (!from || !to) return;
+        try {
+            const res = await fetchData(
+                `${presence_server}/api/subscriptions/admin/revenue?from=${from}&to=${to}`,
+                token
+            );
+            if (res.data) {
+                const rev = res.data.revenue || res.data;
+                const total = rev.totalRevenue ?? rev.collected ?? rev.total ?? null;
+                if (total !== null) setTotalRevenue(total);
+                if (rev.currency) setCurrency(rev.currency);
+            }
+        } catch (_) {}
+    }, [buildQuery, token]);
+
+    useEffect(() => {
+        loadTrend();
+        loadSummaryTotal();
+    }, [loadTrend, loadSummaryTotal]);
+
+    const PERIOD_OPTS = [
+        { id: 'this_month', label: 'This Month' },
+        { id: 'this_year',  label: 'This Year'  },
+        { id: 'custom',     label: 'Custom'      },
+    ];
+
+    const fmtRevenue = (val) => {
+        if (val == null) return '—';
+        if (val >= 1_000_000) return `${(val / 1_000_000).toFixed(1)}M ${currency}`;
+        if (val >= 1_000)     return `${(val / 1_000).toFixed(0)}K ${currency}`;
+        return `${val.toLocaleString()} ${currency}`;
+    };
+
+    const CustomTooltip = ({ active, payload, label }) => {
+        if (!active || !payload?.length) return null;
+        return (
+            <div className="bg-[#1A2E2A] text-white text-xs rounded-xl px-3 py-2.5 shadow-xl border border-white/10">
+                <p className="font-bold mb-1 text-gray-300 text-[10px]">{label}</p>
+                {payload.map((p, i) => (
+                    <p key={i} className="flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: p.color }} />
+                        <span className="text-gray-300 text-[10px]">{p.name}:</span>
+                        <span className="font-black text-[10px]" style={{ color: p.color }}>
+                            {fmtRevenue(p.value)}
+                        </span>
+                    </p>
+                ))}
+            </div>
+        );
+    };
+
+    return (
+        <Card className="p-6 flex flex-col gap-5">
+            {/* Header */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="flex items-center gap-2">
+                    <TrendingUp className="w-5 h-5 text-[#195C51]" />
+                    <div>
+                        <h2 className="font-display font-semibold text-lg leading-tight">Revenue Trend</h2>
+                        <p className="text-xs text-slate-500">Monthly subscription collections</p>
+                    </div>
+                </div>
+
+                {/* Period Switcher */}
+                <div className="flex flex-col sm:flex-row gap-2 items-start sm:items-center">
+                    <div className="flex bg-slate-100 p-1 rounded-lg border border-slate-200">
+                        {PERIOD_OPTS.map(opt => (
+                            <button
+                                key={opt.id}
+                                onClick={() => setTimePeriod(opt.id)}
+                                className={`px-3 py-1.5 rounded-md text-[10px] font-bold uppercase tracking-wider transition-all ${
+                                    timePeriod === opt.id
+                                        ? 'bg-white text-slate-900 shadow-sm'
+                                        : 'text-slate-500 hover:text-slate-900'
+                                }`}
+                            >
+                                {opt.label}
+                            </button>
+                        ))}
+                    </div>
+
+                    {timePeriod === 'custom' && (
+                        <div className="flex items-center gap-2 text-xs">
+                            <input
+                                type="date"
+                                value={customFrom}
+                                onChange={e => setCustomFrom(e.target.value)}
+                                className="border border-slate-200 rounded-md px-2 py-1 text-xs outline-none focus:border-[#195C51]"
+                            />
+                            <span className="text-slate-400">→</span>
+                            <input
+                                type="date"
+                                value={customTo}
+                                onChange={e => setCustomTo(e.target.value)}
+                                className="border border-slate-200 rounded-md px-2 py-1 text-xs outline-none focus:border-[#195C51]"
+                            />
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            {/* Total Revenue KPI */}
+            <div className="flex items-center gap-6 py-4 px-5 bg-gradient-to-r from-[#195C51]/8 to-transparent rounded-xl border border-[#195C51]/15">
+                <div>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">Total Revenue</p>
+                    {loading ? (
+                        <div className="h-8 w-32 bg-slate-100 animate-pulse rounded-md" />
+                    ) : (
+                        <p className="text-3xl font-bold text-[#195C51]">{fmtRevenue(totalRevenue)}</p>
+                    )}
+                    <p className="text-xs text-slate-400 mt-1">
+                        {timePeriod === 'this_month' ? 'This month' :
+                         timePeriod === 'this_year'  ? 'This year'  :
+                         customFrom && customTo ? `${customFrom} → ${customTo}` : 'Selected period'}
+                    </p>
+                </div>
+                <div className="ml-auto text-right">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">Data Points</p>
+                    <p className="text-xl font-bold text-slate-700">{trendData.length}</p>
+                    <p className="text-xs text-slate-400">periods</p>
+                </div>
+            </div>
+
+            {/* Chart */}
+            <div className="h-[120px] min-h-[120px]">
+                {loading ? (
+                    <div className="h-full flex items-center justify-center text-slate-400">
+                        <div className="w-6 h-6 border-2 border-[#195C51] border-t-transparent rounded-full animate-spin" />
+                    </div>
+                ) : trendData.length === 0 ? (
+                    <div className="h-full flex flex-col items-center justify-center text-slate-400 gap-3">
+                        <TrendingUp className="w-8 h-8 opacity-20" />
+                        <p className="text-sm font-medium">No revenue data for this period.</p>
+                        <p className="text-xs">Revenue trend populates as subscriptions are collected.</p>
+                    </div>
+                ) : (
+                    <ResponsiveContainer width="100%" height="100%">
+                        <AreaChart data={trendData} margin={{ top: 8, right: 8, left: -10, bottom: 0 }}>
+                            <defs>
+                                <linearGradient id="revenueGrad" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="5%"  stopColor="#195C51" stopOpacity={0.18} />
+                                    <stop offset="95%" stopColor="#195C51" stopOpacity={0} />
+                                </linearGradient>
+                            </defs>
+                            <CartesianGrid strokeDasharray="3 3" stroke="#F0F0F0" vertical={false} />
+                            <XAxis
+                                dataKey="period"
+                                tick={{ fontSize: 10, fill: '#64748B' }}
+                                tickLine={false}
+                                axisLine={false}
+                                interval="preserveStartEnd"
+                            />
+                            <YAxis
+                                tick={{ fontSize: 10, fill: '#64748B' }}
+                                tickLine={false}
+                                axisLine={false}
+                                tickFormatter={v => v >= 1000 ? `${(v/1000).toFixed(0)}K` : v}
+                                width={40}
+                            />
+                            <RechartsTooltip content={<CustomTooltip />} />
+                            <Area
+                                type="monotone"
+                                dataKey="revenue"
+                                name="Revenue"
+                                stroke="#195C51"
+                                fill="url(#revenueGrad)"
+                                strokeWidth={2.5}
+                                dot={{ r: 3, fill: '#195C51', strokeWidth: 2, stroke: '#fff' }}
+                                activeDot={{ r: 5 }}
+                            />
+                        </AreaChart>
+                    </ResponsiveContainer>
+                )}
+            </div>
+        </Card>
+    );
+};
+
+// ─── Revenue History Drawer ────────────────────────────────────────────────────
+const RevenueHistoryDrawer = ({ user, onClose, token }) => {
+    const [history, setHistory]   = useState([]);
+    const [loading, setLoading]   = useState(true);
+    const [summary, setSummary]   = useState(null);
+
+    const fullName = `${user.user?.firstName || ''} ${user.user?.lastName || ''}`.trim();
+
+    useEffect(() => {
+        const loadHistory = async () => {
+            setLoading(true);
+            try {
+                const userId = user.user?._id || user._id;
+                const res = await fetchData(
+                    `${presence_server}/api/subscriptions/admin/user/${userId}/history`,
+                    token
+                );
+                if (res.data) {
+                    setHistory(res.data.subscriptions || res.data.history || []);
+                    setSummary(res.data.summary || null);
+                }
+            } catch (err) {
+                console.error('History error:', err);
+            }
+            setLoading(false);
+        };
+        loadHistory();
+    }, [user, token]);
+
+    const fmtAmt = (amt, cur) => amt != null ? `${amt.toLocaleString()} ${cur || ''}` : '—';
+    const fmtDate = (d) => d ? new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: '2-digit' }) : '—';
+
+    // Compute subscription lifetime bar chart data
+    const chartData = history.map(s => ({
+        period: `${fmtDate(s.startDate)}`,
+        amount: s.pricingSnapshot?.totalPaid || 0,
+        status: s.status,
+    })).slice(0, 12);
+
+    return (
+        <>
+            {/* Overlay */}
+            <div
+                className="fixed inset-0 z-40 bg-slate-900/40 backdrop-blur-sm"
+                onClick={onClose}
+            />
+
+            {/* Drawer */}
+            <div className="fixed inset-y-0 right-0 z-50 w-full max-w-xl bg-white shadow-2xl flex flex-col overflow-hidden animate-slide-up">
+                {/* Header */}
+                <div className="shrink-0 px-6 py-5 border-b border-slate-200 bg-slate-50/80">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                            <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-500 transition-colors">
+                                <ArrowLeft className="w-5 h-5" />
+                            </button>
+                            <div>
+                                <h2 className="font-display font-bold text-lg text-slate-900">Revenue History</h2>
+                                <p className="text-xs text-slate-500 mt-0.5 flex items-center gap-1.5">
+                                    <Receipt className="w-3.5 h-3.5" />
+                                    {fullName || 'Unknown User'} · Subscription journey
+                                </p>
+                            </div>
+                        </div>
+                        <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 transition-colors">
+                            <X className="w-5 h-5" />
+                        </button>
+                    </div>
+                </div>
+
+                {loading ? (
+                    <div className="flex-1 flex items-center justify-center">
+                        <div className="flex flex-col items-center gap-3 text-slate-500">
+                            <div className="w-8 h-8 border-2 border-[#195C51] border-t-transparent rounded-full animate-spin" />
+                            <p className="text-sm font-medium">Loading subscription history…</p>
+                        </div>
+                    </div>
+                ) : (
+                    <div className="flex-1 overflow-y-auto custom-scrollbar">
+
+                        {/* Summary KPIs */}
+                        {(summary || history.length > 0) && (() => {
+                            const totalPaid    = history.reduce((s, h) => s + (h.pricingSnapshot?.totalPaid || 0), 0);
+                            const firstSub     = history.slice(-1)[0];
+                            const latestSub    = history[0];
+                            const activeSubs   = history.filter(h => h.status === 'active').length;
+                            const currency     = latestSub?.pricingSnapshot?.currency || 'RWF';
+                            const memberSince  = firstSub?.startDate ? fmtDate(firstSub.startDate) : '—';
+
+                            return (
+                                <div className="p-6 border-b border-slate-100">
+                                    <div className="grid grid-cols-2 gap-4 mb-5">
+                                        <div className="bg-[#195C51]/5 rounded-xl p-4 border border-[#195C51]/15">
+                                            <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">Total Paid (Lifetime)</p>
+                                            <p className="text-2xl font-bold text-[#195C51]">
+                                                {totalPaid.toLocaleString()} {currency}
+                                            </p>
+                                        </div>
+                                        <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
+                                            <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">Subscriptions</p>
+                                            <p className="text-2xl font-bold text-slate-800">{history.length}</p>
+                                            <p className="text-xs text-slate-400">{activeSubs} currently active</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-4 text-sm">
+                                        <div>
+                                            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-0.5">Member Since</p>
+                                            <p className="font-semibold text-slate-800">{memberSince}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-0.5">Latest Plan</p>
+                                            <p className="font-semibold text-slate-800">{latestSub?.plan?.name || '—'}</p>
+                                        </div>
+                                    </div>
+
+                                    {/* Mini chart of payments over time */}
+                                    {chartData.length > 1 && (
+                                        <div className="mt-5">
+                                            <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-3">Payment Timeline</p>
+                                            <div className="h-[120px]">
+                                                <ResponsiveContainer width="100%" height="100%">
+                                                    <BarChart data={chartData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
+                                                        <CartesianGrid strokeDasharray="3 3" stroke="#F0F0F0" vertical={false} />
+                                                        <XAxis dataKey="period" tick={{ fontSize: 9, fill: '#94A3B8' }} tickLine={false} axisLine={false} />
+                                                        <YAxis tick={{ fontSize: 9, fill: '#94A3B8' }} tickLine={false} axisLine={false} width={35}
+                                                            tickFormatter={v => v >= 1000 ? `${(v/1000).toFixed(0)}K` : v} />
+                                                        <RechartsTooltip
+                                                            contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 20px rgba(0,0,0,0.12)', fontSize: '11px' }}
+                                                            formatter={v => [`${v.toLocaleString()} ${latestSub?.pricingSnapshot?.currency || ''}`, 'Paid']}
+                                                        />
+                                                        <Bar dataKey="amount" fill="#195C51" radius={[3, 3, 0, 0]} />
+                                                    </BarChart>
+                                                </ResponsiveContainer>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            );
+                        })()}
+
+                        {/* Transaction List */}
+                        <div className="p-6">
+                            <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-4">
+                                All Subscriptions ({history.length})
+                            </h3>
+
+                            {history.length === 0 ? (
+                                <div className="flex flex-col items-center justify-center py-12 text-slate-400 gap-3">
+                                    <Receipt className="w-10 h-10 opacity-20" />
+                                    <p className="text-sm font-medium">No subscription history found.</p>
+                                </div>
+                            ) : (
+                                <div className="space-y-3">
+                                    {history.map((sub, i) => {
+                                        const isFirst = i === history.length - 1;
+                                        return (
+                                            <div
+                                                key={sub._id || i}
+                                                className={`relative flex gap-4 pb-4 ${!isFirst ? 'border-b border-slate-100' : ''}`}
+                                            >
+                                                {/* Timeline dot */}
+                                                <div className="flex flex-col items-center mt-1 shrink-0">
+                                                    <div className={`w-3 h-3 rounded-full border-2 border-white shadow-sm ${
+                                                        sub.status === 'active'       ? 'bg-emerald-500' :
+                                                        sub.status === 'cancelled'    ? 'bg-slate-300'   :
+                                                        sub.status === 'expired'      ? 'bg-red-400'     :
+                                                        sub.status === 'grace_period' ? 'bg-amber-400'   :
+                                                        'bg-blue-400'
+                                                    }`} />
+                                                    {!isFirst && (
+                                                        <div className="w-0.5 flex-1 bg-slate-100 mt-1" style={{ minHeight: 24 }} />
+                                                    )}
+                                                </div>
+
+                                                {/* Content */}
+                                                <div className="flex-1 min-w-0">
+                                                    <div className="flex items-start justify-between gap-2 mb-1">
+                                                        <div>
+                                                            <p className="font-bold text-sm text-slate-900">{sub.plan?.name || 'Unknown Plan'}</p>
+                                                            <p className="text-[10px] text-slate-500">
+                                                                {sub.durationMonths} month{sub.durationMonths > 1 ? 's' : ''} · {sub.paymentMethod?.toUpperCase()}
+                                                            </p>
+                                                        </div>
+                                                        <StatusPill status={sub.status} />
+                                                    </div>
+
+                                                    <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500 mt-2">
+                                                        <span>
+                                                            <span className="font-bold text-slate-700">
+                                                                {(sub.pricingSnapshot?.totalPaid || 0).toLocaleString()} {sub.pricingSnapshot?.currency || ''}
+                                                            </span>
+                                                        </span>
+                                                        <span>Start: {fmtDate(sub.startDate)}</span>
+                                                        <span>End: {fmtDate(sub.endDate)}</span>
+                                                    </div>
+
+                                                    {sub.status === 'cancelled' && sub.cancelledAt && (
+                                                        <p className="text-[10px] text-red-400 mt-1">Cancelled on {fmtDate(sub.cancelledAt)}</p>
+                                                    )}
+                                                    {sub.status === 'grace_period' && sub.gracePeriodEnd && (
+                                                        <p className="text-[10px] text-amber-600 mt-1">Grace ends {fmtDate(sub.gracePeriodEnd)}</p>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                )}
+            </div>
+        </>
+    );
+};
+
+// ─── Main Component ────────────────────────────────────────────────────────────
 export default function RevenueInsights() {
     const token = returnToken();
     const { showNotification } = useNotification();
     const [activeTab, setActiveTab] = useState('subscriptions');
 
     // --- Subscription & Chart State ---
-    const [subs, setSubs] = useState([]);
+    const [subs, setSubs]         = useState([]);
     const [subStats, setSubStats] = useState({ total: 0, page: 1, totalPages: 1 });
     const [subStatusFilter, setSubStatusFilter] = useState('');
-    const [subsLoading, setSubsLoading] = useState(true);
-    const [planDistribution, setPlanDistribution] = useState([]); // State for Pie Chart
+    const [subsLoading, setSubsLoading]         = useState(true);
+    const [planDistribution, setPlanDistribution] = useState([]);
+
+    // --- Revenue History Drawer ---
+    const [historyUser, setHistoryUser] = useState(null);
 
     // --- Plan State ---
-    const [plans, setPlans] = useState([]);
+    const [plans, setPlans]       = useState([]);
     const [plansLoading, setPlansLoading] = useState(true);
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [editingPlan, setEditingPlan] = useState(null);
-    const [saving, setSaving] = useState(false);
+    const [isModalOpen, setIsModalOpen]   = useState(false);
+    const [editingPlan, setEditingPlan]   = useState(null);
+    const [saving, setSaving]             = useState(false);
 
     const initialPlanState = {
         name: '', description: '', maxDevices: 1, maxShares: 0, maxSessions: 1,
@@ -71,37 +532,26 @@ export default function RevenueInsights() {
     const [formData, setFormData] = useState(initialPlanState);
 
     // --- Data Fetching ---
-
-    // 1. Fetch Paginated Subscriptions (Limit forced to 10)
     const loadSubscriptions = useCallback(async (page = 1, status = subStatusFilter) => {
         setSubsLoading(true);
         try {
-            // Force limit=10 for strict pagination
             const query = `?page=${page}&limit=10${status ? `&status=${status}` : ''}`;
             const res = await fetchData(`${presence_server}/api/subscriptions/admin/subscriptions${query}`, token);
             if (res.data) {
                 setSubs(res.data.subscriptions || []);
-                setSubStats({
-                    total: res.data.total,
-                    page: res.data.currentPage,
-                    totalPages: res.data.totalPages
-                });
+                setSubStats({ total: res.data.total, page: res.data.currentPage, totalPages: res.data.totalPages });
             }
         } catch (err) {
-            showNotification("Failed to load subscriptions", "error");
+            showNotification('Failed to load subscriptions', 'error');
         }
         setSubsLoading(false);
     }, [token, subStatusFilter]);
 
-    // 2. Fetch Global Stats for accurate Pie Chart (Entire Database)
     const loadGlobalStats = useCallback(async () => {
         try {
-            // Fetching a global overview to ensure chart accounts for ALL users, not just page 1
             const res = await fetchData(`${presence_server}/api/admin/analytics-users?limit=1`, token);
             if (res.data?.globalStats?.subscriptionBreakdown) {
                 const breakdown = res.data.globalStats.subscriptionBreakdown;
-                
-                // Aggregate counts by Plan Name (focusing on active/trial/grace_period)
                 const planCounts = {};
                 breakdown.forEach(item => {
                     if (['active', 'trial', 'grace_period'].includes(item.status)) {
@@ -109,52 +559,34 @@ export default function RevenueInsights() {
                         planCounts[name] = (planCounts[name] || 0) + item.count;
                     }
                 });
-
-                // Format for Recharts
                 const CHART_COLORS = ['#195C51', '#2DC87A', '#F0A500', '#6B8BD4', '#8B5CF6'];
                 const formattedData = Object.entries(planCounts).map(([name, value], index) => ({
-                    name,
-                    value,
-                    color: CHART_COLORS[index % CHART_COLORS.length]
+                    name, value, color: CHART_COLORS[index % CHART_COLORS.length]
                 }));
-
                 setPlanDistribution(formattedData);
             }
-        } catch (err) {
-            console.error("Failed to load plan stats for chart", err);
-        }
+        } catch (err) { console.error('Plan stats error:', err); }
     }, [token]);
 
-    // 3. Fetch Plans
     const loadPlans = useCallback(async () => {
         setPlansLoading(true);
         try {
             const res = await fetchData(`${presence_server}/api/subscriptions/admin/plans`, token);
             if (res.data) setPlans(res.data.plans || []);
-        } catch (err) {
-            showNotification("Failed to load plans", "error");
-        }
+        } catch (err) { showNotification('Failed to load plans', 'error'); }
         setPlansLoading(false);
     }, [token]);
 
-    // Effect Trigger
     useEffect(() => {
-        if (activeTab === 'subscriptions') {
-            loadSubscriptions(1);
-            loadGlobalStats(); // Load chart data alongside table data
-        }
-        if (activeTab === 'plans') loadPlans();
-    }, [activeTab, loadSubscriptions, loadGlobalStats, loadPlans]);
+        if (activeTab === 'subscriptions') { loadSubscriptions(1); loadGlobalStats(); }
+        if (activeTab === 'plans')         loadPlans();
+    }, [activeTab]);
 
-    // --- Plan Management Handlers ---
+    // --- Plan Management ---
     const handleOpenModal = (plan = null) => {
         if (plan) {
             const rwfPrice = plan.pricing?.find(p => p.currency === 'RWF') || plan.pricing?.[0];
-            setFormData({
-                ...plan,
-                pricePerMonth: rwfPrice ? rwfPrice.pricePerMonth : '',
-                features: plan.features ? plan.features.join(', ') : ''
-            });
+            setFormData({ ...plan, pricePerMonth: rwfPrice ? rwfPrice.pricePerMonth : '', features: plan.features ? plan.features.join(', ') : '' });
             setEditingPlan(plan);
         } else {
             setFormData(initialPlanState);
@@ -172,22 +604,14 @@ export default function RevenueInsights() {
                 features: formData.features.split(',').map(f => f.trim()).filter(Boolean),
                 pricing: [{ country: 'RW', currency: 'RWF', pricePerMonth: Number(formData.pricePerMonth) }]
             };
-
-            let res;
-            if (editingPlan) {
-                res = await updateData(`${presence_server}/api/subscriptions/admin/plans/${editingPlan._id}`, payload, token);
-            } else {
-                res = await sendData(`${presence_server}/api/subscriptions/admin/plans`, payload, token);
-            }
-
+            const res = editingPlan
+                ? await updateData(`${presence_server}/api/subscriptions/admin/plans/${editingPlan._id}`, payload, token)
+                : await sendData(`${presence_server}/api/subscriptions/admin/plans`, payload, token);
             if (res.error) throw new Error(res.error);
-            
-            showNotification(`Plan ${editingPlan ? 'updated' : 'created'} successfully`, "success");
+            showNotification(`Plan ${editingPlan ? 'updated' : 'created'} successfully`, 'success');
             setIsModalOpen(false);
             loadPlans();
-        } catch (err) {
-            showNotification(err.message, "error");
-        }
+        } catch (err) { showNotification(err.message, 'error'); }
         setSaving(false);
     };
 
@@ -196,19 +620,26 @@ export default function RevenueInsights() {
             const endpoint = isActive ? `/api/subscriptions/admin/plan/disable/${planId}` : `/api/subscriptions/admin/enable/${planId}`;
             const res = await patchData(`${presence_server}${endpoint}`, {}, token);
             if (res.error) throw new Error(res.error);
-            showNotification(`Plan ${isActive ? 'disabled' : 'enabled'}`, "success");
+            showNotification(`Plan ${isActive ? 'disabled' : 'enabled'}`, 'success');
             loadPlans();
-        } catch (err) {
-            showNotification(err.message, "error");
-        }
+        } catch (err) { showNotification(err.message, 'error'); }
     };
 
     return (
         <div className="space-y-6 font-sans text-slate-900 pb-10">
+            {/* History Drawer */}
+            {historyUser && (
+                <RevenueHistoryDrawer
+                    user={historyUser}
+                    onClose={() => setHistoryUser(null)}
+                    token={token}
+                />
+            )}
+
             {/* Header */}
             <div>
                 <h1 className="font-display text-3xl font-bold tracking-tight">Revenue Insights</h1>
-                <p className="text-slate-500 text-sm mt-1">Manage subscription tiers and monitor customer billing statuses.</p>
+                <p className="text-slate-500 text-sm mt-1">Monitor subscription billing, revenue trends, and customer history.</p>
             </div>
 
             {/* Tab Controls */}
@@ -221,11 +652,14 @@ export default function RevenueInsights() {
                 </button>
             </div>
 
-            {/* --- TAB 1: SUBSCRIBER DIRECTORY --- */}
+            {/* === TAB 1: SUBSCRIBER DIRECTORY === */}
             {activeTab === 'subscriptions' && (
                 <div className="animate-slide-entrance space-y-6">
-                    
-                    {/* PIE CHART SECTION */}
+
+                    {/* Revenue Trend Chart — NEW */}
+                    <RevenueTrendChart token={token} />
+
+                    {/* Plan Distribution Pie */}
                     {planDistribution.length > 0 && (
                         <Card className="p-6 flex flex-col md:flex-row items-center gap-8">
                             <div className="md:w-1/3 space-y-3">
@@ -234,37 +668,24 @@ export default function RevenueInsights() {
                                     <h2 className="font-display font-bold text-xl">Active Plan Distribution</h2>
                                 </div>
                                 <p className="text-sm text-slate-500 leading-relaxed">
-                                    A global breakdown of your user base currently on an active, trial, or grace period plan across the entire ecosystem.
+                                    Breakdown of your user base currently on active, trial, or grace period plans.
                                 </p>
                             </div>
                             <div className="h-[220px] w-full md:w-2/3 bg-slate-50/50 rounded-xl border border-slate-100 flex items-center justify-center p-4">
                                 <ResponsiveContainer width="100%" height="100%">
                                     <PieChart>
-                                        <Pie
-                                            data={planDistribution}
-                                            cx="50%"
-                                            cy="50%"
-                                            innerRadius={65}
-                                            outerRadius={90}
-                                            paddingAngle={4}
-                                            dataKey="value"
-                                            stroke="none"
-                                        >
+                                        <Pie data={planDistribution} cx="50%" cy="50%" innerRadius={65} outerRadius={90} paddingAngle={4} dataKey="value" stroke="none">
                                             {planDistribution.map((entry, index) => (
                                                 <Cell key={`cell-${index}`} fill={entry.color} />
                                             ))}
                                         </Pie>
-                                        <RechartsTooltip 
+                                        <RechartsTooltip
                                             contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', fontSize: '13px', fontWeight: 'bold' }}
-                                            itemStyle={{ color: '#334155' }}
                                             formatter={(value) => [`${value} Subscribers`, 'Users']}
                                         />
-                                        <Legend 
-                                            verticalAlign="middle" 
-                                            align="right" 
-                                            layout="vertical" 
-                                            iconType="circle"
-                                            wrapperStyle={{ fontSize: '12px', fontWeight: '700', color: '#475569' }} 
+                                        <Legend
+                                            verticalAlign="middle" align="right" layout="vertical" iconType="circle"
+                                            wrapperStyle={{ fontSize: '12px', fontWeight: '700', color: '#475569' }}
                                         />
                                     </PieChart>
                                 </ResponsiveContainer>
@@ -272,17 +693,17 @@ export default function RevenueInsights() {
                         </Card>
                     )}
 
-                    {/* TABLE SECTION */}
+                    {/* Subscriber Table */}
                     <Card className="overflow-hidden">
                         <div className="p-5 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50/50">
                             <div>
                                 <h2 className="font-display font-semibold text-lg">Subscriber Directory</h2>
-                                <p className="text-xs text-slate-500 mt-1">Total Records: {subStats.total} (Showing 10 per page)</p>
+                                <p className="text-xs text-slate-500 mt-1">Total Records: {subStats.total} · 10 per page</p>
                             </div>
-                            
-                            <div className="flex bg-slate-100 p-1 rounded-lg border border-slate-200">
+
+                            <div className="flex bg-slate-100 p-1 rounded-lg border border-slate-200 flex-wrap">
                                 {['', 'active', 'grace_period', 'expired', 'cancelled'].map(status => (
-                                    <button 
+                                    <button
                                         key={status}
                                         onClick={() => { setSubStatusFilter(status); loadSubscriptions(1, status); }}
                                         className={`px-3 py-1.5 rounded-md text-[10px] font-bold uppercase tracking-wider transition-all ${subStatusFilter === status ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-900'}`}
@@ -302,21 +723,29 @@ export default function RevenueInsights() {
                                         <th className="px-6 py-4 font-semibold text-[10px] uppercase tracking-wider">Status</th>
                                         <th className="px-6 py-4 font-semibold text-[10px] uppercase tracking-wider">Revenue</th>
                                         <th className="px-6 py-4 font-semibold text-[10px] uppercase tracking-wider">Timeline</th>
+                                        <th className="px-6 py-4 font-semibold text-[10px] uppercase tracking-wider text-right">History</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-100 bg-white">
                                     {subsLoading ? (
-                                        <tr><td colSpan="5" className="px-6 py-12 text-center"><div className="w-6 h-6 border-2 border-[#195C51] border-t-transparent rounded-full animate-spin mx-auto"></div></td></tr>
+                                        <tr>
+                                            <td colSpan="6" className="px-6 py-12 text-center">
+                                                <div className="w-6 h-6 border-2 border-[#195C51] border-t-transparent rounded-full animate-spin mx-auto" />
+                                            </td>
+                                        </tr>
                                     ) : subs.length === 0 ? (
-                                        <tr><td colSpan="5" className="px-6 py-12 text-center text-slate-500 font-medium">No subscription records found.</td></tr>
+                                        <tr>
+                                            <td colSpan="6" className="px-6 py-12 text-center text-slate-500 font-medium">
+                                                No subscription records found.
+                                            </td>
+                                        </tr>
                                     ) : subs.map(sub => {
                                         const user = sub.user || {};
                                         const fullName = `${user.firstName || ''} ${user.lastName || ''}`.trim();
                                         return (
-                                            <tr key={sub._id} className="hover:bg-slate-50 transition-colors">
+                                            <tr key={sub._id} className="hover:bg-slate-50 transition-colors group">
                                                 <td className="px-6 py-4">
                                                     <PrivacyNameToggle fullName={fullName || 'Unknown User'} />
-                                                    {/* Masked Email Rendered Here */}
                                                     <p className="text-[10px] text-slate-500 font-mono mt-0.5">{maskEmailLocal(user.email)}</p>
                                                 </td>
                                                 <td className="px-6 py-4">
@@ -327,12 +756,25 @@ export default function RevenueInsights() {
                                                     <StatusPill status={sub.status} />
                                                 </td>
                                                 <td className="px-6 py-4">
-                                                    <p className="font-bold text-[#195C51]">{sub.pricingSnapshot?.totalPaid?.toLocaleString() || 0} {sub.pricingSnapshot?.currency}</p>
+                                                    <p className="font-bold text-[#195C51]">
+                                                        {sub.pricingSnapshot?.totalPaid?.toLocaleString() || 0} {sub.pricingSnapshot?.currency}
+                                                    </p>
                                                     <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">{sub.paymentMethod}</p>
                                                 </td>
                                                 <td className="px-6 py-4">
-                                                    <p className="text-xs font-medium text-slate-700">Starts: {formatDate(sub.startDate)}</p>
-                                                    <p className="text-xs font-medium text-slate-500">Ends: {formatDate(sub.endDate)}</p>
+                                                    <p className="text-xs font-medium text-slate-700">Start: {formatDate(sub.startDate)}</p>
+                                                    <p className="text-xs font-medium text-slate-500">End: {formatDate(sub.endDate)}</p>
+                                                </td>
+                                                {/* Revenue History Button */}
+                                                <td className="px-6 py-4 text-right">
+                                                    <button
+                                                        onClick={() => setHistoryUser(sub)}
+                                                        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#195C51]/8 hover:bg-[#195C51] text-[#195C51] hover:text-white border border-[#195C51]/20 hover:border-[#195C51] rounded-lg text-[10px] font-black uppercase tracking-wider transition-all group-hover:opacity-100"
+                                                        title="View subscription history for this user"
+                                                    >
+                                                        <Receipt className="w-3.5 h-3.5" />
+                                                        History
+                                                    </button>
                                                 </td>
                                             </tr>
                                         );
@@ -346,8 +788,20 @@ export default function RevenueInsights() {
                             <div className="p-4 border-t border-slate-200 bg-slate-50 flex items-center justify-between">
                                 <span className="text-xs text-slate-500 font-medium">Page {subStats.page} of {subStats.totalPages}</span>
                                 <div className="flex items-center gap-2">
-                                    <button disabled={subStats.page === 1} onClick={() => loadSubscriptions(subStats.page - 1)} className="px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 disabled:opacity-50 text-xs font-bold transition-all flex items-center gap-1"><ChevronLeft className="w-4 h-4" /> Prev</button>
-                                    <button disabled={subStats.page >= subStats.totalPages} onClick={() => loadSubscriptions(subStats.page + 1)} className="px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 disabled:opacity-50 text-xs font-bold transition-all flex items-center gap-1">Next <ChevronRight className="w-4 h-4" /></button>
+                                    <button
+                                        disabled={subStats.page === 1}
+                                        onClick={() => loadSubscriptions(subStats.page - 1)}
+                                        className="px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 disabled:opacity-50 text-xs font-bold transition-all flex items-center gap-1"
+                                    >
+                                        <ChevronLeft className="w-4 h-4" /> Prev
+                                    </button>
+                                    <button
+                                        disabled={subStats.page >= subStats.totalPages}
+                                        onClick={() => loadSubscriptions(subStats.page + 1)}
+                                        className="px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 disabled:opacity-50 text-xs font-bold transition-all flex items-center gap-1"
+                                    >
+                                        Next <ChevronRight className="w-4 h-4" />
+                                    </button>
                                 </div>
                             </div>
                         )}
@@ -355,7 +809,7 @@ export default function RevenueInsights() {
                 </div>
             )}
 
-            {/* --- TAB 2: PLAN MANAGEMENT --- */}
+            {/* === TAB 2: PLAN MANAGEMENT === */}
             {activeTab === 'plans' && (
                 <div className="animate-slide-entrance space-y-6">
                     <div className="flex justify-end">
@@ -365,7 +819,9 @@ export default function RevenueInsights() {
                     </div>
 
                     {plansLoading ? (
-                        <div className="flex justify-center py-12"><div className="w-8 h-8 border-4 border-[#195C51] border-t-transparent rounded-full animate-spin"></div></div>
+                        <div className="flex justify-center py-12">
+                            <div className="w-8 h-8 border-4 border-[#195C51] border-t-transparent rounded-full animate-spin" />
+                        </div>
                     ) : plans.length === 0 ? (
                         <Card className="p-12 flex flex-col items-center text-center">
                             <CreditCard className="w-12 h-12 text-slate-200 mb-4" />
@@ -396,18 +852,16 @@ export default function RevenueInsights() {
                                             </div>
 
                                             <div className="grid grid-cols-3 gap-2 mb-6">
-                                                <div className="bg-slate-50 rounded-lg p-2 text-center border border-slate-100">
-                                                    <p className="text-sm font-black text-[#195C51]">{plan.maxDevices}</p>
-                                                    <p className="text-[8px] font-bold uppercase tracking-widest text-slate-400">Devices</p>
-                                                </div>
-                                                <div className="bg-slate-50 rounded-lg p-2 text-center border border-slate-100">
-                                                    <p className="text-sm font-black text-[#195C51]">{plan.maxShares}</p>
-                                                    <p className="text-[8px] font-bold uppercase tracking-widest text-slate-400">Shares</p>
-                                                </div>
-                                                <div className="bg-slate-50 rounded-lg p-2 text-center border border-slate-100">
-                                                    <p className="text-sm font-black text-[#195C51]">{plan.maxSessions}</p>
-                                                    <p className="text-[8px] font-bold uppercase tracking-widest text-slate-400">Logins</p>
-                                                </div>
+                                                {[
+                                                    { label: 'Devices',  val: plan.maxDevices  },
+                                                    { label: 'Shares',   val: plan.maxShares   },
+                                                    { label: 'Logins',   val: plan.maxSessions },
+                                                ].map(l => (
+                                                    <div key={l.label} className="bg-slate-50 rounded-lg p-2 text-center border border-slate-100">
+                                                        <p className="text-sm font-black text-[#195C51]">{l.val}</p>
+                                                        <p className="text-[8px] font-bold uppercase tracking-widest text-slate-400">{l.label}</p>
+                                                    </div>
+                                                ))}
                                             </div>
 
                                             <div className="flex-1">
@@ -426,7 +880,7 @@ export default function RevenueInsights() {
                                                     <Edit2 size={14} /> Edit
                                                 </button>
                                                 <button onClick={() => handleTogglePlanStatus(plan._id, plan.isActive)} className={`flex-1 flex items-center justify-center gap-2 py-2 text-xs font-bold rounded-lg transition-colors border ${plan.isActive ? 'bg-red-50 text-red-600 border-red-100 hover:bg-red-100' : 'bg-emerald-50 text-emerald-600 border-emerald-100 hover:bg-emerald-100'}`}>
-                                                    {plan.isActive ? <><PowerOff size={14}/> Disable</> : <><Power size={14}/> Enable</>}
+                                                    {plan.isActive ? <><PowerOff size={14} /> Disable</> : <><Power size={14} /> Enable</>}
                                                 </button>
                                             </div>
                                         </div>
@@ -438,19 +892,18 @@ export default function RevenueInsights() {
                 </div>
             )}
 
-            {/* --- PLAN MODAL --- */}
+            {/* Plan Modal */}
             {isModalOpen && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-                    <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setIsModalOpen(false)}></div>
+                    <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setIsModalOpen(false)} />
                     <div className="relative w-full max-w-2xl bg-white rounded-2xl shadow-2xl overflow-hidden animate-slide-up flex flex-col max-h-[90vh]">
-                        
                         <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
                             <div>
                                 <h2 className="text-xl font-bold text-slate-900">{editingPlan ? 'Edit Subscription Tier' : 'Create Subscription Tier'}</h2>
                                 <p className="text-xs text-slate-500 font-medium">Define limits and pricing for this plan.</p>
                             </div>
                             <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-slate-200 rounded-full text-slate-400 transition-colors">
-                                <MdCancel size={24} />
+                                <X size={24} />
                             </button>
                         </div>
 
@@ -459,40 +912,34 @@ export default function RevenueInsights() {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div className="space-y-2 md:col-span-2">
                                         <label className="text-[10px] font-black uppercase tracking-widest text-gray-500">Plan Name *</label>
-                                        <input required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-bold outline-none focus:border-[#195C51] focus:ring-1 focus:ring-[#195C51]/20 transition-all" />
+                                        <input required value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-bold outline-none focus:border-[#195C51] focus:ring-1 focus:ring-[#195C51]/20 transition-all" />
                                     </div>
-                                    
                                     <div className="space-y-2 md:col-span-2">
                                         <label className="text-[10px] font-black uppercase tracking-widest text-gray-500">Description</label>
-                                        <input value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm outline-none focus:border-[#195C51]" />
+                                        <input value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm outline-none focus:border-[#195C51]" />
                                     </div>
-
                                     <div className="space-y-2">
                                         <label className="text-[10px] font-black uppercase tracking-widest text-gray-500">Price Per Month (RWF) *</label>
-                                        <input type="number" required min="0" value={formData.pricePerMonth} onChange={e => setFormData({...formData, pricePerMonth: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-bold outline-none focus:border-[#195C51]" />
+                                        <input type="number" required min="0" value={formData.pricePerMonth} onChange={e => setFormData({ ...formData, pricePerMonth: e.target.value })} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-bold outline-none focus:border-[#195C51]" />
                                     </div>
-
                                     <div className="space-y-2">
                                         <label className="text-[10px] font-black uppercase tracking-widest text-gray-500">Max Devices *</label>
-                                        <input type="number" required min="1" value={formData.maxDevices} onChange={e => setFormData({...formData, maxDevices: parseInt(e.target.value) || 0})} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm outline-none focus:border-[#195C51]" />
+                                        <input type="number" required min="1" value={formData.maxDevices} onChange={e => setFormData({ ...formData, maxDevices: parseInt(e.target.value) || 0 })} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm outline-none focus:border-[#195C51]" />
                                     </div>
-
                                     <div className="space-y-2">
                                         <label className="text-[10px] font-black uppercase tracking-widest text-gray-500">Max Shares *</label>
-                                        <input type="number" required min="0" value={formData.maxShares} onChange={e => setFormData({...formData, maxShares: parseInt(e.target.value) || 0})} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm outline-none focus:border-[#195C51]" />
+                                        <input type="number" required min="0" value={formData.maxShares} onChange={e => setFormData({ ...formData, maxShares: parseInt(e.target.value) || 0 })} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm outline-none focus:border-[#195C51]" />
                                     </div>
-
                                     <div className="space-y-2">
                                         <label className="text-[10px] font-black uppercase tracking-widest text-gray-500">Max Login Sessions *</label>
-                                        <input type="number" required min="1" value={formData.maxSessions} onChange={e => setFormData({...formData, maxSessions: parseInt(e.target.value) || 0})} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm outline-none focus:border-[#195C51]" />
+                                        <input type="number" required min="1" value={formData.maxSessions} onChange={e => setFormData({ ...formData, maxSessions: parseInt(e.target.value) || 0 })} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm outline-none focus:border-[#195C51]" />
                                     </div>
-
                                     <div className="space-y-2 md:col-span-2">
                                         <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 flex justify-between">
                                             <span>Features</span>
                                             <span className="text-gray-400 font-normal normal-case">(Comma separated)</span>
                                         </label>
-                                        <textarea rows="3" value={formData.features} onChange={e => setFormData({...formData, features: e.target.value})} placeholder="Analytics dashboard, Priority support..." className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm outline-none focus:border-[#195C51] resize-none custom-scrollbar" />
+                                        <textarea rows="3" value={formData.features} onChange={e => setFormData({ ...formData, features: e.target.value })} placeholder="Analytics dashboard, Priority support..." className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm outline-none focus:border-[#195C51] resize-none custom-scrollbar" />
                                     </div>
                                 </div>
                             </form>
@@ -503,7 +950,7 @@ export default function RevenueInsights() {
                                 Cancel
                             </button>
                             <button type="submit" form="plan-form" disabled={saving} className="px-8 py-2.5 bg-[#195C51] text-white rounded-xl font-bold hover:bg-[#0E3A32] transition-colors shadow-md disabled:opacity-50 text-sm">
-                                {saving ? "Saving..." : "Save Tier Configuration"}
+                                {saving ? 'Saving...' : 'Save Tier Configuration'}
                             </button>
                         </div>
                     </div>

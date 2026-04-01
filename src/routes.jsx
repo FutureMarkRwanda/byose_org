@@ -1,8 +1,7 @@
 // src/routes.jsx (snippet)
 import AdminMovies from "./pages/dashboard/AdminMovies.jsx";
-import PresenceEyeAdmin from "./pages/dashboard/PresenceEye.jsx";
+
 import Feedbacks from "./pages/dashboard/Feedbacks.jsx";
-import DashboardOverview from "./pages/dashboard/DashboardOverview.jsx";
 import AddMovie from "./pages/dashboard/AddMovie.jsx";
 import CreatePost from "./pages/dashboard/CreatePost.jsx";
 import UpdateLocation from "./pages/dashboard/UpdateLocation.jsx";
@@ -11,7 +10,6 @@ import CustomerInsights from "./pages/dashboard/CustomerInsights.jsx";
 import RemoteUsageHistory from "./pages/dashboard/RemoteUsageHistory.jsx";
 import DeviceInsights from "./pages/dashboard/DeviceInsights.jsx";
 import RevenueInsights from "./pages/dashboard/RevenueInsights.jsx";
-import PresenceEyeAnalytics from "./pages/dashboard/PresenceEyeAnalytics.jsx";
 
 // auth imports
 import SignIn from "./pages/auth/Sign-in.jsx";
