@@ -63,17 +63,17 @@ export const routes = [
         subPages: [
           
           {
-            name: "Customer Insights", // Renamed and replaced element
+            name: "Customer Insights", 
             path: "presence-eye-buttons/analytics",
             element: <CustomerInsights />,
           },
           {
-            name: "Device Insights", // Changed from Update Location
+            name: "Device Insights",
             path: "presence-eye-buttons/insights",
             element: <DeviceInsights />,
           },
           {
-            name: "Revenue Insights", // Added Phase 3
+            name: "Revenue Insights", 
             path: "presence-eye-buttons/revenue",
             element: <RevenueInsights />,
           }, 

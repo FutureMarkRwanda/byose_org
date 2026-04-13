@@ -25,6 +25,7 @@ import AccountDeletation from "./pages/home/AccountDeletation.jsx";
 import PresenceEyeResetPassword from "./pages/auth/PresenceEyeResetPassword.jsx";
 import ButtonsPage from "./components/presence_eye/ButtonsPage.jsx";
 import DownloadPage from "./pages/dashboard/PresenceEyeDownload.jsx";
+import DashboardHome from "./pages/dashboard/DashboardHome.jsx";
 
 function DashboardLayout() {
   return (
@@ -100,6 +101,7 @@ function App() {
 
         {/* Admin Dashboard */}
         <Route path="/dashboard" element={<DashboardLayout />}>
+          <Route index element={<DashboardHome />} />
           {routes.map(
             ({ layout, pages }) =>
               layout === "dashboard" &&
