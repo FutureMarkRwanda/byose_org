@@ -82,9 +82,9 @@ html {
   line-height: 1.5;
   font-weight: 400;
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  color-scheme: light;
+  color: #213547;
+  background-color: #ffffff;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -562,6 +562,26 @@ h1,h2,h3,h4,h5,h6 {
 
 .markdown-body img{
   max-width: 550px;
+}
+
+/* ── Report print styles ─────────────────────────────────────────────────── */
+@media print {
+  /* Hide everything except the report body and ensure it fills the page */
+  body * { visibility: hidden; }
+  .report-doc, .report-doc * { visibility: visible; }
+  .report-doc {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    padding: 20px;
+    box-shadow: none;
+    border: none;
+    border-radius: 0;
+    background: #fff;
+  }
+  /* Keep related blocks together on the same page when possible */
+  .keep-together { break-inside: avoid; page-break-inside: avoid; }
+  .page-break-before { break-before: page; page-break-before: always; }
 }
   
 

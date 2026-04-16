@@ -73,9 +73,12 @@ export default function RemoteUsageHistory() {
 
   const [loading,    setLoading]    = useState(true);
   const [data,       setData]       = useState(null);
-  const [timeFilter, setTimeFilter] = useState('30d');
+  const [timeFilter, setTimeFilter] = useState('thisMonth');
   const [customFrom, setCustomFrom] = useState('');
   const [customTo,   setCustomTo]   = useState('');
+
+  // Future-date guard for custom-range inputs
+  const todayStr = toLocalDateStr(new Date());
 
   /**
    * FIX #2 — Wrap loadRemoteData in useCallback so every useEffect always
@@ -85,20 +88,27 @@ export default function RemoteUsageHistory() {
   const loadRemoteData = useCallback(async () => {
     setLoading(true);
 
-    let toDate   = new Date();
-    let fromDate = new Date();
+    const now = new Date();
+    let toDate   = now;
+    let fromDate = now;
 
-    if (timeFilter === '1d') {
-      fromDate.setDate(toDate.getDate() - 1);
-    } else if (timeFilter === '7d') {
-      fromDate.setDate(toDate.getDate() - 7);
-    } else if (timeFilter === '30d') {
-      fromDate.setDate(toDate.getDate() - 30);
-    } else if (timeFilter === 'all') {
-      fromDate = new Date(0);
+    if (timeFilter === 'today') {
+      fromDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      toDate   = now;
+    } else if (timeFilter === 'yesterday') {
+      fromDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+      toDate   = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+    } else if (timeFilter === 'thisMonth') {
+      fromDate = new Date(now.getFullYear(), now.getMonth(), 1);
+      toDate   = now;
+    } else if (timeFilter === 'thisYear') {
+      fromDate = new Date(now.getFullYear(), 0, 1);
+      toDate   = now;
     } else if (timeFilter === 'custom') {
       fromDate = new Date(customFrom);
       toDate   = new Date(customTo);
+      // Defensive: if someone hand-edits the input past today, clamp the backend query.
+      if (toDate > now) toDate = now;
     }
 
     // FIX #3 — Use local-timezone date strings, not UTC-shifted ISO strings.
@@ -243,13 +253,13 @@ export default function RemoteUsageHistory() {
 
         {/* Right: time-filter controls */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 bg-white p-2 rounded-xl shadow-sm border border-slate-200">
-          <div className="flex bg-slate-100 p-1 rounded-lg">
+          <div className="flex flex-wrap bg-slate-100 p-1 rounded-lg">
             {[
-              { id: '1d',     label: '1D'       },
-              { id: '7d',     label: '7D'       },
-              { id: '30d',    label: '30D'      },
-              { id: 'all',    label: 'All Time' },
-              { id: 'custom', label: 'Custom'   },
+              { id: 'today',     label: 'Today'      },
+              { id: 'yesterday', label: 'Yesterday'  },
+              { id: 'thisMonth', label: 'This Month' },
+              { id: 'thisYear',  label: 'This Year'  },
+              { id: 'custom',    label: 'Custom'     },
             ].map((f) => (
               <button
                 key={f.id}
@@ -270,6 +280,7 @@ export default function RemoteUsageHistory() {
               <input
                 type="date"
                 value={customFrom}
+                max={customTo || todayStr}
                 onChange={(e) => setCustomFrom(e.target.value)}
                 className="border border-slate-200 rounded-md px-2 py-1 outline-none focus:border-[#195C51] text-xs font-medium"
               />
@@ -277,6 +288,8 @@ export default function RemoteUsageHistory() {
               <input
                 type="date"
                 value={customTo}
+                min={customFrom || undefined}
+                max={todayStr}
                 onChange={(e) => setCustomTo(e.target.value)}
                 className="border border-slate-200 rounded-md px-2 py-1 outline-none focus:border-[#195C51] text-xs font-medium"
               />

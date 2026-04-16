@@ -1,8 +1,9 @@
 // src/pages/dashboard/CustomerInsights.jsx
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer } from 'recharts';
-import { ChevronDown, ChevronRight, Activity, AlertTriangle, Trophy, Search, CalendarDays } from 'lucide-react';
+import { ChevronDown, ChevronRight, Activity, AlertTriangle, Trophy, Search, CalendarDays, FileText, Printer, Download, X, Wifi, WifiOff } from 'lucide-react';
+import html2pdf from 'html2pdf.js';
 import { fetchData, returnToken } from '../../utils/helper.js';
 import { presence_server } from '../../config/server_api.js';
 import { PrivacyNameToggle } from './DeviceInsights.jsx'; // Reuse the toggle component // Reuse the toggle component
@@ -209,6 +210,78 @@ export default function CustomerInsights() {
   const [currentPage, setCurrentPage] = useState(1);
   const PAGE_SIZE = 10;
 
+  // ── Report generator state ────────────────────────────────────────────────
+  const [reportStage, setReportStage] = useState(null); // null | 'picker' | 'loading' | 'view'
+  const [reportPeriodMode, setReportPeriodMode] = useState("thisMonth");
+  const [reportCustomFrom, setReportCustomFrom] = useState(todayISO());
+  const [reportCustomTo,   setReportCustomTo]   = useState(todayISO());
+  const [report, setReport] = useState(null);
+  const [reportError, setReportError] = useState(null);
+  const reportRef = useRef(null);
+
+  const resolveReportWindow = () => {
+    const state = {
+      mode: reportPeriodMode,
+      day:   todayISO(),
+      month: thisMonthISO(),
+      year:  String(thisYearNum()),
+      range: { from: reportCustomFrom, to: reportCustomTo },
+    };
+    return resolveWindow(state);
+  };
+
+  const openReportPicker = () => {
+    setReport(null);
+    setReportError(null);
+    setReportStage('picker');
+  };
+
+  const closeReport = () => setReportStage(null);
+
+  const generateReport = async () => {
+    const win = resolveReportWindow();
+    const includeDevices = reportPeriodMode === 'today';
+    setReportStage('loading');
+    setReportError(null);
+    try {
+      const url = `${presence_server}/api/admin/analytics-users/report`
+        + `?from=${win.from.toISOString()}`
+        + `&to=${win.to.toISOString()}`
+        + `&includeDevices=${includeDevices}`;
+      const res = await fetchData(url, token);
+      if (res.data?.success) {
+        setReport(res.data.report);
+        setReportStage('view');
+      } else {
+        setReportError(res.error || 'Failed to generate report');
+        setReportStage('picker');
+      }
+    } catch (err) {
+      console.error(err);
+      setReportError('Failed to generate report');
+      setReportStage('picker');
+    }
+  };
+
+  const downloadPdf = () => {
+    if (!reportRef.current) return;
+    const win = resolveReportWindow();
+    const label = win.label.replace(/[^\w-]+/g, '_');
+    html2pdf()
+      .from(reportRef.current)
+      .set({
+        margin:       [10, 10, 10, 10],
+        filename:     `customer-insights-${label}.pdf`,
+        image:        { type: 'jpeg', quality: 0.95 },
+        html2canvas:  { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
+        pagebreak:    { mode: ['css', 'legacy'] },
+      })
+      .save();
+  };
+
+  const printReport = () => window.print();
+
   const getUserRole = (u) => {
     if ((u.devices?.owned || 0) > 0) return "owner";
     if ((u.sharing?.sharesReceived || 0) > 0) return "shared";
@@ -351,9 +424,18 @@ export default function CustomerInsights() {
     <div className="space-y-6 font-sans text-slate-900 pb-10">
       
       {/* Header */}
-      <div>
-        <h1 className="font-display text-3xl font-bold tracking-tight">Customer Insights</h1>
-        <p className="text-slate-500 text-sm mt-1">Monitor user engagement, device health, and activity patterns.</p>
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+        <div>
+          <h1 className="font-display text-3xl font-bold tracking-tight">Customer Insights</h1>
+          <p className="text-slate-500 text-sm mt-1">Monitor user engagement, device health, and activity patterns.</p>
+        </div>
+        <button
+          onClick={openReportPicker}
+          className="inline-flex items-center gap-2 bg-[#195C51] text-white hover:bg-[#0E3A32] px-4 py-2.5 rounded-lg text-sm font-semibold shadow-sm transition-colors"
+        >
+          <FileText className="w-4 h-4" />
+          Generate Report
+        </button>
       </div>
 
       {/* Row 1: Charts & Heatmap */}
@@ -834,6 +916,367 @@ export default function CustomerInsights() {
           </div>
         )}
       </Card>
+
+      {/* ═══ Report Generator ═══════════════════════════════════════════════ */}
+      {reportStage === 'picker' && (
+        <div
+          className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 print:hidden"
+          onClick={closeReport}
+        >
+          <div
+            className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <FileText className="w-5 h-5 text-[#195C51]" />
+                <h2 className="font-display font-bold text-lg text-slate-900">Generate Report</h2>
+              </div>
+              <button onClick={closeReport} className="p-1.5 rounded-lg hover:bg-slate-100">
+                <X className="w-5 h-5 text-slate-500" />
+              </button>
+            </div>
+            <p className="text-sm text-slate-500 mb-5">Choose the period this report should cover.</p>
+
+            <div className="space-y-2">
+              {[
+                { id: 'today',     label: 'Today',      hint: 'Includes current device online/offline snapshot' },
+                { id: 'thisWeek',  label: 'This Week' },
+                { id: 'thisMonth', label: 'This Month' },
+                { id: 'thisYear',  label: 'This Year' },
+                { id: 'custom',    label: 'Custom range' },
+              ].map((opt) => (
+                <button
+                  key={opt.id}
+                  onClick={() => setReportPeriodMode(opt.id)}
+                  className={`w-full text-left px-4 py-3 rounded-lg border transition-all ${
+                    reportPeriodMode === opt.id
+                      ? 'border-[#195C51] bg-[#195C51]/5 ring-1 ring-[#195C51]/30'
+                      : 'border-slate-200 hover:border-slate-300'
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-semibold text-slate-900">{opt.label}</span>
+                    {reportPeriodMode === opt.id && <span className="text-xs text-[#195C51] font-bold">SELECTED</span>}
+                  </div>
+                  {opt.hint && <p className="text-[11px] text-slate-500 mt-0.5">{opt.hint}</p>}
+                </button>
+              ))}
+
+              {reportPeriodMode === 'custom' && (
+                <div className="flex items-center gap-2 pt-2 px-1">
+                  <input
+                    type="date"
+                    value={reportCustomFrom}
+                    max={reportCustomTo || todayISO()}
+                    onChange={(e) => setReportCustomFrom(e.target.value)}
+                    className="flex-1 bg-white border border-slate-200 rounded-md px-2.5 py-1.5 text-xs font-medium text-slate-700 outline-none focus:border-[#195C51]"
+                  />
+                  <span className="text-slate-400 text-xs">→</span>
+                  <input
+                    type="date"
+                    value={reportCustomTo}
+                    min={reportCustomFrom || undefined}
+                    max={todayISO()}
+                    onChange={(e) => setReportCustomTo(e.target.value)}
+                    className="flex-1 bg-white border border-slate-200 rounded-md px-2.5 py-1.5 text-xs font-medium text-slate-700 outline-none focus:border-[#195C51]"
+                  />
+                </div>
+              )}
+            </div>
+
+            {reportError && (
+              <p className="mt-4 text-xs text-red-600 bg-red-50 border border-red-100 rounded-lg px-3 py-2">{reportError}</p>
+            )}
+
+            <div className="flex justify-end gap-2 mt-6">
+              <button onClick={closeReport} className="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-lg">
+                Cancel
+              </button>
+              <button
+                onClick={generateReport}
+                className="inline-flex items-center gap-2 bg-[#195C51] text-white hover:bg-[#0E3A32] px-4 py-2 rounded-lg text-sm font-semibold shadow-sm"
+              >
+                <FileText className="w-4 h-4" />
+                Generate
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {reportStage === 'loading' && (
+        <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 print:hidden">
+          <div className="bg-white rounded-2xl shadow-2xl p-8 flex flex-col items-center gap-3">
+            <div className="w-8 h-8 border-4 border-[#195C51] border-t-transparent rounded-full animate-spin" />
+            <p className="text-sm font-medium text-slate-600">Compiling report…</p>
+          </div>
+        </div>
+      )}
+
+      {reportStage === 'view' && report && (
+        <ReportModal
+          report={report}
+          refEl={reportRef}
+          onClose={closeReport}
+          onPrint={printReport}
+          onDownload={downloadPdf}
+        />
+      )}
+
     </div>
   );
 }
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Report View Modal
+// ═══════════════════════════════════════════════════════════════════════════
+
+const ReportModal = ({ report, refEl, onClose, onPrint, onDownload }) => {
+  const fmtDateTime = (d) => new Date(d).toLocaleString('en-GB', {
+    day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit',
+  });
+  const fmtDate = (d) => new Date(d).toLocaleDateString('en-GB', {
+    day: 'numeric', month: 'short', year: 'numeric',
+  });
+
+  const { period, overview, leaderboard, alerts, activityTrend, heatmap, maxHeatmapValue, devices } = report;
+
+  return (
+    <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-start justify-center overflow-y-auto print:bg-white print:static print:block">
+      <div className="max-w-4xl w-full mx-auto my-6 print:m-0 print:max-w-none">
+        {/* Action bar (hidden on print) */}
+        <div className="flex items-center justify-between bg-white rounded-t-2xl px-5 py-3 border border-b-0 border-slate-200 shadow-sm print:hidden sticky top-0 z-10">
+          <div className="flex items-center gap-2">
+            <FileText className="w-5 h-5 text-[#195C51]" />
+            <h2 className="font-display font-bold text-base text-slate-900">Customer Insights Report</h2>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={onPrint}
+              className="inline-flex items-center gap-1.5 bg-white border border-slate-200 hover:border-slate-300 text-slate-700 px-3 py-1.5 rounded-lg text-xs font-semibold"
+            >
+              <Printer className="w-3.5 h-3.5" /> Print
+            </button>
+            <button
+              onClick={onDownload}
+              className="inline-flex items-center gap-1.5 bg-[#195C51] text-white hover:bg-[#0E3A32] px-3 py-1.5 rounded-lg text-xs font-semibold"
+            >
+              <Download className="w-3.5 h-3.5" /> Download PDF
+            </button>
+            <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-slate-100">
+              <X className="w-5 h-5 text-slate-500" />
+            </button>
+          </div>
+        </div>
+
+        {/* Printable body */}
+        <div
+          ref={refEl}
+          className="bg-white rounded-b-2xl border border-slate-200 shadow-sm p-8 print:border-0 print:shadow-none print:rounded-none print:p-6 report-doc"
+        >
+          {/* Title */}
+          <div className="mb-6 pb-4 border-b border-slate-200">
+            <p className="text-[10px] font-black uppercase tracking-widest text-[#195C51] mb-1">Presence Eye · Customer Insights</p>
+            <h1 className="font-display font-bold text-2xl text-slate-900">Analytics Report</h1>
+            <div className="mt-2 flex flex-wrap gap-x-6 gap-y-1 text-xs text-slate-600">
+              <span><strong>Period:</strong> {fmtDate(period.from)} — {fmtDate(period.to)} ({period.days} day{period.days === 1 ? '' : 's'})</span>
+              <span><strong>Generated:</strong> {fmtDateTime(new Date())}</span>
+            </div>
+          </div>
+
+          {/* Overview KPIs */}
+          <section className="mb-6 keep-together">
+            <h2 className="text-xs font-black uppercase tracking-widest text-slate-500 mb-3">Overview</h2>
+            <div className="grid grid-cols-4 gap-3">
+              <div className="bg-slate-50 border border-slate-200 rounded-lg p-3">
+                <p className="text-[9px] font-black uppercase tracking-widest text-slate-500">Total interactions</p>
+                <p className="text-2xl font-bold text-slate-900">{overview.totalInteractions}</p>
+              </div>
+              <div className="bg-slate-50 border border-slate-200 rounded-lg p-3">
+                <p className="text-[9px] font-black uppercase tracking-widest text-slate-500">Active users</p>
+                <p className="text-2xl font-bold text-slate-900">{overview.activeUsers}</p>
+              </div>
+              <div className="bg-slate-50 border border-slate-200 rounded-lg p-3">
+                <p className="text-[9px] font-black uppercase tracking-widest text-slate-500">System alerts</p>
+                <p className="text-2xl font-bold text-red-600">{overview.alertCount}</p>
+              </div>
+              <div className="bg-slate-50 border border-slate-200 rounded-lg p-3">
+                <p className="text-[9px] font-black uppercase tracking-widest text-slate-500">Alert threshold</p>
+                <p className="text-sm font-bold text-slate-900 pt-1">≥ {overview.alertThreshold} events</p>
+                <p className="text-[10px] text-slate-500">(~5/day over window)</p>
+              </div>
+            </div>
+          </section>
+
+          {/* Leaderboards */}
+          <section className="mb-6 keep-together">
+            <h2 className="text-xs font-black uppercase tracking-widest text-slate-500 mb-3">Engagement Leaderboard</h2>
+            <div className="grid grid-cols-2 gap-4">
+              <LeaderboardList title="Most Active" accent="emerald" users={leaderboard.top} />
+              <LeaderboardList title="Least Active" accent="amber"  users={leaderboard.bottom} />
+            </div>
+            <p className="text-[10px] text-slate-400 mt-2 italic">Ranked by active days within the period. Tester and admin accounts excluded. &ldquo;Least active&rdquo; is drawn only from users who had at least one interaction.</p>
+          </section>
+
+          {/* Activity trend */}
+          <section className="mb-6 keep-together">
+            <h2 className="text-xs font-black uppercase tracking-widest text-slate-500 mb-3">Daily Activity Trend</h2>
+            <div className="h-[180px] bg-slate-50 border border-slate-200 rounded-lg p-2">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={activityTrend} margin={{ top: 8, right: 10, left: -20, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
+                  <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fontSize: 9, fill: '#64748B' }} />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 9, fill: '#64748B' }} />
+                  <RechartsTooltip contentStyle={{ fontSize: '11px', borderRadius: '6px' }} />
+                  <Line type="monotone" dataKey="count" stroke="#195C51" strokeWidth={2} dot={false} />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </section>
+
+          {/* Heatmap */}
+          <section className="mb-6 keep-together">
+            <h2 className="text-xs font-black uppercase tracking-widest text-slate-500 mb-3">Peak Usage by Day & Hour</h2>
+            <div className="bg-slate-50 border border-slate-200 rounded-lg p-3">
+              <div className="flex ml-8 mb-1">
+                {Array.from({ length: 24 }).map((_, h) => (
+                  <div key={h} className="flex-1 text-center text-[8px] font-bold text-slate-400">
+                    {h % 4 === 0 ? `${h}h` : ''}
+                  </div>
+                ))}
+              </div>
+              <div className="space-y-0.5">
+                {heatmap.map((row) => (
+                  <div key={row.day} className="flex items-center gap-1">
+                    <div className="w-6 text-[9px] font-bold text-slate-500 text-right pr-1">{row.day}</div>
+                    <div className="flex flex-1 gap-[1px]">
+                      {row.hours.map((val, j) => {
+                        const opacity = val === 0 ? 0 : Math.max(0.15, val / maxHeatmapValue);
+                        return (
+                          <div
+                            key={j}
+                            className="flex-1 aspect-[3/4] rounded-sm"
+                            style={{ backgroundColor: val === 0 ? '#f1f5f9' : `rgba(25, 92, 81, ${opacity})` }}
+                            title={`${row.day} ${j}:00 — ${val} opens`}
+                          />
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+
+          {/* Alerts */}
+          <section className="mb-6 keep-together">
+            <h2 className="text-xs font-black uppercase tracking-widest text-slate-500 mb-3">System Alerts</h2>
+            {alerts.length === 0 ? (
+              <p className="text-sm text-slate-500 italic bg-slate-50 border border-slate-200 rounded-lg p-4">No users exceeded the alert threshold — all systems healthy.</p>
+            ) : (
+              <table className="w-full text-xs border border-slate-200 rounded-lg overflow-hidden">
+                <thead className="bg-slate-50 text-slate-600">
+                  <tr>
+                    <th className="px-3 py-2 text-left font-semibold uppercase tracking-wider">Customer</th>
+                    <th className="px-3 py-2 text-right font-semibold uppercase tracking-wider">Offline events</th>
+                    <th className="px-3 py-2 text-left font-semibold uppercase tracking-wider">Longest current outage</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {alerts.map((u) => (
+                    <tr key={u.id}>
+                      <td className="px-3 py-2 font-semibold text-slate-800">{u.displayName} <span className="text-slate-400 font-mono text-[10px]">{u.email}</span></td>
+                      <td className="px-3 py-2 text-right font-bold text-red-600">{u.totalOfflineIncidents}</td>
+                      <td className="px-3 py-2 text-slate-600">{u.longestCurrentOffline || '—'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </section>
+
+          {/* Devices snapshot — only for Today */}
+          {devices && (
+            <section className="mb-4 keep-together page-break-before">
+              <h2 className="text-xs font-black uppercase tracking-widest text-slate-500 mb-3">
+                Current Device Status <span className="text-slate-400 font-normal normal-case">· snapshot at report time</span>
+              </h2>
+              <div className="grid grid-cols-2 gap-4">
+                <DeviceList title="Currently Online"  icon={Wifi}    devices={devices.currentlyOnline}  accent="emerald" />
+                <DeviceList title="Currently Offline" icon={WifiOff} devices={devices.currentlyOffline} accent="red" />
+              </div>
+              <p className="text-[10px] text-slate-400 mt-2">Total deployed: {devices.totalDeployed}</p>
+            </section>
+          )}
+
+          {/* Footer */}
+          <div className="mt-8 pt-4 border-t border-slate-200 text-center">
+            <p className="text-[10px] text-slate-400">© {new Date().getFullYear()} Byose Tech · Presence Eye Analytics</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const LeaderboardList = ({ title, users, accent }) => {
+  const accents = {
+    emerald: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+    amber:   'bg-amber-50 text-amber-700 border-amber-200',
+  };
+  return (
+    <div>
+      <p className={`inline-block text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded border ${accents[accent]} mb-2`}>{title}</p>
+      {users.length === 0 ? (
+        <p className="text-xs text-slate-400 italic">No data.</p>
+      ) : (
+        <ol className="space-y-1.5">
+          {users.map((u, i) => (
+            <li key={u.id} className="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-md px-2.5 py-1.5">
+              <div className="min-w-0 flex items-center gap-2">
+                <span className="text-xs font-bold text-slate-400 w-4 shrink-0">{i + 1}</span>
+                <div className="min-w-0">
+                  <p className="text-xs font-semibold text-slate-800 truncate">{u.displayName}</p>
+                  <p className="text-[10px] text-slate-500 font-mono truncate">{u.email}</p>
+                </div>
+              </div>
+              <div className="text-right shrink-0 pl-2">
+                <p className="text-sm font-bold text-[#195C51] leading-none">{u.activeDays}</p>
+                <p className="text-[9px] text-slate-400">{u.totalEvents} events</p>
+              </div>
+            </li>
+          ))}
+        </ol>
+      )}
+    </div>
+  );
+};
+
+const DeviceList = ({ title, icon: Icon, devices, accent }) => {
+  const accents = {
+    emerald: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+    red:     'bg-red-50 text-red-700 border-red-200',
+  };
+  return (
+    <div>
+      <p className={`inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded border ${accents[accent]} mb-2`}>
+        <Icon className="w-3 h-3" /> {title} · {devices.length}
+      </p>
+      {devices.length === 0 ? (
+        <p className="text-xs text-slate-400 italic">None.</p>
+      ) : (
+        <ul className="space-y-1.5 max-h-[260px] overflow-hidden">
+          {devices.slice(0, 30).map((d) => (
+            <li key={d.id} className="bg-slate-50 border border-slate-200 rounded-md px-2.5 py-1.5">
+              <p className="text-xs font-mono font-bold text-slate-800">{d.serialNumber}</p>
+              <p className="text-[10px] text-slate-500">{d.labelName || 'Unnamed'} · <span className="uppercase">{d.modelType}</span></p>
+              <p className="text-[10px] text-slate-600 mt-0.5">Owner: <span className="font-semibold">{d.owner?.displayName || '—'}</span></p>
+            </li>
+          ))}
+          {devices.length > 30 && <li className="text-[10px] text-slate-400 italic">+ {devices.length - 30} more…</li>}
+        </ul>
+      )}
+    </div>
+  );
+};

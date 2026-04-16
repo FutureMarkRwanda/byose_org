@@ -1,15 +1,50 @@
 // src/pages/dashboard/DeviceInsights.jsx
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Legend } from "recharts";
-import { MapContainer, TileLayer, CircleMarker, Popup, useMap } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
+import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { 
-    MapPin, Activity, Settings, Trash2, Search, Wifi, WifiOff, Box, Package, ChevronLeft, ChevronRight, Eye, EyeOff 
+import {
+    MapPin, Activity, Settings, Search, Wifi, WifiOff, Box, Package, ChevronLeft, ChevronRight, Eye, EyeOff,
+    X, History, Crosshair, ExternalLink
 } from "lucide-react";
-import { fetchData, deleteData, returnToken } from "../../utils/helper.js";
+import { fetchData, returnToken } from "../../utils/helper.js";
 import { presence_server } from "../../config/server_api.js";
 import { useNotification } from "../../context/NotificationContext.jsx";
 import RemoteDetailsModal from "../../components/RemoteDetailsModal.jsx";
+
+// ── Google-Maps-style drop pin icons ──────────────────────────────────────────
+const makePinIcon = (color) => L.divIcon({
+  className: "presence-pin",
+  html: `
+    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="40" viewBox="0 0 28 40">
+      <defs>
+        <filter id="ds" x="-50%" y="-50%" width="200%" height="200%">
+          <feDropShadow dx="0" dy="1.5" stdDeviation="1.2" flood-opacity="0.35"/>
+        </filter>
+      </defs>
+      <path d="M14 0C6.3 0 0 6.3 0 14c0 10.5 14 26 14 26s14-15.5 14-26c0-7.7-6.3-14-14-14z"
+            fill="${color}" filter="url(#ds)"/>
+      <circle cx="14" cy="14" r="5" fill="white"/>
+    </svg>`,
+  iconSize: [28, 40],
+  iconAnchor: [14, 40],
+  popupAnchor: [0, -36],
+});
+const PIN_ONLINE  = makePinIcon("#10b981");
+const PIN_OFFLINE = makePinIcon("#ef4444");
+
+// Helper for imperative map actions (fit bounds / recenter)
+const MapController = ({ fitRef }) => {
+  const map = useMap();
+  useEffect(() => {
+    if (fitRef) fitRef.current = (bounds) => {
+      if (bounds && bounds.isValid()) map.fitBounds(bounds, { padding: [40, 40], maxZoom: 14 });
+    };
+  }, [fitRef, map]);
+  return null;
+};
 
 // --- Shadcn-Simulated UI Components ---
 const Card = ({ children, className = "" }) => (
@@ -54,24 +89,66 @@ export const PrivacyNameToggle = ({ fullName }) => {
   );
 };
 
+// ── Time-window helpers for the trend chart ──────────────────────────────────
+const toLocalDateStr = (d) => {
+  const pad = (n) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+};
+const startOfDay = (d) => { const x = new Date(d); x.setHours(0, 0, 0, 0); return x; };
+const endOfDay   = (d) => { const x = new Date(d); x.setHours(23, 59, 59, 999); return x; };
+
+const resolveTrendWindow = (state) => {
+  const now = new Date();
+  switch (state.mode) {
+    case "today":
+      return { from: startOfDay(now), to: endOfDay(now), label: "Today" };
+    case "thisWeek": {
+      const dow = (now.getDay() + 6) % 7; // Monday = 0
+      const start = startOfDay(new Date(now.getTime() - dow * 86400000));
+      return { from: start, to: endOfDay(now), label: "This week" };
+    }
+    case "thisMonth": {
+      const start = new Date(now.getFullYear(), now.getMonth(), 1);
+      return { from: start, to: endOfDay(now), label: "This month" };
+    }
+    case "custom": {
+      if (!state.from || !state.to) return null;
+      return {
+        from: startOfDay(new Date(state.from)),
+        to:   endOfDay(new Date(state.to)),
+        label: `${state.from} → ${state.to}`,
+      };
+    }
+    default:
+      return null;
+  }
+};
+
 export default function DeviceInsights() {
   const token = returnToken();
+  const navigate = useNavigate();
   const { showNotification } = useNotification();
 
   const [loading, setLoading] = useState(true);
   const [trendLoading, setTrendLoading] = useState(true);
-  
+
   // Data States
   const [remotes, setRemotes] = useState([]);
   const [globalStats, setGlobalStats] = useState(null);
   const [trendData, setTrendData] = useState([]);
-  
+
   // UI States
-  const [trendTime, setTrendTime] = useState(7);
+  const [trendWin, setTrendWin] = useState({ mode: "thisMonth", from: "", to: "" });
+  const trendRange = useMemo(() => resolveTrendWindow(trendWin), [trendWin]);
+
   const [search, setSearch] = useState("");
-  const [tableFilter, setTableFilter] = useState("all"); 
+  const [tableFilter, setTableFilter] = useState("all");
   const [selectedRemote, setSelectedRemote] = useState(null);
   const [highlightedRow, setHighlightedRow] = useState(null);
+  const [statusDialog, setStatusDialog] = useState(null); // null | 'online' | 'offline'
+
+  // Map controls
+  const fitRef = useRef(null);
 
   // Pagination States
   const [currentPage, setCurrentPage] = useState(1);
@@ -82,8 +159,9 @@ export default function DeviceInsights() {
   }, []);
 
   useEffect(() => {
-    loadTrends();
-  }, [trendTime]);
+    if (trendRange) loadTrends();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [trendRange?.from, trendRange?.to]);
 
   const loadInventory = async () => {
     setLoading(true);
@@ -100,36 +178,25 @@ export default function DeviceInsights() {
   };
 
   const loadTrends = async () => {
+    if (!trendRange) return;
     setTrendLoading(true);
     try {
-      const res = await fetchData(`${presence_server}/api/admin/analytics-remotes/status-trends?days=${trendTime}`, token);
-      if (res.data?.data) {
-        setTrendData(res.data.data);
-      }
+      const { from, to } = trendRange;
+      const url = `${presence_server}/api/admin/analytics-remotes/status-trends?from=${from.toISOString()}&to=${to.toISOString()}`;
+      const res = await fetchData(url, token);
+      if (res.data?.data) setTrendData(res.data.data);
     } catch (err) {
       console.error("Failed to load trends", err);
     }
     setTrendLoading(false);
   };
 
-  const handleDeleteDevice = async (id) => {
-    if (!window.confirm("Are you sure you want to permanently remove this device from the inventory? This action cannot be undone.")) return;
-    try {
-        const res = await deleteData(`${presence_server}/api/remotes/admin/${id}`, token);
-        if (!res.error) {
-            showNotification("Device removed successfully", "success");
-            loadInventory();
-        } else {
-            showNotification(res.error, "error");
-        }
-    } catch (err) {
-        showNotification("Failed to delete device", "error");
-    }
-  };
-
-  // --- Accurate Live Counts ---
-  const liveOnlineCount = remotes.filter(r => r.state === 'sold' && r.connectivity?.isOnline).length;
-  const liveOfflineCount = remotes.filter(r => r.state === 'sold' && !r.connectivity?.isOnline).length;
+  // --- Live Counts: prefer server truth when available ---
+  const liveOnlineCount  = globalStats?.fleet?.currentlyOnline  ?? remotes.filter(r => r.state === 'sold' && r.connectivity?.isOnline).length;
+  const liveOfflineCount = globalStats?.fleet?.currentlyOffline ?? remotes.filter(r => r.state === 'sold' && !r.connectivity?.isOnline).length;
+  const deployedRemotes  = useMemo(() => remotes.filter(r => r.state === 'sold'), [remotes]);
+  const onlineRemotes    = useMemo(() => deployedRemotes.filter(r => r.connectivity?.isOnline), [deployedRemotes]);
+  const offlineRemotes   = useMemo(() => deployedRemotes.filter(r => !r.connectivity?.isOnline), [deployedRemotes]);
 
   // Filter Logic for Table
   const filteredRemotes = useMemo(() => {
@@ -154,22 +221,48 @@ export default function DeviceInsights() {
 
   const mapLocations = remotes.filter(r => r.state === 'sold' && r.location?.lat && r.location?.lng);
 
-  // Scroll to table logic from Map
-  const handleMapPinClick = (serialNumber) => {
-      const index = filteredRemotes.findIndex(r => r.serialNumber === serialNumber);
+  // Scroll to table logic from Map / Dialog
+  const handleFindInInventory = (serialNumber) => {
+      // Close the dialog if open so the user can see the scroll + highlight
+      setStatusDialog(null);
+      // Make sure the row is visible under the current tab filter
+      const row = remotes.find(r => r.serialNumber === serialNumber);
+      if (!row) return;
+      setTableFilter("all");
+      setSearch("");
+
+      const index = remotes.findIndex(r => r.serialNumber === serialNumber);
       if (index !== -1) {
           const targetPage = Math.ceil((index + 1) / rowsPerPage);
           setCurrentPage(targetPage);
           setHighlightedRow(serialNumber);
-          
+
           setTimeout(() => {
-              const row = document.getElementById(`row-${serialNumber}`);
-              if (row) {
-                  row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              const el = document.getElementById(`row-${serialNumber}`);
+              if (el) {
+                  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
                   setTimeout(() => setHighlightedRow(null), 3000);
               }
           }, 200);
       }
+  };
+
+  const goToUsageHistory = (serialNumber) => {
+    navigate(`/dashboard/presence-eye-buttons/remote/${serialNumber}`);
+  };
+
+  // Auto-fit map to markers when inventory finishes loading or filters change
+  useEffect(() => {
+    if (!fitRef.current || mapLocations.length === 0) return;
+    const bounds = L.latLngBounds(mapLocations.map(d => [d.location.lat, d.location.lng]));
+    fitRef.current(bounds);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [remotes]);
+
+  const recenterMap = () => {
+    if (!fitRef.current || mapLocations.length === 0) return;
+    const bounds = L.latLngBounds(mapLocations.map(d => [d.location.lat, d.location.lng]));
+    fitRef.current(bounds);
   };
 
   return (
@@ -192,21 +285,43 @@ export default function DeviceInsights() {
                   <p className="text-[10px] text-slate-400 font-medium uppercase tracking-widest">Excludes In-Stock Inventory</p>
               </div>
             </div>
-            <div className="flex bg-slate-100 p-1 rounded-lg border border-slate-200 flex-wrap">
-              {[
-                { id: 7, label: '7 Days' },
-                { id: 30, label: '30 Days' },
-                { id: 90, label: '3 Months' },
-                { id: 'all', label: 'All Time' }
-              ].map(t => (
-                <button 
-                  key={t.id}
-                  onClick={() => setTrendTime(t.id)}
-                  className={`px-3 py-1 rounded-md text-xs font-medium transition-all ${trendTime === t.id ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-900'}`}
-                >
-                  {t.label}
-                </button>
-              ))}
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="flex bg-slate-100 p-1 rounded-lg border border-slate-200 flex-wrap">
+                {[
+                  { id: 'today',     label: 'Today'      },
+                  { id: 'thisWeek',  label: 'This Week'  },
+                  { id: 'thisMonth', label: 'This Month' },
+                  { id: 'custom',    label: 'Custom'     },
+                ].map(t => (
+                  <button
+                    key={t.id}
+                    onClick={() => setTrendWin(w => ({ ...w, mode: t.id }))}
+                    className={`px-3 py-1 rounded-md text-xs font-medium transition-all ${trendWin.mode === t.id ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-900'}`}
+                  >
+                    {t.label}
+                  </button>
+                ))}
+              </div>
+              {trendWin.mode === 'custom' && (
+                <div className="flex items-center gap-1.5 text-xs">
+                  <input
+                    type="date"
+                    value={trendWin.from}
+                    max={trendWin.to || toLocalDateStr(new Date())}
+                    onChange={(e) => setTrendWin(w => ({ ...w, from: e.target.value }))}
+                    className="bg-white border border-slate-200 rounded-md px-2 py-1 font-medium text-slate-700 outline-none focus:border-[#195C51]"
+                  />
+                  <span className="text-slate-400">→</span>
+                  <input
+                    type="date"
+                    value={trendWin.to}
+                    min={trendWin.from || undefined}
+                    max={toLocalDateStr(new Date())}
+                    onChange={(e) => setTrendWin(w => ({ ...w, to: e.target.value }))}
+                    className="bg-white border border-slate-200 rounded-md px-2 py-1 font-medium text-slate-700 outline-none focus:border-[#195C51]"
+                  />
+                </div>
+              )}
             </div>
           </div>
           <div className="h-[250px] w-full bg-slate-50/50 rounded-lg border border-slate-100 p-4">
@@ -236,23 +351,35 @@ export default function DeviceInsights() {
 
         {/* Fleet KPIs */}
         <div className="xl:col-span-1 flex flex-col gap-4">
-          <Card className="p-5 flex-1 flex flex-col justify-center relative overflow-hidden group">
+          <button
+            type="button"
+            onClick={() => setStatusDialog('online')}
+            disabled={liveOnlineCount === 0}
+            className="text-left bg-white border border-slate-200 rounded-xl shadow-sm p-5 flex-1 flex flex-col justify-center relative overflow-hidden group transition-all hover:border-emerald-300 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-emerald-200 disabled:opacity-60 disabled:cursor-not-allowed"
+          >
             <div className="absolute right-0 top-0 w-16 h-16 bg-emerald-50 rounded-bl-full -z-10 group-hover:scale-110 transition-transform"></div>
             <p className="text-xs font-black uppercase tracking-widest text-slate-500 mb-1">Currently Online</p>
             <div className="flex items-center gap-3">
                 <Wifi className="w-8 h-8 text-emerald-500" />
                 <p className="text-4xl font-bold font-display text-slate-900">{liveOnlineCount}</p>
             </div>
-          </Card>
+            <p className="text-[10px] text-slate-400 mt-2 font-medium uppercase tracking-widest">Click to see devices</p>
+          </button>
 
-          <Card className="p-5 flex-1 flex flex-col justify-center relative overflow-hidden group">
+          <button
+            type="button"
+            onClick={() => setStatusDialog('offline')}
+            disabled={liveOfflineCount === 0}
+            className="text-left bg-white border border-slate-200 rounded-xl shadow-sm p-5 flex-1 flex flex-col justify-center relative overflow-hidden group transition-all hover:border-red-300 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-red-200 disabled:opacity-60 disabled:cursor-not-allowed"
+          >
             <div className="absolute right-0 top-0 w-16 h-16 bg-red-50 rounded-bl-full -z-10 group-hover:scale-110 transition-transform"></div>
             <p className="text-xs font-black uppercase tracking-widest text-slate-500 mb-1">Currently Offline</p>
             <div className="flex items-center gap-3">
                 <WifiOff className="w-8 h-8 text-red-500" />
                 <p className="text-4xl font-bold font-display text-slate-900">{liveOfflineCount}</p>
             </div>
-          </Card>
+            <p className="text-[10px] text-slate-400 mt-2 font-medium uppercase tracking-widest">Click to see devices</p>
+          </button>
 
           <div className="flex gap-4">
               <Card className="p-4 flex-1 flex flex-col justify-center bg-slate-50">
@@ -275,55 +402,67 @@ export default function DeviceInsights() {
 
       {/* Row 2: Device Location Map */}
       <Card className="overflow-hidden flex flex-col">
-        <div className="p-5 border-b border-slate-200 bg-white z-10 relative">
-          <div className="flex items-center gap-2">
-             <MapPin className="w-5 h-5 text-[#195C51]" />
-             <h2 className="font-display font-semibold text-lg">Global Deployment Map</h2>
+        <div className="p-5 border-b border-slate-200 bg-white z-10 relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div>
+            <div className="flex items-center gap-2">
+               <MapPin className="w-5 h-5 text-[#195C51]" />
+               <h2 className="font-display font-semibold text-lg">Global Deployment Map</h2>
+            </div>
+            <p className="text-xs text-slate-500 mt-1">Showing {mapLocations.length} deployed devices with valid GPS coordinates. Click a pin to locate in inventory.</p>
           </div>
-          <p className="text-xs text-slate-500 mt-1">Showing {mapLocations.length} deployed devices with valid GPS coordinates. Click a pin to locate in inventory.</p>
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3 text-[11px] text-slate-600 font-medium bg-slate-50 border border-slate-200 px-2.5 py-1.5 rounded-lg">
+              <span className="inline-flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>Online</span>
+              <span className="inline-flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-red-500"></span>Offline</span>
+            </div>
+            <button
+              onClick={recenterMap}
+              disabled={mapLocations.length === 0}
+              className="inline-flex items-center gap-1.5 bg-white border border-slate-200 text-slate-700 hover:border-[#195C51] hover:text-[#195C51] px-3 py-1.5 rounded-lg text-xs font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              title="Recenter on fleet"
+            >
+              <Crosshair className="w-3.5 h-3.5" /> Fit to fleet
+            </button>
+          </div>
         </div>
-        
-        <div className="h-[400px] w-full bg-slate-100 z-0">
+
+        <div className="h-[460px] w-full bg-slate-100 z-0 relative">
             {loading ? (
                  <div className="flex h-full items-center justify-center text-slate-400">
                     <div className="w-6 h-6 border-2 border-[#195C51] border-t-transparent rounded-full animate-spin"></div>
                  </div>
+            ) : mapLocations.length === 0 ? (
+                <div className="flex h-full flex-col items-center justify-center text-slate-400 text-sm">
+                    <MapPin className="w-8 h-8 mb-2 opacity-30" />
+                    No deployed devices have GPS coordinates yet.
+                </div>
             ) : (
                 <MapContainer
                     center={[-1.9441, 30.0619]}
                     zoom={12}
                     style={{ height: "100%", width: "100%", zIndex: 1 }}
-                    scrollWheelZoom={false}
+                    scrollWheelZoom={true}
+                    zoomControl={true}
                 >
-                    <TileLayer url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png" />
+                    <MapController fitRef={fitRef} />
+                    <TileLayer
+                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+                        url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+                    />
                     {mapLocations.map((device) => {
-                        // FIXED: No longer expecting coordinates.coordinates array
                         if (!device.location?.lat || !device.location?.lng) return null;
-                        
                         const isOnline = device.connectivity?.isOnline;
                         return (
-                            <CircleMarker
+                            <Marker
                                 key={device.id}
-                                center={[device.location.lat, device.location.lng]}
-                                radius={8}
-                                pathOptions={{
-                                    fillColor: isOnline ? "#10b981" : "#ef4444",
-                                    color: "white",
-                                    weight: 2,
-                                    fillOpacity: 0.9,
-                                }}
-                                eventHandlers={{
-                                    click: () => handleMapPinClick(device.serialNumber),
-                                }}
+                                position={[device.location.lat, device.location.lng]}
+                                icon={isOnline ? PIN_ONLINE : PIN_OFFLINE}
+                                eventHandlers={{ click: () => handleFindInInventory(device.serialNumber) }}
                             >
-                                <Popup className="rounded-xl overflow-hidden shadow-xl border-none cursor-pointer">
-                                    <div 
-                                        className="p-1.5 space-y-2 font-sans min-w-[180px]" 
-                                        onClick={() => handleMapPinClick(device.serialNumber)}
-                                        title="Click to view in table"
-                                    >
+                                <Popup className="rounded-xl overflow-hidden shadow-xl border-none">
+                                    <div className="p-1.5 space-y-2 font-sans min-w-[200px]">
                                         <div className="flex justify-between items-center border-b border-slate-100 pb-2">
-                                            <span className="font-mono text-xs font-bold text-slate-900 hover:text-[#195C51] transition-colors">{device.serialNumber}</span>
+                                            <span className="font-mono text-xs font-bold text-slate-900">{device.serialNumber}</span>
                                             <Badge variant={isOnline ? "success" : "destructive"}>{isOnline ? "Online" : "Offline"}</Badge>
                                         </div>
                                         <div className="space-y-1 pt-1">
@@ -334,10 +473,8 @@ export default function DeviceInsights() {
                                             <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Owner</p>
                                             <PrivacyNameToggle fullName={device.owner?.name} />
                                         </div>
-                                        
-                                        {/* --- FIXED LOCATION CARD --- */}
                                         <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-100 mt-2">
-                                            <p className="font-black text-[9px] uppercase tracking-widest text-slate-400 mb-1">Location Details</p>
+                                            <p className="font-black text-[9px] uppercase tracking-widest text-slate-400 mb-1">Location</p>
                                             {device.location?.address ? (
                                                 <p className="text-xs font-semibold text-slate-700 leading-tight mb-1.5">{device.location.address}</p>
                                             ) : (
@@ -348,11 +485,23 @@ export default function DeviceInsights() {
                                                 {device.location.lat.toFixed(5)}, {device.location.lng.toFixed(5)}
                                             </div>
                                         </div>
-
-                                        <p className="text-[9px] text-center text-slate-400 mt-2 font-bold uppercase tracking-widest">Click to scroll to row</p>
+                                        <div className="flex gap-1.5 pt-1">
+                                            <button
+                                                onClick={() => handleFindInInventory(device.serialNumber)}
+                                                className="flex-1 bg-white border border-slate-200 text-slate-700 hover:border-[#195C51] hover:text-[#195C51] px-2 py-1.5 rounded-md text-[10px] font-bold uppercase tracking-wider transition-all"
+                                            >
+                                                Find in inventory
+                                            </button>
+                                            <button
+                                                onClick={() => goToUsageHistory(device.serialNumber)}
+                                                className="flex-1 bg-[#195C51] text-white hover:bg-[#0E3A32] px-2 py-1.5 rounded-md text-[10px] font-bold uppercase tracking-wider transition-all inline-flex items-center justify-center gap-1"
+                                            >
+                                                <History className="w-3 h-3" /> Usage
+                                            </button>
+                                        </div>
                                     </div>
                                 </Popup>
-                            </CircleMarker>
+                            </Marker>
                         );
                     })}
                 </MapContainer>
@@ -408,14 +557,15 @@ export default function DeviceInsights() {
                 <th className="px-6 py-4 font-semibold text-xs uppercase tracking-wider">Inventory Status</th>
                 <th className="px-6 py-4 font-semibold text-xs uppercase tracking-wider">Network</th>
                 <th className="px-6 py-4 font-semibold text-xs uppercase tracking-wider">Owner</th>
+                <th className="px-6 py-4 font-semibold text-xs uppercase tracking-wider">Usage History</th>
                 <th className="px-6 py-4 font-semibold text-xs uppercase tracking-wider text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 bg-white">
               {loading ? (
-                <tr><td colSpan="5" className="px-6 py-8 text-center text-slate-500">Loading inventory...</td></tr>
+                <tr><td colSpan="6" className="px-6 py-8 text-center text-slate-500">Loading inventory...</td></tr>
               ) : paginatedRemotes.length === 0 ? (
-                <tr><td colSpan="5" className="px-6 py-8 text-center text-slate-500">No devices match your filters.</td></tr>
+                <tr><td colSpan="6" className="px-6 py-8 text-center text-slate-500">No devices match your filters.</td></tr>
               ) : paginatedRemotes.map(device => (
                   <tr 
                     id={`row-${device.serialNumber}`}
@@ -449,19 +599,30 @@ export default function DeviceInsights() {
                         <PrivacyNameToggle fullName={device.owner?.name} />
                     </td>
                     <td className="px-6 py-4">
+                        {device.state === 'instore' ? (
+                            <span
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-50 text-slate-400 border border-slate-200 cursor-not-allowed"
+                                title="Usage history is unavailable for devices still in stock"
+                            >
+                                <History className="w-3.5 h-3.5" /> N/A
+                            </span>
+                        ) : (
+                            <button
+                                onClick={() => goToUsageHistory(device.serialNumber)}
+                                className="inline-flex items-center gap-1.5 bg-white border border-slate-200 text-slate-700 hover:border-[#195C51] hover:text-[#195C51] px-3 py-1.5 rounded-lg text-xs font-bold transition-all shadow-sm"
+                            >
+                                <History className="w-3.5 h-3.5" /> View
+                                <ExternalLink className="w-3 h-3 opacity-60" />
+                            </button>
+                        )}
+                    </td>
+                    <td className="px-6 py-4">
                         <div className="flex items-center justify-end gap-2">
-                            <button 
+                            <button
                                 onClick={() => setSelectedRemote(device)}
                                 className="bg-white border border-slate-200 text-slate-700 hover:border-[#195C51] hover:text-[#195C51] px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm"
                             >
                                 <Settings className="w-3.5 h-3.5"/> Manage
-                            </button>
-                            <button 
-                                onClick={() => handleDeleteDevice(device.id)}
-                                className="bg-red-50 text-red-600 hover:bg-red-100 p-1.5 rounded-lg transition-colors"
-                                title="Delete Device"
-                            >
-                                <Trash2 className="w-4 h-4"/>
                             </button>
                         </div>
                     </td>
@@ -494,6 +655,89 @@ export default function DeviceInsights() {
             </div>
         )}
       </Card>
+
+      {/* Status Dialog — clicking "Currently Online/Offline" card opens this */}
+      {statusDialog && (
+        <div
+          className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4"
+          onClick={() => setStatusDialog(null)}
+        >
+          <div
+            className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[80vh] flex flex-col overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className={`p-5 border-b border-slate-200 flex items-center justify-between ${statusDialog === 'online' ? 'bg-emerald-50/50' : 'bg-red-50/50'}`}>
+              <div className="flex items-center gap-3">
+                {statusDialog === 'online' ? <Wifi className="w-6 h-6 text-emerald-600" /> : <WifiOff className="w-6 h-6 text-red-600" />}
+                <div>
+                  <h2 className="font-display font-bold text-lg text-slate-900">
+                    {statusDialog === 'online' ? 'Currently Online Devices' : 'Currently Offline Devices'}
+                  </h2>
+                  <p className="text-xs text-slate-500">
+                    {(statusDialog === 'online' ? onlineRemotes : offlineRemotes).length} deployed device{(statusDialog === 'online' ? onlineRemotes : offlineRemotes).length === 1 ? '' : 's'}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setStatusDialog(null)}
+                className="p-2 rounded-lg hover:bg-white/70 transition-colors"
+                aria-label="Close"
+              >
+                <X className="w-5 h-5 text-slate-500" />
+              </button>
+            </div>
+
+            {/* Body */}
+            <div className="flex-1 overflow-y-auto custom-scrollbar">
+              {(statusDialog === 'online' ? onlineRemotes : offlineRemotes).length === 0 ? (
+                <div className="p-10 text-center text-slate-400 text-sm">No devices in this state.</div>
+              ) : (
+                <ul className="divide-y divide-slate-100">
+                  {(statusDialog === 'online' ? onlineRemotes : offlineRemotes).map((device) => (
+                    <li key={device.id} className="p-4 hover:bg-slate-50 transition-colors">
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                        {/* Identity */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1 flex-wrap">
+                            <span className="font-mono font-bold text-sm text-slate-900">{device.serialNumber}</span>
+                            <Badge variant={statusDialog === 'online' ? 'success' : 'destructive'}>
+                              {statusDialog === 'online' ? 'Online' : 'Offline'}
+                            </Badge>
+                          </div>
+                          <p className="text-xs text-slate-500">
+                            {device.labelName || 'Unnamed'} <span className="uppercase font-bold text-[10px]">({device.modelType})</span>
+                          </p>
+                          <div className="mt-1.5">
+                            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-0.5">Owner</p>
+                            <PrivacyNameToggle fullName={device.owner?.name} />
+                          </div>
+                        </div>
+
+                        {/* Actions */}
+                        <div className="flex gap-2 shrink-0">
+                          <button
+                            onClick={() => handleFindInInventory(device.serialNumber)}
+                            className="inline-flex items-center gap-1.5 bg-white border border-slate-200 text-slate-700 hover:border-[#195C51] hover:text-[#195C51] px-3 py-1.5 rounded-lg text-xs font-bold transition-all shadow-sm"
+                          >
+                            <Search className="w-3.5 h-3.5" /> Find in inventory
+                          </button>
+                          <button
+                            onClick={() => goToUsageHistory(device.serialNumber)}
+                            className="inline-flex items-center gap-1.5 bg-[#195C51] text-white hover:bg-[#0E3A32] px-3 py-1.5 rounded-lg text-xs font-bold transition-all shadow-sm"
+                          >
+                            <History className="w-3.5 h-3.5" /> Usage history
+                          </button>
+                        </div>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Reused Modal for Management */}
       {selectedRemote && (
