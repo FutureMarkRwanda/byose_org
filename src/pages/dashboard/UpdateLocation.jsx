@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { MdMyLocation, MdPublish } from 'react-icons/md';
 import { Cpu, MapPin } from "lucide-react";
 import { patchData, returnToken } from "../../utils/helper.js";
@@ -38,7 +38,7 @@ const UpdateLocation = () => {
         const { serialNumber, ...payload } = form;
         
         const result = await patchData(
-            `${presence_server}/remotes/${serialNumber}/location`, 
+            `${presence_server}/api/remotes/${serialNumber}/location`,
             payload, 
             returnToken()
         );
