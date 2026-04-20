@@ -22,6 +22,7 @@ import React from 'react';
  * Returns "FirstName L." where L is the first character of the last name.
  * Gracefully handles missing/undefined parts.
  */
+// eslint-disable-next-line react-refresh/only-export-components
 export function maskName(firstName, lastName) {
   const first = (firstName || '').trim();
   const last  = (lastName  || '').trim();
@@ -35,6 +36,7 @@ export function maskName(firstName, lastName) {
  * Shows first 3 chars of the local part, replaces the rest with *** before @.
  * Always preserves the full domain.
  */
+// eslint-disable-next-line react-refresh/only-export-components
 export function maskEmail(email) {
   if (!email || typeof email !== 'string') return '***';
   const atIdx = email.indexOf('@');

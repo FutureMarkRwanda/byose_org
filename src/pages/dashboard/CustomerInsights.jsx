@@ -6,7 +6,8 @@ import { ChevronDown, ChevronRight, Activity, AlertTriangle, Trophy, Search, Cal
 import html2pdf from 'html2pdf.js';
 import { fetchData, returnToken } from '../../utils/helper.js';
 import { presence_server } from '../../config/server_api.js';
-import { PrivacyNameToggle } from './DeviceInsights.jsx'; // Reuse the toggle component // Reuse the toggle component
+import { PrivacyNameToggle } from './DeviceInsights.jsx';
+import {maskEmail} from "../../components/PrivacyMask.jsx"; // Reuse the toggle component // Reuse the toggle component
 
 // --- Configuration ---
 const EXCLUDED_TESTER_EMAILS = [
@@ -609,7 +610,7 @@ export default function CustomerInsights() {
                             {meta.label}
                           </span>
                         </div>
-                        <p className="text-[10px] text-slate-500 font-mono truncate">{user.email}</p>
+                        <p className="text-[10px] text-slate-500 font-mono truncate">{ maskEmail(user.email)}</p>
                       </div>
                     </div>
                     <div className="text-right shrink-0 pl-3">
