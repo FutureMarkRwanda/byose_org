@@ -17,12 +17,17 @@ export default function RemoteDetailsModal({
     const [gradientColor1, setGradientColor1] = useState("#195C51");
     const [gradientColor2, setGradientColor2] = useState("#0E3A32");
     const [qrPreview, setQrPreview] = useState(null);
+    const [qrLoading, setQrLoading] = useState(false);
+    const [qrError, setQrError] = useState(null);
     const debounceRef = useRef(null);
 
-    const postConfig = async () => {
-        if (!remote?.buttons || remote.buttons.length === 0) return;
+    const postConfig = () => {
+        if (!remote?.serialNumber) return;
         if (debounceRef.current) clearTimeout(debounceRef.current);
-        
+
+        setQrLoading(true);
+        setQrError(null);
+
         debounceRef.current = setTimeout(async () => {
             const payload = {
                 data: remote.serialNumber,
@@ -46,16 +51,23 @@ export default function RemoteDetailsModal({
 
             const url = presence_server + "/get-qrCode";
             const res = await getImageData(url, payload, "");
-            if (res.data) setQrPreview(res.data);
-            if (res?.error) showNotification("Failed to generate QR: " + res.error, "error");
+            if (res?.error || res?.data === -1 || !res?.data) {
+                setQrError(res?.error || "Failed to generate QR");
+                setQrPreview(null);
+                showNotification("Failed to generate QR: " + (res?.error || "unknown error"), "error");
+            } else {
+                setQrPreview(res.data);
+                setQrError(null);
+            }
+            setQrLoading(false);
         }, 600);
     };
 
     useEffect(() => {
-        if (!remote?.buttons?.length) return;
         postConfig();
         return () => clearTimeout(debounceRef.current);
-    }, [remote, gradientColor1, gradientColor2]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [remote?.serialNumber, gradientColor1, gradientColor2]);
 
     const isDeployed = remote.state === 'sold';
 
@@ -178,7 +190,22 @@ export default function RemoteDetailsModal({
                             <h4 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-4">Device Pairing Code</h4>
                             
                             <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 flex flex-col items-center">
-                                {qrPreview ? (
+                                {qrLoading ? (
+                                    <div className="w-full aspect-square flex flex-col items-center justify-center text-slate-400 gap-3">
+                                        <div className="w-8 h-8 border-2 border-[#195C51] border-t-transparent rounded-full animate-spin"></div>
+                                        <p className="text-xs font-medium">Generating Code...</p>
+                                    </div>
+                                ) : qrError ? (
+                                    <div className="w-full aspect-square flex flex-col items-center justify-center text-center gap-3 p-4">
+                                        <p className="text-xs font-medium text-red-600">{qrError}</p>
+                                        <button
+                                            onClick={postConfig}
+                                            className="px-3 py-1.5 text-xs font-bold rounded-lg bg-white border border-slate-200 text-slate-700 hover:border-[#195C51] hover:text-[#195C51] transition-all"
+                                        >
+                                            Retry
+                                        </button>
+                                    </div>
+                                ) : qrPreview ? (
                                     <div className="relative group cursor-pointer w-full aspect-square bg-white rounded-xl p-2 shadow-sm border border-slate-100"
                                          onClick={() => {
                                             const a = document.createElement("a");
@@ -196,9 +223,8 @@ export default function RemoteDetailsModal({
                                         </div>
                                     </div>
                                 ) : (
-                                    <div className="w-full aspect-square flex flex-col items-center justify-center text-slate-400 gap-3">
-                                        <div className="w-8 h-8 border-2 border-[#195C51] border-t-transparent rounded-full animate-spin"></div>
-                                        <p className="text-xs font-medium">Generating Code...</p>
+                                    <div className="w-full aspect-square flex flex-col items-center justify-center text-slate-400 text-xs">
+                                        No QR available
                                     </div>
                                 )}
                                 
