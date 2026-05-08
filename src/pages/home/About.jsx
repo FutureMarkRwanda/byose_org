@@ -8,7 +8,7 @@ function Services() {
     return (
         <div className={`flex flex-col gap-2`}>
             <Introduction/>
-            <Programs/>
+            {/*<Programs/>*/}
             <Action/>
             <News/>
         </div>
