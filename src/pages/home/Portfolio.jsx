@@ -1,4 +1,3 @@
-import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { team } from "../../utils/data.js";
 import { ImageGallery } from "../../components/ImageGallery.jsx";

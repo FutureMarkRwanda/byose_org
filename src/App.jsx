@@ -40,7 +40,7 @@ function DashboardLayout() {
 function App() {
   const titleMap = {
     "/": "About | BYOSE Tech -Build Your Own Solutions Everywhere",
-    "/services": "Services at BYOSE",
+    "/services": "Services at BYOSE Tech",
     "/home": "Home | BYOSE Tech -Build Your Own Solutions Everywhere",
     "/contact": "Contact Us | BYOSE Tech",
     "/news": "New & Blog | BYOSE Tech",
