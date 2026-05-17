@@ -439,8 +439,8 @@ export const smartExtension = [
 
 // ── GLOBAL CSS ──
 export const CSS = `
-@import url('https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css');
 @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap');
+@import url('https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css');
 
 .pe * { box-sizing: border-box; margin: 0; padding: 0; }
 .pe   { font-family: 'DM Sans', sans-serif; }
@@ -483,7 +483,7 @@ export const CSS = `
   padding:16px 40px;
   font-family:'Syne',sans-serif; font-size:14px; font-weight:700;
   letter-spacing:.06em; text-transform:uppercase;
-  cursor:pointer; text-decoration:none; display:inline-block;
+  cursor:pointer; text-decoration:none; display:inline-flex; align-items:center; gap:8px;
   box-shadow:0 8px 32px rgba(25,92,81,.5);
   transition:transform .2s, box-shadow .2s;
 }
@@ -566,4 +566,4 @@ export const CSS = `
   gap: 0;
 }
 .pe-ticker-inner:hover { animation-play-state: paused; }
-`
+`;

@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef } from 'react';
-
+import { useState, useEffect } from 'react';
+import {CSS} from '../../utils/data.js';
 // ── STORE LINKS ──
 const PLAY_STORE = 'https://play.google.com/store/apps/details?id=info.byose.presenceeye&pcampaignid=web_share';
 const APPLE_STORE = 'https://apps.apple.com/us/app/presence-eye/id6758922721';
@@ -20,137 +20,6 @@ const C = {
   danger: '#EF4444',
   amber: '#F59E0B',
 };
-
-// ── GLOBAL CSS ──
-const CSS = `
-@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap');
-@import url('https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css');
-
-.pe * { box-sizing: border-box; margin: 0; padding: 0; }
-.pe   { font-family: 'DM Sans', sans-serif; }
-.pe h1,.pe h2,.pe h3,.pe h4 { font-family: 'Syne', sans-serif; }
-
-@keyframes pe-float    { 0%,100%{transform:translateY(0)}   50%{transform:translateY(-10px)} }
-@keyframes pe-blip     { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.3;transform:scale(.85)} }
-@keyframes pe-ring     { 0%{transform:translate(-50%,-50%) scale(.8);opacity:.9} 100%{transform:translate(-50%,-50%) scale(3.4);opacity:0} }
-@keyframes pe-fadeUp   { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
-@keyframes pe-shimmer  { 0%{background-position:-200% center} 100%{background-position:200% center} }
-@keyframes pe-particle { 0%{transform:translate(0,0) scale(1);opacity:1} 100%{transform:translate(var(--px),var(--py)) scale(0);opacity:0} }
-@keyframes pe-confetti { 0%{transform:translate(0,0) rotate(0deg);opacity:1} 100%{transform:translate(var(--cx),var(--cy)) rotate(720deg);opacity:0} }
-@keyframes pe-gateOpen { from{transform:scaleX(1)} to{transform:scaleX(0.04)} }
-@keyframes pe-gateClose{ from{transform:scaleX(0.04)} to{transform:scaleX(1)} }
-@keyframes pe-scanline { 0%{top:-10%} 100%{top:110%} }
-@keyframes pe-btnPulse { 0%,100%{box-shadow:0 0 0 0 rgba(25,92,81,.9),0 6px 28px rgba(25,92,81,.35)} 50%{box-shadow:0 0 0 16px rgba(25,92,81,0),0 6px 50px rgba(25,92,81,.7)} }
-@keyframes pe-closePulse{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,.9)} 50%{box-shadow:0 0 0 16px rgba(239,68,68,0)} }
-@keyframes pe-glow     { 0%,100%{filter:brightness(1) drop-shadow(0 0 4px rgba(25,92,81,.3))} 50%{filter:brightness(1.2) drop-shadow(0 0 18px rgba(25,92,81,.8))} }
-@keyframes pe-bounce   { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-7px)} }
-@keyframes pe-rotate   { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
-@keyframes pe-pulse-slow { 0%,100%{opacity:.4} 50%{opacity:1} }
-@keyframes pe-card-glow { 0%,100%{box-shadow:0 0 0 1px rgba(25,92,81,.15),0 20px 60px rgba(0,0,0,.12)} 50%{box-shadow:0 0 0 1px rgba(25,92,81,.4),0 20px 80px rgba(25,92,81,.12)} }
-@keyframes pe-ticker   { from{transform:translateX(0)} to{transform:translateX(-50%)} }
-@keyframes pe-number   { from{opacity:0;transform:translateY(10px) scale(.8)} to{opacity:1;transform:translateY(0) scale(1)} }
-
-.pe-float     { animation: pe-float 4s ease-in-out infinite; }
-.pe-blip      { animation: pe-blip 1.6s ease-in-out infinite; }
-.pe-glow-loop { animation: pe-glow 2.5s ease-in-out infinite; }
-.pe-bounce    { animation: pe-bounce 1.4s ease-in-out infinite; }
-.pe-fade-up   { opacity:0; animation: pe-fadeUp .6s ease forwards; }
-.pe-step-in   { animation: pe-fadeUp .45s ease forwards; }
-.pe-scanline  { position:absolute;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(25,92,81,.6),transparent);animation:pe-scanline 2.2s linear infinite;pointer-events:none; }
-
-.pe-cta {
-  position:relative; overflow:hidden;
-  background: linear-gradient(135deg,#195C51,#22897A,#195C51);
-  background-size:200% 200%;
-  animation: pe-shimmer 3s linear infinite;
-  color:#fff; border:none; border-radius:50px;
-  padding:16px 40px;
-  font-family:'Syne',sans-serif; font-size:14px; font-weight:700;
-  letter-spacing:.06em; text-transform:uppercase;
-  cursor:pointer; text-decoration:none; display:inline-flex; align-items:center; gap:8px;
-  box-shadow:0 8px 32px rgba(25,92,81,.5);
-  transition:transform .2s, box-shadow .2s;
-}
-.pe-cta::before {
-  content:''; position:absolute; inset:0;
-  background:linear-gradient(120deg,transparent 20%,rgba(255,255,255,.25) 50%,transparent 80%);
-  transform:translateX(-100%); transition:transform .5s;
-}
-.pe-cta:hover::before { transform:translateX(100%); }
-.pe-cta:hover {
-  transform:scale(1.06) translateY(-3px) !important;
-  animation:none !important;
-  box-shadow:0 18px 48px rgba(25,92,81,.65) !important;
-  background:linear-gradient(135deg,#22897A,#2BA090) !important;
-}
-
-.pe-open-btn {
-  animation: pe-btnPulse 1.35s ease-in-out infinite;
-  cursor:pointer; border:none;
-  font-family:'Syne',sans-serif; font-weight:700;
-  letter-spacing:.08em; text-transform:uppercase;
-}
-.pe-close-btn {
-  animation: pe-closePulse 1.35s ease-in-out infinite;
-  cursor:pointer; border:none;
-  font-family:'Syne',sans-serif; font-weight:700;
-  letter-spacing:.08em; text-transform:uppercase;
-}
-.pe-gate-l { transform-origin:left center; }
-.pe-gate-r { transform-origin:right center; }
-.pe-gate-open-l  { animation:pe-gateOpen  .9s cubic-bezier(.4,0,.2,1) forwards; }
-.pe-gate-open-r  { animation:pe-gateOpen  .9s cubic-bezier(.4,0,.2,1) forwards; }
-.pe-gate-close-l { animation:pe-gateClose .9s cubic-bezier(.4,0,.2,1) forwards; }
-.pe-gate-close-r { animation:pe-gateClose .9s cubic-bezier(.4,0,.2,1) forwards; }
-
-.pe-product-card {
-  transition: transform .35s cubic-bezier(.4,0,.2,1), box-shadow .35s;
-  cursor:pointer;
-}
-.pe-product-card:hover {
-  transform: translateY(-8px);
-}
-.pe-feat {
-  transition: transform .3s ease, box-shadow .3s ease;
-  cursor:default;
-}
-.pe-feat:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 24px 56px rgba(25,92,81,.15) !important;
-}
-.pe-step-row { transition:border-left-color .25s, background .25s; }
-.pe-step-row:hover { border-left-color:#195C51 !important; background:rgba(25,92,81,.08) !important; }
-.pe-understand { transition:transform .3s, box-shadow .3s; }
-.pe-understand:hover { transform:translateY(-4px); box-shadow:0 20px 50px rgba(25,92,81,.14) !important; }
-.pe-toggle-pill {
-  background:rgba(25,92,81,.1); border:1px solid rgba(25,92,81,.2);
-  border-radius:50px; padding:4px; display:inline-flex; gap:4px;
-}
-.pe-toggle-opt {
-  padding:8px 20px; border-radius:50px;
-  font-family:'Syne',sans-serif; font-weight:600; font-size:13px;
-  letter-spacing:.04em; cursor:pointer; transition:all .25s; border:none;
-}
-.pe-nav-tab {
-  transition: all .25s;
-  cursor: pointer;
-  border: none;
-  font-family:'Syne',sans-serif;
-}
-.pe-nav-tab.active {
-  color: #fff;
-}
-.pe-ticker-wrap {
-  overflow: hidden;
-  white-space: nowrap;
-}
-.pe-ticker-inner {
-  display: inline-flex;
-  animation: pe-ticker 28s linear infinite;
-  gap: 0;
-}
-.pe-ticker-inner:hover { animation-play-state: paused; }
-`;
 
 // ── PARTICLES ──
 function Burst({ on, color = C.brand, n = 14 }) {
@@ -691,7 +560,6 @@ function SocketTiers() {
 
 // ── MAIN COMPONENT ──
 export default function PresenceEye() {
-  const [activeProduct, setActiveProduct] = useState(null);
   const [modalProduct, setModalProduct] = useState(null);
 
   useEffect(() => {
@@ -708,7 +576,6 @@ export default function PresenceEye() {
 
       {/* ══ HERO ══ */}
       <section style={{
-        background: `radial-gradient(ellipse at 30% 20%,rgba(25,92,81,.28) 0%,transparent 45%),radial-gradient(ellipse at 70% 80%,rgba(25,92,81,.16) 0%,transparent 40%),linear-gradient(160deg,#040810 0%,#0A1619 40%,#040810 100%)`,
         minHeight: '95vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
         padding: 'clamp(80px,10vw,120px) clamp(20px,5vw,60px) 60px', position: 'relative', overflow: 'hidden',
       }}>
@@ -722,18 +589,17 @@ export default function PresenceEye() {
           </div>
 
           <h1 style={{ fontSize: 'clamp(3rem,10vw,7.5rem)', lineHeight: .92, color: '#fff', marginBottom: 12, letterSpacing: '-.03em', fontWeight: 800 }}>
-            Presence<br />
-            <span style={{ background: `linear-gradient(90deg,${C.brand} 20%,${C.brandL} 40%,#4EB8A6 60%,${C.brand} 80%)`, backgroundSize: '200% auto', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', animation: 'pe-shimmer 3s linear infinite' }}>Eye</span>
+            <span style={{ background: `linear-gradient(90deg,${C.brand} 20%,${C.brandL} 40%,#4EB8A6 60%,${C.brand} 80%)`, backgroundSize: '200% auto', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', animation: 'pe-shimmer 3s linear infinite' }}>Presence Eye</span>
             <span style={{ color: C.brand }}>.</span>
           </h1>
 
-          <p style={{ fontFamily: 'Syne,sans-serif', fontSize: 'clamp(1rem,2.5vw,1.4rem)', color: '#9CA3AF', fontWeight: 600, marginBottom: 24, letterSpacing: '-.01em' }}>
+          <p style={{ fontFamily: 'Syne,sans-serif', fontSize: 'clamp(1rem,2.5vw,1.4rem)', color: '#9C99AA', fontWeight: 600, marginBottom: 24, letterSpacing: '-.01em' }}>
             Every device in your home, connected. One app. Total control.
           </p>
 
           <div style={{ background: 'rgba(255,255,255,.04)', border: '1px solid rgba(255,255,255,.08)', borderRadius: 18, padding: '18px 28px', maxWidth: 640, margin: '0 auto 40px', backdropFilter: 'blur(12px)' }}>
             <p style={{ fontSize: 'clamp(13px,2vw,15px)', color: '#6B7280', lineHeight: 1.8, margin: 0 }}>
-              Presence Eye is BYOSE Tech's smart home platform — a growing family of devices that bring <span style={{ color: '#fff', fontWeight: 700 }}>Wi-Fi intelligence</span> to gates, lights, sockets, and appliances you already own. <span style={{ color: '#fff', fontWeight: 700 }}>No rewiring. No replacing. Just control.</span>
+              Presence Eye is BYOSE Tech&#39;s smart home platform — a growing family of devices that bring <span style={{ color: '#000', fontWeight: 700 }}>Wi-Fi intelligence</span> to gates, lights, sockets, and appliances you already own. <span style={{ color: '#000', fontWeight: 700 }}>No rewiring. No replacing. Just control.</span>
             </p>
           </div>
 
@@ -745,7 +611,7 @@ export default function PresenceEye() {
               { label: 'App', value: '1', sub: 'iOS & Android' },
             ].map((stat, i) => (
               <div key={i} style={{ background: 'rgba(25,92,81,.1)', border: '1px solid rgba(25,92,81,.25)', borderRadius: 16, padding: '14px 22px', textAlign: 'center' }}>
-                <div style={{ fontSize: 28, fontWeight: 800, color: '#fff', fontFamily: 'Syne,sans-serif', lineHeight: 1 }}>{stat.value}</div>
+                <div style={{ fontSize: 28, fontWeight: 800, color: '#195c51', fontFamily: 'Syne,sans-serif', lineHeight: 1 }}>{stat.value}</div>
                 <div style={{ fontSize: 10, color: C.brand, fontWeight: 700, letterSpacing: '.12em', textTransform: 'uppercase', marginTop: 4 }}>{stat.label}</div>
                 <div style={{ fontSize: 10, color: '#374151', marginTop: 2 }}>{stat.sub}</div>
               </div>
@@ -757,13 +623,12 @@ export default function PresenceEye() {
               <i className="ti ti-layout-grid" style={{ fontSize: 15 }} aria-hidden="true" />
               Explore All Products
             </a>
-            <a href={PLAY_STORE} target="_blank" rel="noopener noreferrer" style={{ padding: '15px 30px', background: 'transparent', color: '#6B7280', border: '1px solid rgba(255,255,255,.1)', borderRadius: 50, fontSize: 13, fontWeight: 600, textDecoration: 'none', letterSpacing: '.05em', textTransform: 'uppercase', display: 'inline-block', transition: 'color .3s, border-color .3s' }}>Download the App</a>
           </div>
         </div>
       </section>
 
       {/* ══ TICKER ══ */}
-      <Ticker />
+      {/*<Ticker />*/}
 
       {/* ══ PRODUCT ECOSYSTEM GRID ══ */}
       <section id="products" style={{ padding: 'clamp(60px,8vw,100px) clamp(20px,5vw,60px)', background: C.dark }}>
