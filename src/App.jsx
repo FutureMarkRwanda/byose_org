@@ -52,6 +52,9 @@ function App() {
     "/signup": "Create Account | BYOSE Tech",
     "/login": "Login | BYOSE",
     "/dashboard": "DASHBOARD | BYOSE Tech",
+    "/dashboard/presence-eye-buttons/analytics": "Analytics | BYOSE Tech",
+    "/dashboard/presence-eye-buttons/insights": "Device Insights | BYOSE Tech",
+    "/dashboard/presence-eye-buttons/revenue": "Revenue | BYOSE Tech",
     "/presence-eye/buttons": "Buttons | Gate Remote Extender | BYOSE Tech",
   };
 
