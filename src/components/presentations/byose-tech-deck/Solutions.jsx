@@ -1,5 +1,5 @@
 import {Box, FlexBox, Grid, Slide, Text} from "spectacle";
-import {getTextColor} from "../../utils/helper.js";
+import {getTextColor} from "../../../utils/helper.js";
 
 function Solutions() {
 

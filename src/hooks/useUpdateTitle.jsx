@@ -6,8 +6,17 @@ const useUpdateTitle = (titleMap) => {
 
     useEffect(() => {
         const currentPath = location.pathname;
-        const pageTitle = titleMap[currentPath] || "BYOSE"; // Fallback if no match
-        document.title = pageTitle;
+
+        // Try to get title from the map first
+        let pageTitle = titleMap[currentPath];
+
+        // If no match in the map and path contains "dashboard"
+        if (!pageTitle && currentPath.toLowerCase().includes("dashboard")) {
+            pageTitle = "BYOSE Tech Dashboard";
+        }
+
+        // Final fallback
+        document.title = pageTitle || "BYOSE Tech";
     }, [location.pathname, titleMap]);
 };
 

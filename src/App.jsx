@@ -6,13 +6,12 @@ import ContactUs from "./pages/home/ContactUs.jsx";
 import NotFound from "./pages/home/NotFound.jsx";
 import PresenceEye from "./pages/home/PresenceEye.jsx";
 import PresenceEyePrivacyPolicy from "./components/presence_eye/PresenceEyePrivacyPolicy.jsx";
-import PresenceEyePresentation from "./components/presence_eye/PresenceEyePresentation.jsx";
+import PresenceEyePresentation from "./components/presentations/presence-eye-deck/PresenceEyePresentation.jsx";
 import PresenceEyeLatest from "./components/presence_eye/PresenceEyeLatest.jsx";
 import OurStory from "./components/OurStory.jsx";
 import Team from "./components/Team.jsx";
 import OurValues from "./components/OurValues.jsx";
 import Portfolio from "./pages/home/Portfolio.jsx";
-import BBot from "./pages/home/BBot.jsx";
 import routes from "./routes.jsx";
 import Dashboard from "./pages/dashboard/Dashboard.jsx";
 import Landing from "./pages/home/Landing.jsx";
@@ -20,10 +19,8 @@ import Auth from "./pages/auth/Auth.jsx";
 import { AuthProvider } from "./context/AuthContext.jsx";
 import ProtectedRoute from "./pages/auth/ProtectRoutes.jsx";
 import Services from "./pages/home/About.jsx";
-import Progress from "./components/presence_eye/PresenceEyeProgress.jsx";
 import AccountDeletation from "./pages/home/AccountDeletation.jsx";
 import PresenceEyeResetPassword from "./pages/auth/PresenceEyeResetPassword.jsx";
-import ButtonsPage from "./components/presence_eye/ButtonsPage.jsx";
 import DownloadPage from "./pages/dashboard/PresenceEyeDownload.jsx";
 import DashboardHome from "./pages/dashboard/DashboardHome.jsx";
 
@@ -45,17 +42,13 @@ function App() {
     "/contact": "Contact Us | BYOSE Tech",
     "/news": "New & Blog | BYOSE Tech",
     "/presence-eye": "PresenceEye | BYOSE Tech",
-    "/b-academy": "B-Academy | BYOSE Tech",
-    "/b-store": "B-Store | BYOSE Tech",
-    "/b-tech-labs": "B-Tech Labs | BYOSE Tech",
     "/we-are": "Who We Are | BYOSE Tech",
     "/signup": "Create Account | BYOSE Tech",
-    "/login": "Login | BYOSE",
+    "/login": "Login | BYOSE Tech",
     "/dashboard": "DASHBOARD | BYOSE Tech",
     "/dashboard/presence-eye-buttons/analytics": "Analytics | BYOSE Tech",
     "/dashboard/presence-eye-buttons/insights": "Device Insights | BYOSE Tech",
     "/dashboard/presence-eye-buttons/revenue": "Revenue | BYOSE Tech",
-    "/presence-eye/buttons": "Buttons | Gate Remote Extender | BYOSE Tech",
   };
 
   useUpdateTitle(titleMap);
@@ -67,7 +60,6 @@ function App() {
         <Route exact path="/" element={<Landing />}>
           <Route index element={<Home />} />
           <Route path="/services" element={<Services />} />
-          <Route path="/b-bot" element={<BBot />} />
           <Route path="/we-are" element={<WhoWeAre />}>
             <Route
               index
@@ -97,7 +89,6 @@ function App() {
               element={<PresenceEyePresentation />}
             />
             
-            <Route path="/presence-eye/buttons" element={<ButtonsPage />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Route>

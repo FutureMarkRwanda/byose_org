@@ -128,7 +128,6 @@ export default function RemoteUsageHistory() {
     }
 
     setLoading(false);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [timeFilter, customFrom, customTo, serialNumber, token]);
 
   // Fetch whenever the preset filter or serial number changes (non-custom).
@@ -309,12 +308,12 @@ export default function RemoteUsageHistory() {
           {/* ── KPI Cards ──────────────────────────────────────────────────── */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
 
-            {/* Gate Interactions */}
+            {/* Remote Interactions */}
             <Card className="p-5 flex flex-col justify-between relative overflow-hidden group">
               <div className="absolute right-0 top-0 w-16 h-16 bg-blue-50 rounded-bl-full -z-10 group-hover:scale-110 transition-transform" />
               <div>
                 <p className="text-xs font-black uppercase tracking-widest text-slate-500 mb-1">
-                  Gate Interactions
+                  Remote Interactions
                 </p>
                 <p className="text-3xl font-bold font-display text-blue-600">
                   {usage.totalEventsInRange || 0}
@@ -424,7 +423,7 @@ export default function RemoteUsageHistory() {
                         }}
                         cursor={{ fill: 'rgba(25, 92, 81, 0.05)' }}
                       />
-                      <Bar dataKey="opens" name="Gate Opens" fill="#195C51" radius={[4, 4, 0, 0]} />
+                      <Bar dataKey="opens" name="Remote Opens" fill="#195C51" radius={[4, 4, 0, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
                 )}
@@ -435,7 +434,7 @@ export default function RemoteUsageHistory() {
             <Card className="flex flex-col h-[380px]">
               <div className="p-5 border-b border-slate-100">
                 <h2 className="font-display font-semibold text-lg flex items-center gap-2">
-                  <Fingerprint className="w-5 h-5 text-[#195C51]" /> Who Opened The Gate?
+                  <Fingerprint className="w-5 h-5 text-[#195C51]" /> Who Opened The Remote?
                 </h2>
               </div>
 

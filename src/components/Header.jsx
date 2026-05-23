@@ -36,7 +36,7 @@ function Header() {
                     
                     {/* LOGO */}
                     <Link to="/" className="flex items-center gap-2">
-                        <img src="/assets/icons/Logo01.svg" className="h-7 w-7 md:h-8 md:w-8" alt="BYOSE Logo" />
+                        <img src="/assets/icons/Logo01.svg" className="h-7 w-7 md:h-8 md:w-8" alt="BYOSE Tech Logo" />
                         <span className="text-lg md:text-xl font-bold tracking-tight text-[#195C51]">BYOSE</span>
                     </Link>
 

@@ -1,27 +1,15 @@
 import React, {useEffect} from 'react';
 import {Box, FlexBox, Grid, Slide, Text} from "spectacle";
-import {getTextColor} from "../../utils/helper.js";
+import {getTextColor} from "../../../utils/helper.js";
 
-function PresenceEyeP1S7P0() {
+function Market() {
 
 
 
     const featureItems = [
-        { color: "#58A4B0", text: "2015", title: "2.6M (Households)" },
-        { color: "#84732B", text: "3.66KWH", title: "Average daily Consumption" },
-        { color: "#28965A", text: "104.0(GW)", title: "Annual Consumption" },
-        { color: "#28965A", text: "9.3B(FRW)", title: "Annual Expenditure" },
-        { color: "#28965A", text: "0.93B(FRW)", title: "Phantom load(10%)" },
-        { color: "#58A4B0", text: "2022", title: "3.3M (Households)" },
-        { color: "#84732B", text: "8.5KWH", title: "Average daily Consumption" },
-        { color: "#28965A", text: "1012.0(GW)", title: "Annual Consumption" },
-        { color: "#28965A", text: "91.1B(FRW)", title: "Annual Expenditure" },
-        { color: "#28965A", text: "9.11B(FRW)", title: "Phantom load(10%)" },
-        { color: "#58A4B0", text: "2025", title: "3.5M (Projected Households)" },
-        { color: "#84732B", text: "7.27(KWH)", title: "Average daily Consumption" },
-        { color: "#28965A", text: "630.0(GW)", title: "Annual Consumption" },
-        { color: "#28965A", text: "56.7B(FRW)", title: "Annual Expenditure" },
-        { color: "#28965A", text: "5.67B(FRW)", title: "Phantom load(10%)" },
+        { color: "#58A4B0", text: "$1T market potential by 2030", title: "AgriTech in Africa" },
+        { color: "#84732B", text: "African online education market growing at 12% CAGR", title: "EdTech" },
+        { color: "#28965A", text: "Over 600M internet users in Africa, massive content demand.", title: "Digital Platforms" },
     ];
 
 // Add dynamically calculated textColor
@@ -33,7 +21,7 @@ function PresenceEyeP1S7P0() {
         <Slide backgroundColor="darkBackground3">
             <FlexBox height="100%" flexDirection="column" alignItems="center" justifytitle="center">
                 <Grid
-                    gridTemplateColumns="repeat(5, 1fr)"
+                    gridTemplateColumns="repeat(2, 1fr)"
                     className="gap-5 feature-list relative"
                     width="80%"
                     height="80%"
@@ -72,4 +60,4 @@ function PresenceEyeP1S7P0() {
         </Slide>
     );
 }
-export default PresenceEyeP1S7P0;
+export default Market;

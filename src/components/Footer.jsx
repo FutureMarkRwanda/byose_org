@@ -39,7 +39,7 @@ function Footer() {
               <img
                 src="/assets/icons/Logo03.svg"
                 className="h-10"
-                alt="BYOSE Logo"
+                alt="BYOSE Tech Logo"
               />
               <span className="text-2xl font-bold tracking-tighter text-white">
                 BYOSE Tech

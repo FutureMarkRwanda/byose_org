@@ -1,39 +1,19 @@
-// src/Progress.js
+// src/Presentation.js
 // eslint-disable-next-line no-unused-vars
 import React, { useRef, useEffect } from 'react';
 import {
     Deck,
-    Slide,
     DefaultTemplate,
-    FlexBox,
-    Heading,
-    Text,
-    Box,
-    // eslint-disable-next-line no-unused-vars
-    Image
 } from 'spectacle';
 import {BsEye, BsFullscreen} from "react-icons/bs";
-import Presence_eye_p1_s1 from "../slides_cards/Presence_eye_p1_s1.jsx";
-import Presence_eye_p1_s2 from "../slides_cards/Presence_eye_p1_s2.jsx";
-import Presence_eye_p1_s3 from "../slides_cards/Presence_eye_p1_s3.jsx";
-import Presence_eye_p1_s4 from "../slides_cards/Presence_eye_p1_s4.jsx";
-import Presence_eye_p1_s5 from "../slides_cards/Presence_eye_p1_s5.jsx";
-import Presence_eye_p1_s6 from "../slides_cards/Presence_eye_p1_s6.jsx";
-import Presence_eye_p1_s7 from "../slides_cards/Presence_eye_p1_s7.jsx";
-import Presence_eye_p1_s8 from "../slides_cards/Presence_eye_p1_s8.jsx";
-import Presence_eye_p1_s9 from "../slides_cards/Presence_eye_p1_s9.jsx";
-import Presence_eye_p1_s10 from "../slides_cards/Presence_eye_p1_s10.jsx";
-import Presence_eye_p1_s11 from "../slides_cards/Presence_eye_p1_s11.jsx";
-import Presence_eye_p1_s12 from "../slides_cards/Presence_eye_p1_s12.jsx";
-import Presence_eye_p1_s0 from "../slides_cards/Presence_eye_p1_s0.jsx";
-import Presence_eye_p1_s3_P2 from "../slides_cards/Presence_eye_p1_s3_P2.jsx";
-import Presence_eye_p1_s7_P0 from "../slides_cards/Presence_eye_p1_s7_P0.jsx";
-import Presence_eye_p1_s7_P1 from "../slides_cards/Presence_eye_p1_s7_P1.jsx";
-import Image01 from "../slides_cards/Image01.jsx";
-import PresenceEyeOverview from "../slides_cards/PresenceEyeOverview.jsx";
-import PresenceEyeRecents from "../slides_cards/PresenceEyeRecents.jsx";
-import PresenceEyeCurrentProgress from "../slides_cards/PresenceEyeCurrentProgress.jsx";
-import Deriverables from "../slides_cards/Deriverables.jsx";
+import Company from "./Company.jsx";
+import Problem from "./Problem.jsx";
+import SolutionsTitle from "./SolutionsTitle.jsx";
+import Solutions from "./Solutions.jsx";
+import Market from "./Market.jsx";
+import Products from "./Products.jsx";
+import Traction from "./Traction.jsx";
+import ChallengesFunding from "./ChallengesFunding.jsx";
 // Custom theme with professional colors and styling
 const theme = {
     colors: {
@@ -70,7 +50,7 @@ const theme = {
 // We'll cycle through them for visual variety
 const transitions = ['fade', 'slide', 'zoom', 'convex'];
 
-const Progress = () => {
+const BYOSETechPresentation = () => {
     const deckRef = useRef(null);
     const containerRef = useRef(null);
 
@@ -121,16 +101,18 @@ const Progress = () => {
                 template={DefaultTemplate}
                 transitionEffect={(index) => transitions[index % transitions.length]}
             >
-
-                <Presence_eye_p1_s12/>
-                <PresenceEyeOverview/>
-                <PresenceEyeCurrentProgress/>
-                <PresenceEyeRecents/>
-                <Deriverables/>
-                <Presence_eye_p1_s12 text = {"The foundation of smarter living"}/>
+                <Company/>
+                <Problem/>
+                <SolutionsTitle/>
+                <Solutions/>
+                <Market/>
+                <Products/>
+                <Traction/>
+                <ChallengesFunding/>
+                
             </Deck>
         </div>
     );
 };
 
-export default Progress;
+export default BYOSETechPresentation;
