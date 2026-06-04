@@ -110,7 +110,7 @@ const RevenueTrendChart = ({ token }) => {
         if (!from || !to) return;
         try {
             const res = await fetchData(
-                `${presence_server}/api/subscriptions/admin/revenue?from=${from}&to=${to}`,
+                `${presence_server}/api/admin/subscriptions/revenue?from=${from}&to=${to}`,
                 token
             );
             if (res.data) {
@@ -573,7 +573,7 @@ export default function RevenueInsights() {
         try {
             const res = await fetchData(`${presence_server}/api/admin/subscriptions/plans`, token);
             if (res.data) setPlans(res.data.plans || []);
-        } catch (err) { showNotification('Failed to load plans', 'error'); }
+        } catch (err) { showNotification('Failed to load plans'+err.message, 'error'); }
         setPlansLoading(false);
     }, [token]);
 
