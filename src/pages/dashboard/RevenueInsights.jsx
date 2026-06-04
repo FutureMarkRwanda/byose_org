@@ -86,7 +86,7 @@ const RevenueTrendChart = ({ token }) => {
         setLoading(true);
         try {
             const res = await fetchData(
-                `${presence_server}/api/admin/subscription/revenue/trend?from=${from}&to=${to}`,
+                `${presence_server}/api/admin/subscriptions/revenue/trend?from=${from}&to=${to}`,
                 token
             );
             if (res.data) {
@@ -536,7 +536,7 @@ export default function RevenueInsights() {
         setSubsLoading(true);
         try {
             const query = `?page=${page}&limit=10${status ? `&status=${status}` : ''}`;
-            const res = await fetchData(`${presence_server}/api/admin/subscription/subscriptions${query}`, token);
+            const res = await fetchData(`${presence_server}/api/admin/subscriptions/subscriptions${query}`, token);
             if (res.data) {
                 setSubs(res.data.subscriptions || []);
                 setSubStats({ total: res.data.total, page: res.data.currentPage, totalPages: res.data.totalPages });
@@ -571,7 +571,7 @@ export default function RevenueInsights() {
     const loadPlans = useCallback(async () => {
         setPlansLoading(true);
         try {
-            const res = await fetchData(`${presence_server}/api/admin/subscription/plans`, token);
+            const res = await fetchData(`${presence_server}/api/admin/subscriptions/plans`, token);
             if (res.data) setPlans(res.data.plans || []);
         } catch (err) { showNotification('Failed to load plans', 'error'); }
         setPlansLoading(false);
