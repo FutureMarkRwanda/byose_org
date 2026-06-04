@@ -1,17 +1,16 @@
 // src/pages/dashboard/RevenueInsights.jsx
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback} from 'react';
 import {
-    CreditCard, Users, Search, ChevronLeft, ChevronRight,
+    CreditCard, Users, ChevronLeft, ChevronRight,
     Plus, Edit2, Power, PowerOff, ShieldCheck, CheckCircle2,
-    PieChart as PieChartIcon, TrendingUp, Calendar, X,
-    Clock, ArrowLeft, Receipt, Download, Filter
+    PieChart as PieChartIcon, TrendingUp, X,
+     ArrowLeft, Receipt
 } from 'lucide-react';
 import {
     MdVerified, MdAccessTime, MdPauseCircle, MdCancel,
     MdTimer, MdHourglassEmpty, MdErrorOutline
 } from 'react-icons/md';
-import {
-    LineChart, Line, BarChart, Bar, PieChart, Pie, Cell,
+import {BarChart, Bar, PieChart, Pie, Cell,
     Tooltip as RechartsTooltip, Legend, ResponsiveContainer,
     XAxis, YAxis, CartesianGrid, Area, AreaChart
 } from 'recharts';
@@ -31,10 +30,12 @@ const maskEmailLocal = (email) => {
 };
 
 // ─── UI Primitives ─────────────────────────────────────────────────────────────
+// eslint-disable-next-line react/prop-types
 const Card = ({ children, className = '' }) => (
     <div className={`bg-white border border-slate-200 rounded-xl shadow-sm ${className}`}>{children}</div>
 );
 
+// eslint-disable-next-line react/prop-types
 const StatusPill = ({ status }) => {
     const cfg = {
         active:       { bg: 'bg-emerald-100', text: 'text-emerald-800', border: 'border-emerald-200', icon: MdVerified,       label: 'Active' },
@@ -299,7 +300,7 @@ const RevenueHistoryDrawer = ({ user, onClose, token }) => {
             try {
                 const userId = user.user?._id || user._id;
                 const res = await fetchData(
-                    `${presence_server}/api/subscriptions/admin/user/${userId}/history`,
+                    `${presence_server}/api/admin/subscriptions/user/${userId}/history`,
                     token
                 );
                 if (res.data) {
@@ -605,8 +606,8 @@ export default function RevenueInsights() {
                 pricing: [{ country: 'RW', currency: 'RWF', pricePerMonth: Number(formData.pricePerMonth) }]
             };
             const res = editingPlan
-                ? await updateData(`${presence_server}/api/subscriptions/admin/plans/${editingPlan._id}`, payload, token)
-                : await sendData(`${presence_server}/api/subscriptions/admin/plans`, payload, token);
+                ? await updateData(`${presence_server}/api/admin/subscriptions/plans/${editingPlan._id}`, payload, token)
+                : await sendData(`${presence_server}/api/admin/subscriptions/plans`, payload, token);
             if (res.error) throw new Error(res.error);
             showNotification(`Plan ${editingPlan ? 'updated' : 'created'} successfully`, 'success');
             setIsModalOpen(false);
@@ -617,7 +618,7 @@ export default function RevenueInsights() {
 
     const handleTogglePlanStatus = async (planId, isActive) => {
         try {
-            const endpoint = isActive ? `/api/subscriptions/admin/plan/disable/${planId}` : `/api/subscriptions/admin/enable/${planId}`;
+            const endpoint = isActive ? `/api/admin/subscriptions/plan/disable/${planId}` : `/api/admin/subscriptions/enable/${planId}`;
             const res = await patchData(`${presence_server}${endpoint}`, {}, token);
             if (res.error) throw new Error(res.error);
             showNotification(`Plan ${isActive ? 'disabled' : 'enabled'}`, 'success');
