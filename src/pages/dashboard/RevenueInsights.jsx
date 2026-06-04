@@ -4,7 +4,7 @@ import {
     CreditCard, Users, ChevronLeft, ChevronRight,
     Plus, Edit2, Power, PowerOff, ShieldCheck, CheckCircle2,
     PieChart as PieChartIcon, TrendingUp, X,
-     ArrowLeft, Receipt
+     ArrowLeft, Receipt, Banknote, BarChart2
 } from 'lucide-react';
 import {
     MdVerified, MdAccessTime, MdPauseCircle, MdCancel,
@@ -28,6 +28,18 @@ const maskEmailLocal = (email) => {
     const domain = email.slice(at);
     return `${local.slice(0, 3)}${'*'.repeat(Math.max(3, local.length - 3))}${domain}`;
 };
+
+// ─── Revenue Helper (mirrors backend logic) ───────────────────────────────────
+// Use stored totalPaid if valid, otherwise fallback to pricePerMonth × durationMonths
+const getEffectiveTotalPaid = (sub) => {
+    if (sub?.pricingSnapshot?.totalPaid > 0) return sub.pricingSnapshot.totalPaid;
+    const ppm = sub?.pricingSnapshot?.pricePerMonth || 0;
+    const dur = sub?.durationMonths || 0;
+    return ppm * dur;
+};
+
+// Statuses that represent money actually received (mirrors PAID_STATUSES on backend)
+const PAID_STATUSES = ['active', 'grace_period', 'expired', 'cancelled'];
 
 // ─── UI Primitives ─────────────────────────────────────────────────────────────
 // eslint-disable-next-line react/prop-types
@@ -57,13 +69,15 @@ const StatusPill = ({ status }) => {
 
 // ─── Revenue Trend Chart ───────────────────────────────────────────────────────
 const RevenueTrendChart = ({ token }) => {
-    const [trendData, setTrendData]   = useState([]);
-    const [loading, setLoading]       = useState(true);
-    const [timePeriod, setTimePeriod] = useState('this_year'); // this_month | this_year | custom
-    const [customFrom, setCustomFrom] = useState('');
-    const [customTo, setCustomTo]     = useState('');
-    const [totalRevenue, setTotalRevenue] = useState(null);
-    const [currency, setCurrency]     = useState('RWF');
+    const [trendData, setTrendData]       = useState([]);
+    const [loading, setLoading]           = useState(true);
+    const [timePeriod, setTimePeriod]     = useState('this_year');
+    const [customFrom, setCustomFrom]     = useState('');
+    const [customTo, setCustomTo]         = useState('');
+    // FIX: track collected and earned separately from the summary endpoint
+    const [summaryCollected, setSummaryCollected] = useState(null);
+    const [summaryEarned, setSummaryEarned]       = useState(null);
+    const [currency, setCurrency]         = useState('RWF');
 
     const buildQuery = useCallback(() => {
         const today = new Date();
@@ -91,13 +105,9 @@ const RevenueTrendChart = ({ token }) => {
                 token
             );
             if (res.data) {
+                // FIX: backend now returns { period, collected, earned } per item
                 const raw = res.data.trend || res.data.data?.trend || [];
                 setTrendData(raw);
-
-                // Compute total from trend data
-                const total = raw.reduce((sum, d) => sum + (d.revenue || d.amount || d.total || 0), 0);
-                setTotalRevenue(total);
-                if (raw[0]?.currency) setCurrency(raw[0].currency);
             }
         } catch (err) {
             console.error('Revenue trend error:', err);
@@ -105,7 +115,7 @@ const RevenueTrendChart = ({ token }) => {
         setLoading(false);
     }, [buildQuery, token]);
 
-    // Also load from the summary endpoint for total
+    // Load summary KPIs from the /revenue endpoint
     const loadSummaryTotal = useCallback(async () => {
         const { from, to } = buildQuery();
         if (!from || !to) return;
@@ -116,8 +126,9 @@ const RevenueTrendChart = ({ token }) => {
             );
             if (res.data) {
                 const rev = res.data.revenue || res.data;
-                const total = rev.totalRevenue ?? rev.collected ?? rev.total ?? null;
-                if (total !== null) setTotalRevenue(total);
+                // FIX: backend now returns { collected, earned, currency }
+                setSummaryCollected(rev.collected ?? null);
+                setSummaryEarned(rev.earned ?? null);
                 if (rev.currency) setCurrency(rev.currency);
             }
         } catch (_) {}
@@ -167,7 +178,7 @@ const RevenueTrendChart = ({ token }) => {
                     <TrendingUp className="w-5 h-5 text-[#195C51]" />
                     <div>
                         <h2 className="font-display font-semibold text-lg leading-tight">Revenue Trend</h2>
-                        <p className="text-xs text-slate-500">Monthly subscription collections</p>
+                        <p className="text-xs text-slate-500">Collected cash vs. earned (MRR) by month</p>
                     </div>
                 </div>
 
@@ -209,30 +220,36 @@ const RevenueTrendChart = ({ token }) => {
                 </div>
             </div>
 
-            {/* Total Revenue KPI */}
-            <div className="flex items-center gap-6 py-4 px-5 bg-gradient-to-r from-[#195C51]/8 to-transparent rounded-xl border border-[#195C51]/15">
-                <div>
-                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">Total Revenue</p>
-                    {loading ? (
-                        <div className="h-8 w-32 bg-slate-100 animate-pulse rounded-md" />
-                    ) : (
-                        <p className="text-3xl font-bold text-[#195C51]">{fmtRevenue(totalRevenue)}</p>
-                    )}
-                    <p className="text-xs text-slate-400 mt-1">
-                        {timePeriod === 'this_month' ? 'This month' :
-                         timePeriod === 'this_year'  ? 'This year'  :
-                         customFrom && customTo ? `${customFrom} → ${customTo}` : 'Selected period'}
-                    </p>
+            {/* FIX: Two KPI cards — collected and earned — from /revenue endpoint */}
+            <div className="grid grid-cols-2 gap-4">
+                <div className="flex items-center gap-3 py-4 px-5 bg-gradient-to-r from-[#195C51]/8 to-transparent rounded-xl border border-[#195C51]/15">
+                    <Banknote className="w-8 h-8 text-[#195C51] opacity-60 shrink-0" />
+                    <div>
+                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">Cash Collected</p>
+                        {loading ? (
+                            <div className="h-7 w-28 bg-slate-100 animate-pulse rounded-md" />
+                        ) : (
+                            <p className="text-2xl font-bold text-[#195C51]">{fmtRevenue(summaryCollected)}</p>
+                        )}
+                        <p className="text-[10px] text-slate-400 mt-0.5">Payments received in period</p>
+                    </div>
                 </div>
-                <div className="ml-auto text-right">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">Data Points</p>
-                    <p className="text-xl font-bold text-slate-700">{trendData.length}</p>
-                    <p className="text-xs text-slate-400">periods</p>
+                <div className="flex items-center gap-3 py-4 px-5 bg-gradient-to-r from-blue-50 to-transparent rounded-xl border border-blue-100">
+                    <BarChart2 className="w-8 h-8 text-blue-500 opacity-60 shrink-0" />
+                    <div>
+                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">Earned (MRR)</p>
+                        {loading ? (
+                            <div className="h-7 w-28 bg-slate-100 animate-pulse rounded-md" />
+                        ) : (
+                            <p className="text-2xl font-bold text-blue-600">{fmtRevenue(summaryEarned)}</p>
+                        )}
+                        <p className="text-[10px] text-slate-400 mt-0.5">Revenue recognized in period</p>
+                    </div>
                 </div>
             </div>
 
-            {/* Chart */}
-            <div className="h-[120px] min-h-[120px]">
+            {/* FIX: Chart now renders both `collected` and `earned` series */}
+            <div className="h-[160px] min-h-[160px]">
                 {loading ? (
                     <div className="h-full flex items-center justify-center text-slate-400">
                         <div className="w-6 h-6 border-2 border-[#195C51] border-t-transparent rounded-full animate-spin" />
@@ -247,9 +264,13 @@ const RevenueTrendChart = ({ token }) => {
                     <ResponsiveContainer width="100%" height="100%">
                         <AreaChart data={trendData} margin={{ top: 8, right: 8, left: -10, bottom: 0 }}>
                             <defs>
-                                <linearGradient id="revenueGrad" x1="0" y1="0" x2="0" y2="1">
+                                <linearGradient id="collectedGrad" x1="0" y1="0" x2="0" y2="1">
                                     <stop offset="5%"  stopColor="#195C51" stopOpacity={0.18} />
                                     <stop offset="95%" stopColor="#195C51" stopOpacity={0} />
+                                </linearGradient>
+                                <linearGradient id="earnedGrad" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="5%"  stopColor="#3B82F6" stopOpacity={0.15} />
+                                    <stop offset="95%" stopColor="#3B82F6" stopOpacity={0} />
                                 </linearGradient>
                             </defs>
                             <CartesianGrid strokeDasharray="3 3" stroke="#F0F0F0" vertical={false} />
@@ -268,19 +289,50 @@ const RevenueTrendChart = ({ token }) => {
                                 width={40}
                             />
                             <RechartsTooltip content={<CustomTooltip />} />
+                            {/* FIX: collected series — lump-sum cash received */}
                             <Area
                                 type="monotone"
-                                dataKey="revenue"
-                                name="Revenue"
+                                dataKey="collected"
+                                name="Collected"
                                 stroke="#195C51"
-                                fill="url(#revenueGrad)"
+                                fill="url(#collectedGrad)"
                                 strokeWidth={2.5}
                                 dot={{ r: 3, fill: '#195C51', strokeWidth: 2, stroke: '#fff' }}
                                 activeDot={{ r: 5 }}
                             />
+                            {/* FIX: earned series — MRR spread across active months */}
+                            <Area
+                                type="monotone"
+                                dataKey="earned"
+                                name="Earned (MRR)"
+                                stroke="#3B82F6"
+                                fill="url(#earnedGrad)"
+                                strokeWidth={2}
+                                strokeDasharray="4 2"
+                                dot={{ r: 2.5, fill: '#3B82F6', strokeWidth: 2, stroke: '#fff' }}
+                                activeDot={{ r: 4 }}
+                            />
+                            <Legend
+                                verticalAlign="bottom"
+                                height={24}
+                                iconType="circle"
+                                wrapperStyle={{ fontSize: '10px', fontWeight: '700', color: '#475569', paddingTop: '4px' }}
+                            />
                         </AreaChart>
                     </ResponsiveContainer>
                 )}
+            </div>
+
+            {/* Legend explainer */}
+            <div className="flex gap-6 text-[10px] text-slate-500 border-t border-slate-100 pt-3">
+                <span className="flex items-center gap-1.5">
+                    <span className="w-3 h-0.5 bg-[#195C51] inline-block rounded" />
+                    <strong className="text-slate-700">Collected</strong> — full payment received when subscription started
+                </span>
+                <span className="flex items-center gap-1.5">
+                    <span className="w-3 h-0.5 bg-blue-400 inline-block rounded border-dashed" style={{borderTop:'2px dashed #3B82F6', background:'none'}} />
+                    <strong className="text-slate-700">Earned</strong> — revenue recognized per active month (MRR)
+                </span>
             </div>
         </Card>
     );
@@ -288,9 +340,9 @@ const RevenueTrendChart = ({ token }) => {
 
 // ─── Revenue History Drawer ────────────────────────────────────────────────────
 const RevenueHistoryDrawer = ({ user, onClose, token }) => {
-    const [history, setHistory]   = useState([]);
-    const [loading, setLoading]   = useState(true);
-    const [summary, setSummary]   = useState(null);
+    const [history, setHistory] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [summary, setSummary] = useState(null);
 
     const fullName = `${user.user?.firstName || ''} ${user.user?.lastName || ''}`.trim();
 
@@ -315,26 +367,82 @@ const RevenueHistoryDrawer = ({ user, onClose, token }) => {
         loadHistory();
     }, [user, token]);
 
-    const fmtAmt = (amt, cur) => amt != null ? `${amt.toLocaleString()} ${cur || ''}` : '—';
     const fmtDate = (d) => d ? new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: '2-digit' }) : '—';
 
-    // Compute subscription lifetime bar chart data
-    const chartData = history.map(s => ({
-        period: `${fmtDate(s.startDate)}`,
-        amount: s.pricingSnapshot?.totalPaid || 0,
-        status: s.status,
-    })).slice(0, 12);
+    // FIX: chart only includes paid (non-trial, non-failed/pending/processing) subscriptions
+    // and distributes each subscription's amount across its active months
+    const paidHistory = history.filter(s => !s.isTrial && PAID_STATUSES.includes(s.status));
+
+    // Build month-by-month distribution chart data
+    const buildDistributionChart = () => {
+        const byMonth = {};
+        for (const s of paidHistory) {
+            const totalPaid = getEffectiveTotalPaid(s);
+            const duration  = s.durationMonths || 1;
+            const perMonth  = totalPaid / duration;
+            const start     = new Date(s.startDate);
+            for (let i = 0; i < duration; i++) {
+                const d   = new Date(start.getFullYear(), start.getMonth() + i, 1);
+                const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+                byMonth[key] = (byMonth[key] || 0) + perMonth;
+            }
+        }
+        return Object.entries(byMonth)
+            .sort(([a], [b]) => a.localeCompare(b))
+            .map(([period, earned]) => ({ period, earned: Math.round(earned) }));
+    };
+
+    // Build collected-per-subscription chart (one bar per payment event)
+    const buildCollectedChart = () =>
+        paidHistory
+            .slice()
+            .sort((a, b) => new Date(a.startDate) - new Date(b.startDate))
+            .map(s => ({
+                period:    fmtDate(s.startDate),
+                collected: getEffectiveTotalPaid(s),
+                status:    s.status,
+                plan:      s.plan?.name || 'Plan',
+            }));
+
+    const distributionData = buildDistributionChart();
+    const collectedData    = buildCollectedChart();
+
+    const currency = summary?.currency || history[0]?.pricingSnapshot?.currency || 'RWF';
+
+    // FIX: use summary.totalPaid from backend (already filters correctly server-side)
+    // Fallback: compute client-side with same rules as backend if summary missing
+    const totalPaidDisplay = summary?.totalPaid != null
+        ? summary.totalPaid
+        : paidHistory.reduce((sum, s) => sum + getEffectiveTotalPaid(s), 0);
+
+    const activeSubs  = history.filter(h => h.status === 'active').length;
+    const firstSub    = history.slice(-1)[0];
+    const latestSub   = history[0];
+    const memberSince = firstSub?.startDate ? fmtDate(firstSub.startDate) : '—';
+
+    const CustomTooltip = ({ active, payload, label }) => {
+        if (!active || !payload?.length) return null;
+        return (
+            <div className="bg-[#1A2E2A] text-white text-xs rounded-xl px-3 py-2.5 shadow-xl border border-white/10">
+                <p className="font-bold mb-1 text-gray-300 text-[10px]">{label}</p>
+                {payload.map((p, i) => (
+                    <p key={i} className="flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: p.color }} />
+                        <span className="text-gray-300 text-[10px]">{p.name}:</span>
+                        <span className="font-black text-[10px]" style={{ color: p.color }}>
+                            {p.value.toLocaleString()} {currency}
+                        </span>
+                    </p>
+                ))}
+            </div>
+        );
+    };
 
     return (
         <>
-            {/* Overlay */}
-            <div
-                className="fixed inset-0 z-40 bg-slate-900/40 backdrop-blur-sm"
-                onClick={onClose}
-            />
-
-            {/* Drawer */}
+            <div className="fixed inset-0 z-40 bg-slate-900/40 backdrop-blur-sm" onClick={onClose} />
             <div className="fixed inset-y-0 right-0 z-50 w-full max-w-xl bg-white shadow-2xl flex flex-col overflow-hidden animate-slide-up">
+
                 {/* Header */}
                 <div className="shrink-0 px-6 py-5 border-b border-slate-200 bg-slate-50/80">
                     <div className="flex items-center justify-between">
@@ -367,67 +475,105 @@ const RevenueHistoryDrawer = ({ user, onClose, token }) => {
                     <div className="flex-1 overflow-y-auto custom-scrollbar">
 
                         {/* Summary KPIs */}
-                        {(summary || history.length > 0) && (() => {
-                            const totalPaid    = history.reduce((s, h) => s + (h.pricingSnapshot?.totalPaid || 0), 0);
-                            const firstSub     = history.slice(-1)[0];
-                            const latestSub    = history[0];
-                            const activeSubs   = history.filter(h => h.status === 'active').length;
-                            const currency     = latestSub?.pricingSnapshot?.currency || 'RWF';
-                            const memberSince  = firstSub?.startDate ? fmtDate(firstSub.startDate) : '—';
+                        <div className="p-6 border-b border-slate-100">
+                            <div className="grid grid-cols-2 gap-4 mb-5">
+                                {/* FIX: totalPaid comes from summary.totalPaid (backend-filtered) */}
+                                <div className="bg-[#195C51]/5 rounded-xl p-4 border border-[#195C51]/15">
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">Total Paid (Lifetime)</p>
+                                    <p className="text-2xl font-bold text-[#195C51]">
+                                        {totalPaidDisplay.toLocaleString()} {currency}
+                                    </p>
+                                    <p className="text-[10px] text-slate-400 mt-0.5">Excludes failed &amp; pending</p>
+                                </div>
+                                <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">Subscriptions</p>
+                                    <p className="text-2xl font-bold text-slate-800">{history.length}</p>
+                                    <p className="text-xs text-slate-400">{activeSubs} currently active</p>
+                                </div>
+                            </div>
 
-                            return (
-                                <div className="p-6 border-b border-slate-100">
-                                    <div className="grid grid-cols-2 gap-4 mb-5">
-                                        <div className="bg-[#195C51]/5 rounded-xl p-4 border border-[#195C51]/15">
-                                            <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">Total Paid (Lifetime)</p>
-                                            <p className="text-2xl font-bold text-[#195C51]">
-                                                {totalPaid.toLocaleString()} {currency}
+                            <div className="grid grid-cols-2 gap-4 text-sm mb-5">
+                                <div>
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-0.5">Member Since</p>
+                                    <p className="font-semibold text-slate-800">{memberSince}</p>
+                                </div>
+                                <div>
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-0.5">Latest Plan</p>
+                                    <p className="font-semibold text-slate-800">{latestSub?.plan?.name || '—'}</p>
+                                </div>
+                            </div>
+
+                            {/* FIX: Two charts — collected per payment + monthly distribution */}
+                            {paidHistory.length > 0 && (
+                                <div className="space-y-5">
+
+                                    {/* Chart 1: Cash collected — one bar per payment event */}
+                                    {collectedData.length > 0 && (
+                                        <div>
+                                            <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">
+                                                Cash Collected Per Payment
                                             </p>
-                                        </div>
-                                        <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
-                                            <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">Subscriptions</p>
-                                            <p className="text-2xl font-bold text-slate-800">{history.length}</p>
-                                            <p className="text-xs text-slate-400">{activeSubs} currently active</p>
-                                        </div>
-                                    </div>
-
-                                    <div className="grid grid-cols-2 gap-4 text-sm">
-                                        <div>
-                                            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-0.5">Member Since</p>
-                                            <p className="font-semibold text-slate-800">{memberSince}</p>
-                                        </div>
-                                        <div>
-                                            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-0.5">Latest Plan</p>
-                                            <p className="font-semibold text-slate-800">{latestSub?.plan?.name || '—'}</p>
-                                        </div>
-                                    </div>
-
-                                    {/* Mini chart of payments over time */}
-                                    {chartData.length > 1 && (
-                                        <div className="mt-5">
-                                            <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-3">Payment Timeline</p>
-                                            <div className="h-[120px]">
+                                            <div className="h-[110px]">
                                                 <ResponsiveContainer width="100%" height="100%">
-                                                    <BarChart data={chartData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
+                                                    <BarChart data={collectedData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
                                                         <CartesianGrid strokeDasharray="3 3" stroke="#F0F0F0" vertical={false} />
                                                         <XAxis dataKey="period" tick={{ fontSize: 9, fill: '#94A3B8' }} tickLine={false} axisLine={false} />
                                                         <YAxis tick={{ fontSize: 9, fill: '#94A3B8' }} tickLine={false} axisLine={false} width={35}
                                                             tickFormatter={v => v >= 1000 ? `${(v/1000).toFixed(0)}K` : v} />
-                                                        <RechartsTooltip
-                                                            contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 20px rgba(0,0,0,0.12)', fontSize: '11px' }}
-                                                            formatter={v => [`${v.toLocaleString()} ${latestSub?.pricingSnapshot?.currency || ''}`, 'Paid']}
-                                                        />
-                                                        <Bar dataKey="amount" fill="#195C51" radius={[3, 3, 0, 0]} />
+                                                        <RechartsTooltip content={<CustomTooltip />} />
+                                                        <Bar dataKey="collected" name="Collected" fill="#195C51" radius={[3, 3, 0, 0]} />
                                                     </BarChart>
                                                 </ResponsiveContainer>
                                             </div>
                                         </div>
                                     )}
-                                </div>
-                            );
-                        })()}
 
-                        {/* Transaction List */}
+                                    {/* Chart 2: Monthly earned distribution — spreads subscriptions across their active months */}
+                                    {distributionData.length > 1 && (
+                                        <div>
+                                            <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">
+                                                Monthly Earned Distribution
+                                            </p>
+                                            <p className="text-[9px] text-slate-400 mb-2">
+                                                Each subscription's value spread across its active months
+                                            </p>
+                                            <div className="h-[110px]">
+                                                <ResponsiveContainer width="100%" height="100%">
+                                                    <AreaChart data={distributionData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
+                                                        <defs>
+                                                            <linearGradient id="earnedUserGrad" x1="0" y1="0" x2="0" y2="1">
+                                                                <stop offset="5%"  stopColor="#3B82F6" stopOpacity={0.18} />
+                                                                <stop offset="95%" stopColor="#3B82F6" stopOpacity={0} />
+                                                            </linearGradient>
+                                                        </defs>
+                                                        <CartesianGrid strokeDasharray="3 3" stroke="#F0F0F0" vertical={false} />
+                                                        <XAxis dataKey="period" tick={{ fontSize: 9, fill: '#94A3B8' }} tickLine={false} axisLine={false} />
+                                                        <YAxis tick={{ fontSize: 9, fill: '#94A3B8' }} tickLine={false} axisLine={false} width={35}
+                                                            tickFormatter={v => v >= 1000 ? `${(v/1000).toFixed(0)}K` : v} />
+                                                        <RechartsTooltip content={<CustomTooltip />} />
+                                                        <Area
+                                                            type="monotone"
+                                                            dataKey="earned"
+                                                            name="Earned"
+                                                            stroke="#3B82F6"
+                                                            fill="url(#earnedUserGrad)"
+                                                            strokeWidth={2}
+                                                            dot={{ r: 2.5, fill: '#3B82F6', strokeWidth: 2, stroke: '#fff' }}
+                                                        />
+                                                    </AreaChart>
+                                                </ResponsiveContainer>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
+                            {paidHistory.length === 0 && (
+                                <div className="py-4 text-center text-slate-400 text-xs">No paid subscriptions to chart.</div>
+                            )}
+                        </div>
+
+                        {/* Transaction List — shows ALL subscriptions for full history view */}
                         <div className="p-6">
                             <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-4">
                                 All Subscriptions ({history.length})
@@ -441,7 +587,10 @@ const RevenueHistoryDrawer = ({ user, onClose, token }) => {
                             ) : (
                                 <div className="space-y-3">
                                     {history.map((sub, i) => {
-                                        const isFirst = i === history.length - 1;
+                                        const isFirst       = i === history.length - 1;
+                                        const effectivePaid = getEffectiveTotalPaid(sub);
+                                        // FIX: show whether this subscription counted toward revenue
+                                        const countedAsRevenue = !sub.isTrial && PAID_STATUSES.includes(sub.status);
                                         return (
                                             <div
                                                 key={sub._id || i}
@@ -454,6 +603,7 @@ const RevenueHistoryDrawer = ({ user, onClose, token }) => {
                                                         sub.status === 'cancelled'    ? 'bg-slate-300'   :
                                                         sub.status === 'expired'      ? 'bg-red-400'     :
                                                         sub.status === 'grace_period' ? 'bg-amber-400'   :
+                                                        sub.status === 'failed'       ? 'bg-red-200'     :
                                                         'bg-blue-400'
                                                     }`} />
                                                     {!isFirst && (
@@ -474,10 +624,16 @@ const RevenueHistoryDrawer = ({ user, onClose, token }) => {
                                                     </div>
 
                                                     <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500 mt-2">
-                                                        <span>
-                                                            <span className="font-bold text-slate-700">
-                                                                {(sub.pricingSnapshot?.totalPaid || 0).toLocaleString()} {sub.pricingSnapshot?.currency || ''}
+                                                        <span className="flex items-center gap-1">
+                                                            {/* FIX: show effective amount + revenue badge */}
+                                                            <span className={`font-bold ${countedAsRevenue ? 'text-[#195C51]' : 'text-slate-400 line-through'}`}>
+                                                                {effectivePaid.toLocaleString()} {sub.pricingSnapshot?.currency || ''}
                                                             </span>
+                                                            {countedAsRevenue ? (
+                                                                <span className="text-[9px] bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded-full font-black uppercase">Revenue</span>
+                                                            ) : (
+                                                                <span className="text-[9px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded-full font-black uppercase">Not counted</span>
+                                                            )}
                                                         </span>
                                                         <span>Start: {fmtDate(sub.startDate)}</span>
                                                         <span>End: {fmtDate(sub.endDate)}</span>
@@ -488,6 +644,12 @@ const RevenueHistoryDrawer = ({ user, onClose, token }) => {
                                                     )}
                                                     {sub.status === 'grace_period' && sub.gracePeriodEnd && (
                                                         <p className="text-[10px] text-amber-600 mt-1">Grace ends {fmtDate(sub.gracePeriodEnd)}</p>
+                                                    )}
+                                                    {sub.status === 'failed' && (
+                                                        <p className="text-[10px] text-red-400 mt-1">Payment failed — not counted as revenue</p>
+                                                    )}
+                                                    {sub.isTrial && (
+                                                        <p className="text-[10px] text-blue-400 mt-1">Trial — not counted as revenue</p>
                                                     )}
                                                 </div>
                                             </div>
@@ -509,17 +671,14 @@ export default function RevenueInsights() {
     const { showNotification } = useNotification();
     const [activeTab, setActiveTab] = useState('subscriptions');
 
-    // --- Subscription & Chart State ---
     const [subs, setSubs]         = useState([]);
     const [subStats, setSubStats] = useState({ total: 0, page: 1, totalPages: 1 });
     const [subStatusFilter, setSubStatusFilter] = useState('');
     const [subsLoading, setSubsLoading]         = useState(true);
     const [planDistribution, setPlanDistribution] = useState([]);
 
-    // --- Revenue History Drawer ---
     const [historyUser, setHistoryUser] = useState(null);
 
-    // --- Plan State ---
     const [plans, setPlans]       = useState([]);
     const [plansLoading, setPlansLoading] = useState(true);
     const [isModalOpen, setIsModalOpen]   = useState(false);
@@ -532,7 +691,6 @@ export default function RevenueInsights() {
     };
     const [formData, setFormData] = useState(initialPlanState);
 
-    // --- Data Fetching ---
     const loadSubscriptions = useCallback(async (page = 1, status = subStatusFilter) => {
         setSubsLoading(true);
         try {
@@ -583,7 +741,6 @@ export default function RevenueInsights() {
         if (activeTab === 'plans')         loadPlans();
     }, [activeTab]);
 
-    // --- Plan Management ---
     const handleOpenModal = (plan = null) => {
         if (plan) {
             const rwfPrice = plan.pricing?.find(p => p.currency === 'RWF') || plan.pricing?.[0];
@@ -628,7 +785,6 @@ export default function RevenueInsights() {
 
     return (
         <div className="space-y-6 font-sans text-slate-900 pb-10">
-            {/* History Drawer */}
             {historyUser && (
                 <RevenueHistoryDrawer
                     user={historyUser}
@@ -637,13 +793,11 @@ export default function RevenueInsights() {
                 />
             )}
 
-            {/* Header */}
             <div>
                 <h1 className="font-display text-3xl font-bold tracking-tight">Revenue Insights</h1>
                 <p className="text-slate-500 text-sm mt-1">Monitor subscription billing, revenue trends, and customer history.</p>
             </div>
 
-            {/* Tab Controls */}
             <div className="flex bg-white p-1.5 rounded-2xl border border-gray-100 shadow-sm w-fit">
                 <button onClick={() => setActiveTab('subscriptions')} className={`flex items-center gap-2 px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'subscriptions' ? 'bg-[#195C51] text-white shadow-md' : 'text-gray-500 hover:text-[#195C51]'}`}>
                     <Users size={16} /> Subscribers
@@ -653,14 +807,11 @@ export default function RevenueInsights() {
                 </button>
             </div>
 
-            {/* === TAB 1: SUBSCRIBER DIRECTORY === */}
             {activeTab === 'subscriptions' && (
                 <div className="animate-slide-entrance space-y-6">
 
-                    {/* Revenue Trend Chart — NEW */}
                     <RevenueTrendChart token={token} />
 
-                    {/* Plan Distribution Pie */}
                     {planDistribution.length > 0 && (
                         <Card className="p-6 flex flex-col md:flex-row items-center gap-8">
                             <div className="md:w-1/3 space-y-3">
@@ -694,14 +845,12 @@ export default function RevenueInsights() {
                         </Card>
                     )}
 
-                    {/* Subscriber Table */}
                     <Card className="overflow-hidden">
                         <div className="p-5 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50/50">
                             <div>
                                 <h2 className="font-display font-semibold text-lg">Subscriber Directory</h2>
                                 <p className="text-xs text-slate-500 mt-1">Total Records: {subStats.total} · 10 per page</p>
                             </div>
-
                             <div className="flex bg-slate-100 p-1 rounded-lg border border-slate-200 flex-wrap">
                                 {['', 'active', 'grace_period', 'expired', 'cancelled'].map(status => (
                                     <button
@@ -743,6 +892,9 @@ export default function RevenueInsights() {
                                     ) : subs.map(sub => {
                                         const user = sub.user || {};
                                         const fullName = `${user.firstName || ''} ${user.lastName || ''}`.trim();
+                                        // FIX: use effective amount in table too
+                                        const effectivePaid    = getEffectiveTotalPaid(sub);
+                                        const countedAsRevenue = !sub.isTrial && PAID_STATUSES.includes(sub.status);
                                         return (
                                             <tr key={sub._id} className="hover:bg-slate-50 transition-colors group">
                                                 <td className="px-6 py-4">
@@ -757,8 +909,8 @@ export default function RevenueInsights() {
                                                     <StatusPill status={sub.status} />
                                                 </td>
                                                 <td className="px-6 py-4">
-                                                    <p className="font-bold text-[#195C51]">
-                                                        {sub.pricingSnapshot?.totalPaid?.toLocaleString() || 0} {sub.pricingSnapshot?.currency}
+                                                    <p className={`font-bold ${countedAsRevenue ? 'text-[#195C51]' : 'text-slate-300'}`}>
+                                                        {effectivePaid.toLocaleString()} {sub.pricingSnapshot?.currency}
                                                     </p>
                                                     <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">{sub.paymentMethod}</p>
                                                 </td>
@@ -766,12 +918,10 @@ export default function RevenueInsights() {
                                                     <p className="text-xs font-medium text-slate-700">Start: {formatDate(sub.startDate)}</p>
                                                     <p className="text-xs font-medium text-slate-500">End: {formatDate(sub.endDate)}</p>
                                                 </td>
-                                                {/* Revenue History Button */}
                                                 <td className="px-6 py-4 text-right">
                                                     <button
                                                         onClick={() => setHistoryUser(sub)}
                                                         className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#195C51]/8 hover:bg-[#195C51] text-[#195C51] hover:text-white border border-[#195C51]/20 hover:border-[#195C51] rounded-lg text-[10px] font-black uppercase tracking-wider transition-all group-hover:opacity-100"
-                                                        title="View subscription history for this user"
                                                     >
                                                         <Receipt className="w-3.5 h-3.5" />
                                                         History
@@ -784,7 +934,6 @@ export default function RevenueInsights() {
                             </table>
                         </div>
 
-                        {/* Pagination */}
                         {subStats.totalPages > 1 && (
                             <div className="p-4 border-t border-slate-200 bg-slate-50 flex items-center justify-between">
                                 <span className="text-xs text-slate-500 font-medium">Page {subStats.page} of {subStats.totalPages}</span>
@@ -810,7 +959,6 @@ export default function RevenueInsights() {
                 </div>
             )}
 
-            {/* === TAB 2: PLAN MANAGEMENT === */}
             {activeTab === 'plans' && (
                 <div className="animate-slide-entrance space-y-6">
                     <div className="flex justify-end">
@@ -846,12 +994,10 @@ export default function RevenueInsights() {
                                                     {plan.isActive ? 'Active' : 'Disabled'}
                                                 </span>
                                             </div>
-
                                             <div className="mb-6 flex items-baseline gap-1">
                                                 <span className="text-3xl font-black text-slate-900">{localPrice?.pricePerMonth?.toLocaleString() || 0}</span>
                                                 <span className="text-sm font-bold text-slate-500">{localPrice?.currency || 'RWF'}/mo</span>
                                             </div>
-
                                             <div className="grid grid-cols-3 gap-2 mb-6">
                                                 {[
                                                     { label: 'Devices',  val: plan.maxDevices  },
@@ -864,7 +1010,6 @@ export default function RevenueInsights() {
                                                     </div>
                                                 ))}
                                             </div>
-
                                             <div className="flex-1">
                                                 <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Features Included</h4>
                                                 <ul className="space-y-2">
@@ -875,7 +1020,6 @@ export default function RevenueInsights() {
                                                     ))}
                                                 </ul>
                                             </div>
-
                                             <div className="mt-8 pt-4 border-t border-slate-100 flex gap-2">
                                                 <button onClick={() => handleOpenModal(plan)} className="flex-1 flex items-center justify-center gap-2 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-bold rounded-lg transition-colors border border-slate-200">
                                                     <Edit2 size={14} /> Edit
@@ -893,7 +1037,6 @@ export default function RevenueInsights() {
                 </div>
             )}
 
-            {/* Plan Modal */}
             {isModalOpen && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
                     <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setIsModalOpen(false)} />
@@ -907,7 +1050,6 @@ export default function RevenueInsights() {
                                 <X size={24} />
                             </button>
                         </div>
-
                         <div className="p-6 overflow-y-auto custom-scrollbar flex-1">
                             <form id="plan-form" onSubmit={handleSavePlan} className="space-y-6">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -945,7 +1087,6 @@ export default function RevenueInsights() {
                                 </div>
                             </form>
                         </div>
-
                         <div className="p-6 border-t border-slate-100 bg-slate-50 flex justify-end gap-3 shrink-0">
                             <button onClick={() => setIsModalOpen(false)} className="px-6 py-2.5 rounded-xl font-bold text-slate-500 hover:bg-slate-200 transition-colors text-sm">
                                 Cancel

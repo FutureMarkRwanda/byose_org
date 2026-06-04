@@ -245,7 +245,7 @@ function AlertForm({ showToast }) {
         setLoading(true);
         const body = { audienceType, message };
         if (audienceType === "SELECTED") body.userIds = selectedIds;
-        const res = await sendData(`${presence_server}/api/broadcast/alert`, body, returnToken());
+        const res = await sendData(`${presence_server}/api/admin/broadcast/alert`, body, returnToken());
         setLoading(false);
         if (res.error) return showToast(res.error, "error");
         showToast(`Alert sent — ${res.data.data.sentCount} delivered, ${res.data.data.failedCount} failed`);
@@ -306,7 +306,7 @@ function UpdateForm({ showToast }) {
         if (audienceType === "SELECTED") body.userIds = selectedIds;
 
         setLoading(true);
-        const res = await sendData(`${presence_server}/api/broadcast/product-update`, body, returnToken());
+        const res = await sendData(`${presence_server}/api/admin/broadcast/product-update`, body, returnToken());
         setLoading(false);
         if (res.error) return showToast(res.error, "error");
         showToast(`Update sent — ${res.data.data.sentCount} delivered, ${res.data.data.failedCount} failed`);
@@ -574,7 +574,7 @@ function HistoryPanel({ showToast, detailId, setDetailId }) {
 
     const loadPage = useCallback(async (page = 1) => {
         setLoading(true);
-        const res = await fetchData(`${presence_server}/api/broadcast?page=${page}&limit=10`, returnToken());
+        const res = await fetchData(`${presence_server}/api/admin/broadcast?page=${page}&limit=10`, returnToken());
         setLoading(false);
         if (res.error) return showToast(res.error, "error");
         setBroadcasts(res.data.data.broadcasts);
@@ -586,7 +586,7 @@ function HistoryPanel({ showToast, detailId, setDetailId }) {
     const openDetail = async (id) => {
         setDetailId(id);
         setDetailLoading(true);
-        const res = await fetchData(`${presence_server}/api/broadcast/${id}`, returnToken());
+        const res = await fetchData(`${presence_server}/api/admin/broadcast/${id}`, returnToken());
         setDetailLoading(false);
         if (res.error) return showToast(res.error, "error");
         setDetail(res.data.data);
@@ -594,7 +594,7 @@ function HistoryPanel({ showToast, detailId, setDetailId }) {
 
     const handleResend = async (id) => {
         setResending(id);
-        const res = await sendData(`${presence_server}/api/broadcast/${id}/resend-failed`, {}, returnToken());
+        const res = await sendData(`${presence_server}/api/admin/broadcast/${id}/resend-failed`, {}, returnToken());
         setResending(null);
         if (res.error) return showToast(res.error, "error");
         showToast(`Resend complete — ${res.data.data.sentCount} delivered`);
