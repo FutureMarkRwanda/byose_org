@@ -21,6 +21,7 @@ import {
   KeyIcon,
   UserIcon,
 } from "@heroicons/react/24/outline";
+import NotificationCentre from "./pages/dashboard/NotificationCentre.jsx";
 
 const iconClass = "w-5 h-5";
 
@@ -84,6 +85,11 @@ export const routes = [
             name: "Broadcasters",
             path: "presence-eye-buttons/broadcasters",
             element: <BroadcastPage />,
+          },
+          {
+            name: "Notification Centre",
+            path: "presence-eye-buttons/notification-centre",
+            element: <NotificationCentre/>,
           },
           {
             name: "Remote History",
