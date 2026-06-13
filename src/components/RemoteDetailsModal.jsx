@@ -1,9 +1,9 @@
 // src/components/RemoteDetailsModal.jsx
 import React, { useEffect, useRef, useState } from "react";
-import { getImageData, getOwnerLabel, lastNChars } from "../utils/helper.js";
+import { getImageData, getOwnerLabel, lastNChars, sendData } from "../utils/helper.js";
 import { presence_server } from "../config/server_api.js";
 import { useNotification } from "../context/NotificationContext.jsx";
-import { X, Download, ShieldCheck, ShieldAlert, Cpu, Power, Hash, User as UserIcon } from "lucide-react";
+import { X, Download, Cpu, Power, Hash, User as UserIcon, Terminal } from "lucide-react";
 
 export default function RemoteDetailsModal({
     remote,
@@ -19,6 +19,8 @@ export default function RemoteDetailsModal({
     const [qrPreview, setQrPreview] = useState(null);
     const [qrLoading, setQrLoading] = useState(false);
     const [qrError, setQrError] = useState(null);
+    const [logsLoading, setLogsLoading] = useState(false);
+    const [logsUnlocked, setLogsUnlocked] = useState(false);
     const debounceRef = useRef(null);
 
     const postConfig = () => {
@@ -63,6 +65,26 @@ export default function RemoteDetailsModal({
         }, 600);
     };
 
+    const handleToggleLogs = async () => {
+        const action = logsUnlocked ? "lock" : "unlock";
+        setLogsLoading(true);
+        const url = `${presence_server}/api/admin/remotes/${remote.serialNumber}/logs`;
+        const res = await sendData(url, { action });
+        if (res?.error || res?.data === -1) {
+            showNotification(res?.error || "Failed to toggle logs", "error");
+        } else {
+            const nowUnlocked = action === "unlock";
+            setLogsUnlocked(nowUnlocked);
+            showNotification(
+                nowUnlocked
+                    ? "Serial logs unlocked for 10 minutes"
+                    : "Serial logs locked",
+                "success"
+            );
+        }
+        setLogsLoading(false);
+    };
+
     useEffect(() => {
         postConfig();
         return () => clearTimeout(debounceRef.current);
@@ -74,9 +96,9 @@ export default function RemoteDetailsModal({
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={onClose}></div>
-            
+
             <div className="relative z-50 w-full max-w-4xl bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-slide-up">
-                
+
                 {/* Header */}
                 <div className={`flex items-center justify-between px-6 py-4 border-b ${isDeployed ? 'bg-indigo-50 border-indigo-100' : 'bg-emerald-50 border-emerald-100'}`}>
                     <div>
@@ -95,10 +117,10 @@ export default function RemoteDetailsModal({
 
                 <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                        
+
                         {/* Left Column: Info & Actions */}
                         <div className="lg:col-span-2 space-y-8">
-                            
+
                             {/* Device Info */}
                             <section>
                                 <h4 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-4 flex items-center gap-2">
@@ -129,25 +151,54 @@ export default function RemoteDetailsModal({
 
                                 {/* Admin Actions */}
                                 <div className="flex flex-wrap gap-3 mt-4">
-                                    <button onClick={() => copyToClipboard(remote._id, "Remote ID")} className="px-4 py-2 bg-slate-100 text-slate-700 font-bold text-xs rounded-lg hover:bg-slate-200 transition-colors border border-slate-200">
+                                    <button onClick={() => copyToClipboard(remote.id, "Remote ID")} className="px-4 py-2 bg-slate-100 text-slate-700 font-bold text-xs rounded-lg hover:bg-slate-200 transition-colors border border-slate-200">
                                         Copy Remote ID
                                     </button>
                                     {!remote.hasHardware && (
-                                        <button onClick={() => handleAddHadware(remote._id)} className="px-4 py-2 bg-[#195C51] text-white font-bold text-xs rounded-lg hover:bg-[#0E3A32] transition-colors shadow-md">
+                                        <button onClick={() => handleAddHadware(remote.id)} className="px-4 py-2 bg-[#195C51] text-white font-bold text-xs rounded-lg hover:bg-[#0E3A32] transition-colors shadow-md">
                                             Attach Hardware
                                         </button>
                                     )}
                                     {!remote.owner && (
-                                        <button onClick={() => handleTestingHardware(remote._id)} className="px-4 py-2 bg-amber-100 text-amber-700 font-bold text-xs rounded-lg hover:bg-amber-200 border border-amber-200 transition-colors">
+                                        <button onClick={() => handleTestingHardware(remote.id)} className="px-4 py-2 bg-amber-100 text-amber-700 font-bold text-xs rounded-lg hover:bg-amber-200 border border-amber-200 transition-colors">
                                             Run Diagnostic Test
                                         </button>
                                     )}
                                     {!remote.owner && (
-                                        <button onClick={() => handleRemoteStatus(remote._id, remote.isEnabled)} className={`px-4 py-2 font-bold text-xs rounded-lg transition-colors flex items-center gap-2 ${remote.isEnabled ? 'bg-red-50 text-red-600 border border-red-200 hover:bg-red-100' : 'bg-emerald-50 text-emerald-600 border border-emerald-200 hover:bg-emerald-100'}`}>
+                                        <button onClick={() => handleRemoteStatus(remote.id, remote.isEnabled)} className={`px-4 py-2 font-bold text-xs rounded-lg transition-colors flex items-center gap-2 ${remote.isEnabled ? 'bg-red-50 text-red-600 border border-red-200 hover:bg-red-100' : 'bg-emerald-50 text-emerald-600 border border-emerald-200 hover:bg-emerald-100'}`}>
                                             <Power size={14} /> {remote.isEnabled ? "Disable Device" : "Enable Device"}
                                         </button>
                                     )}
+
+                                    {/* Log Toggle Button */}
+                                    <button
+                                        onClick={handleToggleLogs}
+                                        disabled={logsLoading}
+                                        className={`px-4 py-2 font-bold text-xs rounded-lg transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed ${
+                                            logsUnlocked
+                                                ? 'bg-violet-50 text-violet-600 border border-violet-200 hover:bg-violet-100'
+                                                : 'bg-slate-50 text-slate-600 border border-slate-200 hover:bg-slate-100'
+                                        }`}
+                                    >
+                                        {logsLoading ? (
+                                            <div className="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                                        ) : (
+                                            <Terminal size={14} />
+                                        )}
+                                        {logsUnlocked ? "Lock Serial Logs" : "Unlock Serial Logs"}
+                                    </button>
+
                                 </div>
+
+                                {/* Log session active notice */}
+                                {logsUnlocked && (
+                                    <div className="mt-3 flex items-center gap-2 px-3 py-2 bg-violet-50 border border-violet-200 rounded-lg">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-violet-500 animate-pulse" />
+                                        <p className="text-[11px] text-violet-700 font-medium">
+                                            Serial logs active — session expires in 10 minutes
+                                        </p>
+                                    </div>
+                                )}
                             </section>
 
                             {/* Buttons Config */}
