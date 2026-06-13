@@ -71,8 +71,7 @@ const FeedbackDashboard = () => {
       const response = await fetch(`${server}/feedbacks/${id}`, {
         method: 'DELETE',
         headers: {
-          'Authorization': `Bearer ${returnToken()}`,
-          'x-api-key': 'YOUR_API_KEY'
+          'Authorization': `Bearer ${returnToken()}`
         }
       });
 

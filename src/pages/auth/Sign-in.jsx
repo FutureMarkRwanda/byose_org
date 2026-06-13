@@ -4,7 +4,7 @@ import { useState } from "react";
 import { server } from "../../config/server_api.js";
 import { sendData } from "../../utils/helper.js";
 import { useNotification } from "../../context/NotificationContext.jsx";
-import { handleGoogleLogin } from "../../utils/googleLoginHandler.js";
+import { handleBYOSETVLogin, handlePresenceEyeLogin } from "../../utils/googleLoginHandler.js";
 import { GoogleLogin } from "@react-oauth/google";
 import { MdLockOutline, MdOutlineEmail, MdArrowBack } from "react-icons/md";
 
@@ -12,11 +12,21 @@ export function SignIn() {
   const { showNotification } = useNotification();
   const navigate = useNavigate();
   const [loader, setLoader] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState('presence_eye'); // Default to BYOSE TV
 
   const [data, setData] = useState({
     email_phone: '',
     password: ''
   });
+
+  // Generate device info for PresenceEye
+  const generateDeviceInfo = () => {
+    return {
+      deviceId: localStorage.getItem('device_id') || crypto.randomUUID(),
+      deviceName: navigator.userAgent || 'Unknown Device',
+      platform: navigator.platform || 'unknown'
+    };
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -86,6 +96,32 @@ export function SignIn() {
             <p className="text-gray-500 font-medium">Verify your credentials to continue.</p>
           </div>
 
+          {/* Product Selector */}
+          <div className="flex gap-2 p-1 bg-gray-100 rounded-xl">
+            <button
+              type="button"
+              onClick={() => setSelectedProduct('byose_tv')}
+              className={`flex-1 py-3 px-4 rounded-lg text-sm font-bold transition-all ${
+                selectedProduct === 'byose_tv'
+                  ? 'bg-white text-[#195C51] shadow-md'
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              BYOSE TV
+            </button>
+            <button
+              type="button"
+              onClick={() => setSelectedProduct('presence_eye')}
+              className={`flex-1 py-3 px-4 rounded-lg text-sm font-bold transition-all ${
+                selectedProduct === 'presence_eye'
+                  ? 'bg-white text-[#195C51] shadow-md'
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              PresenceEye
+            </button>
+          </div>
+
           <div className="google-card p-8 md:p-10 bg-white border-none shadow-2xl space-y-8">
             
             {/* Google Integration */}
@@ -94,7 +130,18 @@ export function SignIn() {
                     <GoogleLogin
                         onSuccess={async (credentialResponse) => {
                             const token = credentialResponse.credential;
-                            await handleGoogleLogin(token, showNotification);
+                            if (selectedProduct === 'byose_tv') {
+                                await handleBYOSETVLogin(token, showNotification);
+                            } else if (selectedProduct === 'presence_eye') {
+                                const deviceInfo = generateDeviceInfo();
+                                await handlePresenceEyeLogin(
+                                    token, 
+                                    deviceInfo.deviceId, 
+                                    deviceInfo.deviceName, 
+                                    deviceInfo.platform, 
+                                    showNotification
+                                );
+                            }
                         }}
                         onError={() => showNotification("Google Login Failed", "error")}
                         useOneTap

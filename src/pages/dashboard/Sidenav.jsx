@@ -3,12 +3,14 @@ import { Link, NavLink, useLocation } from "react-router-dom";
 import { ChevronDownIcon, ArrowLeftOnRectangleIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { handleLogout } from "../../utils/helper.js";
 import { useMaterialTailwindController, setOpenSidenav } from "../../context/navContext.jsx";
+import { useAuth } from "../../context/AuthContext.jsx";
 
 export function Sidenav({ routes }) {
   const [openDropdown, setOpenDropdown] = useState(null);
   const [controller, dispatch] = useMaterialTailwindController();
   const { openSidenav } = controller;
   const { pathname } = useLocation();
+  const { currentProduct } = useAuth();
 
   useEffect(() => {
     routes.forEach((group) => {
@@ -26,6 +28,49 @@ export function Sidenav({ routes }) {
 
   const toggleDropdown = (name) => {
     setOpenDropdown(openDropdown === name ? null : name);
+  };
+
+  // Filter pages based on current product
+  const getFilteredPages = (pages) => {
+    if (!currentProduct) return pages;
+    
+    return pages.filter((page) => {
+      if (page.isDropdown) {
+        // Check if any subPages belong to the current product
+        const hasRelevantSubPages = page.subPages.some((sub) => {
+          if (currentProduct === 'presence_eye') {
+            return sub.path.startsWith('presence-eye-buttons');
+          } else if (currentProduct === 'byose_tv') {
+            return sub.path.startsWith('byose-tv');
+          }
+          return false;
+        });
+        return hasRelevantSubPages;
+      }
+      // For non-dropdown pages, check the path directly
+      if (currentProduct === 'presence_eye') {
+        return page.path.startsWith('presence-eye-buttons');
+      } else if (currentProduct === 'byose_tv') {
+        return page.path.startsWith('byose-tv');
+      }
+      return true;
+    }).map((page) => {
+      if (page.isDropdown) {
+        // Filter subPages as well
+        return {
+          ...page,
+          subPages: page.subPages.filter((sub) => {
+            if (currentProduct === 'presence_eye') {
+              return sub.path.startsWith('presence-eye-buttons');
+            } else if (currentProduct === 'byose_tv') {
+              return sub.path.startsWith('byose-tv');
+            }
+            return true;
+          })
+        };
+      }
+      return page;
+    });
   };
 
   return (
@@ -66,15 +111,19 @@ export function Sidenav({ routes }) {
         <div className="flex-1 overflow-y-auto py-6 px-4 custom-scrollbar space-y-6">
           {routes
             .filter(({ layout }) => layout === "dashboard")
-            .map(({ title, pages }, key) => (
-              <div key={key}>
-                {title && (
-                  <h4 className="px-2 mb-2 text-[11px] font-medium text-slate-400 uppercase tracking-wider">
-                    {title}
-                  </h4>
-                )}
-                <ul className="space-y-1">
-                  {pages.map((page) => (
+            .map(({ title, pages }, key) => {
+              const filteredPages = getFilteredPages(pages);
+              if (filteredPages.length === 0) return null;
+              
+              return (
+                <div key={key}>
+                  {title && (
+                    <h4 className="px-2 mb-2 text-[11px] font-medium text-slate-400 uppercase tracking-wider">
+                      {title}
+                    </h4>
+                  )}
+                  <ul className="space-y-1">
+                    {filteredPages.map((page) => (
                     <li key={page.name}>
                       {page.isDropdown ? (
                         <div className="flex flex-col">
@@ -140,10 +189,11 @@ export function Sidenav({ routes }) {
                         </NavLink>
                       )}
                     </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
+                    ))}
+                  </ul>
+                </div>
+              );
+            })}
         </div>
 
         {/* Footer Section */}

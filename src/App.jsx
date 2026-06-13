@@ -23,6 +23,7 @@ import AccountDeletation from "./pages/home/AccountDeletation.jsx";
 import PresenceEyeResetPassword from "./pages/auth/PresenceEyeResetPassword.jsx";
 import DownloadPage from "./pages/dashboard/PresenceEyeDownload.jsx";
 import DashboardHome from "./pages/dashboard/DashboardHome.jsx";
+import SessionManagement from "./pages/auth/SessionManagement.jsx";
 
 function DashboardLayout() {
   return (
@@ -127,6 +128,7 @@ function App() {
                 <Route key={path} exact path={`${path}`} element={element} />
               )),
           )}
+          <Route path="session-management" element={<SessionManagement />} />
         </Route>
         <Route
           path="/presence-eye/forgot-password"

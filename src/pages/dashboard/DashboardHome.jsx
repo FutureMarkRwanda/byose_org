@@ -1,7 +1,8 @@
 import { Link } from "react-router-dom";
-import { Users, Cpu, DollarSign, ArrowRight } from "lucide-react";
+import { Users, Cpu, DollarSign, ArrowRight, Tv, Film, MessageSquare, PenSquare } from "lucide-react";
+import { useAuth } from "../../context/AuthContext.jsx";
 
-const cards = [
+const presenceEyeCards = [
   {
     title: "Customer Insights",
     description:
@@ -28,7 +29,47 @@ const cards = [
   },
 ];
 
+const byoseTVCards = [
+  {
+    title: "Manage Movies",
+    description:
+      "Manage your movie library, update details, and organize content.",
+    icon: Tv,
+    to: "/dashboard/byose-tv/manage-movies",
+    accent: "bg-purple-50 text-purple-700 ring-purple-100",
+  },
+  {
+    title: "Add Movies",
+    description:
+      "Add new movies to your library with metadata and media files.",
+    icon: Film,
+    to: "/dashboard/byose-tv/add-movie",
+    accent: "bg-blue-50 text-blue-700 ring-blue-100",
+  },
+  {
+    title: "Add Trends",
+    description:
+      "Create and publish trending content for your audience.",
+    icon: PenSquare,
+    to: "/dashboard/byose-tv/add-post",
+    accent: "bg-indigo-50 text-indigo-700 ring-indigo-100",
+  },
+  {
+    title: "Feedbacks",
+    description:
+      "View and manage user feedback and ratings.",
+    icon: MessageSquare,
+    to: "/dashboard/byose-tv/feedbacks",
+    accent: "bg-rose-50 text-rose-700 ring-rose-100",
+  },
+];
+
 export default function DashboardHome() {
+  const { currentProduct } = useAuth();
+  
+  const cards = currentProduct === 'presence_eye' ? presenceEyeCards : byoseTVCards;
+  const productName = currentProduct === 'presence_eye' ? 'Presence Eye' : 'BYOSE TV';
+
   return (
     <div className="space-y-8">
       <div>
@@ -37,7 +78,7 @@ export default function DashboardHome() {
         </h1>
         <p className="mt-1 text-sm text-slate-500">
           Pick an area to dive into. Each view surfaces the metrics that matter
-          for Presence Eye.
+          for {productName}.
         </p>
       </div>
 

@@ -1,14 +1,11 @@
 import {jwtDecode} from "jwt-decode";
 import axios from "axios";
 
-const API_KEY = import.meta.env.VITE_API_KEY; // load from Vite env
-
-export async function fetchData(url, token) {
+export async function fetchData(url) {
     try {
         const response = await axios.get(url, {
             headers: {
-                Authorization: `Bearer ${token}`,
-                "x-api-key": API_KEY,
+                Authorization: `Bearer ${returnToken()}`,
             },
         });
         return {data: response.data, message: response.data.message};
@@ -25,12 +22,11 @@ export async function fetchData(url, token) {
     }
 }
 
-export async function sendData(url, data, token) {
+export async function sendData(url, data) {
     try {
         const response = await axios.post(url, data, {
             headers: {
-                Authorization: `Bearer ${token}`,
-                "x-api-key": API_KEY,
+                Authorization: `Bearer ${returnToken()}`,
             },
         });
         return {data: response.data, message: response.data.message};
@@ -48,12 +44,11 @@ export async function sendData(url, data, token) {
 }
 
 
-export async function updateData(url, data, token) {
+export async function updateData(url, data) {
     try {
         const response = await axios.put(url, data, {
             headers: {
-                Authorization: `Bearer ${token}`,
-                "x-api-key": API_KEY,
+                Authorization: `Bearer ${returnToken()}`,
             },
         });
         return {data: response.data, message: response.data.message};
@@ -70,12 +65,11 @@ export async function updateData(url, data, token) {
     }
 }
 
-export async function deleteData(url, token) {
+export async function deleteData(url) {
     try {
         const response = await axios.delete(url, {
             headers: {
-                Authorization: `Bearer ${token}`,
-                "x-api-key": API_KEY,
+                Authorization: `Bearer ${returnToken()}`,
             },
         });
 
@@ -93,12 +87,11 @@ export async function deleteData(url, token) {
     }
 }
 
-export async function patchData(url, data, token) {
+export async function patchData(url, data) {
     try {
         const response = await axios.patch(url, data, {
             headers: {
-                Authorization: `Bearer ${token}`,
-                "x-api-key": API_KEY,
+                Authorization: `Bearer ${returnToken()}`,
             },
         });
 
@@ -116,12 +109,11 @@ export async function patchData(url, data, token) {
     }
 }
 
-export async function getImageData(url, data, token) {
+export async function getImageData(url, data) {
     try {
         const response = await axios.post(url, data, {
       headers: {
-        Authorization: `Bearer ${token}`,
-        "x-api-key": API_KEY,
+        Authorization: `Bearer ${returnToken()}`,
         "Content-Type": "application/json",
       },
       responseType: "blob", // ⭐ Important for PNG or other binary data
@@ -142,20 +134,67 @@ export async function getImageData(url, data, token) {
 }
 
 export function handleLogout(tokenName = null, pathName) {
-    localStorage.removeItem(tokenName || 'movie-rw');
-    window.location = pathName || "/dashboard";
+    if (tokenName) {
+        localStorage.removeItem(tokenName);
+    } else {
+        // Remove all product tokens
+        localStorage.removeItem('byose_tv_token');
+        localStorage.removeItem('presence_eye_token');
+        // Legacy token removal for backward compatibility
+        localStorage.removeItem('movie-rw');
+    }
+    window.location = pathName || "/auth";
 }
 
-export function returnToken(tokenName) {
-    return localStorage.getItem(tokenName || 'movie-rw');
+export function returnToken() {
+    // Auto-detect product from current route
+    if (typeof window !== 'undefined') {
+        const pathname = window.location.pathname;
+        const product = getProductFromRoute(pathname);
+        const productToken = getProductToken(product);
+        if (productToken) {
+            return productToken;
+        }
+    }
+    // Return null if no token specified and no legacy token
+    return null;
 }
 
-export function setToken(token) {
-    localStorage.setItem('movie-rw', token);
+export function getProductToken(product) {
+    // Product-specific token retrieval
+    const tokenMap = {
+        'byose_tv': 'byose_tv_token',
+        'presence_eye': 'presence_eye_token'
+    };
+    return localStorage.getItem(tokenMap[product]);
 }
 
-export const decodeToken = () => {
-    const token = localStorage.getItem('movie-rw'); // Replace 'your_token_key' with the actual key used in local storage
+export function setToken(token, product = null) {
+    if (product) {
+        // Product-specific token storage
+        const tokenMap = {
+            'byose_tv': 'byose_tv_token',
+            'presence_eye': 'presence_eye_token'
+        };
+        localStorage.setItem(tokenMap[product], token);
+    } else {
+        // Legacy support for backward compatibility
+        localStorage.setItem('movie-rw', token);
+    }
+}
+
+export const decodeToken = (tokenName = null) => {
+    let token;
+    if (tokenName) {
+        token = localStorage.getItem(tokenName);
+    } else {
+        // Try legacy token first for backward compatibility
+        token = localStorage.getItem('movie-rw');
+        if (!token) {
+            // If no legacy token, return null
+            return null;
+        }
+    }
     if (!token) {
         return null;
     }
@@ -163,9 +202,125 @@ export const decodeToken = () => {
         const decoded = jwtDecode(token);
         const {firstName, lastName, ...otherProperties} = decoded;
         return {firstName, lastName, ...otherProperties};
-        // eslint-disable-next-line no-unused-vars
     } catch (error) {
         return null;
+    }
+};
+
+export const decodeProductToken = (product) => {
+    const tokenMap = {
+        'byose_tv': 'byose_tv_token',
+        'presence_eye': 'presence_eye_token'
+    };
+    return decodeToken(tokenMap[product]);
+};
+
+// Helper function to determine product from route
+export const getProductFromRoute = (pathname) => {
+    if (pathname === '/dashboard' || pathname === '/dashboard/') {
+        // Dashboard home route - allow both products
+        return null;
+    }
+    if (pathname.includes('/byose-tv/')) {
+        return 'byose_tv';
+    }
+    if (pathname.includes('/presence-eye-buttons/')) {
+        return 'presence_eye';
+    }
+    // Default to null for unknown routes (allow access)
+    return null;
+};
+
+// Helper function to get the correct token for the current route
+export const getTokenForRoute = (pathname) => {
+    const product = getProductFromRoute(pathname);
+    return getProductToken(product);
+};
+
+// Session Management Helper Functions
+export const getDeviceManagementToken = () => {
+    return localStorage.getItem('device_management_token');
+};
+
+export const getSessionLimitInfo = () => {
+    const info = localStorage.getItem('session_limit_info');
+    return info ? JSON.parse(info) : null;
+};
+
+export const clearDeviceManagementToken = () => {
+    localStorage.removeItem('device_management_token');
+    localStorage.removeItem('session_limit_info');
+};
+
+export const fetchSessions = async (presenceServer) => {
+    const token = getDeviceManagementToken();
+    if (!token) {
+        return { error: 'No device management token found' };
+    }
+
+    try {
+        const response = await axios.get(`${presenceServer}/api/sessions/my-sessions`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+        return { data: response.data, message: response.data.message };
+    } catch (error) {
+        let errorMessage = "Server is down";
+        if (error.response?.data?.message) {
+            errorMessage = error.response.data.message;
+        } else if (error.message) {
+            errorMessage = error.message;
+        }
+        return { error: errorMessage, data: -1 };
+    }
+};
+
+export const removeSession = async (presenceServer, sessionId) => {
+    const token = getDeviceManagementToken();
+    if (!token) {
+        return { error: 'No device management token found' };
+    }
+
+    try {
+        const response = await axios.delete(`${presenceServer}/api/sessions/remove-session/${sessionId}`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+        return { data: response.data, message: response.data.message };
+    } catch (error) {
+        let errorMessage = "Server is down";
+        if (error.response?.data?.message) {
+            errorMessage = error.response.data.message;
+        } else if (error.message) {
+            errorMessage = error.message;
+        }
+        return { error: errorMessage, data: -1 };
+    }
+};
+
+export const markDeviceAsLost = async (presenceServer, sessionId) => {
+    const token = getDeviceManagementToken();
+    if (!token) {
+        return { error: 'No device management token found' };
+    }
+
+    try {
+        const response = await axios.post(`${presenceServer}/api/sessions/mark-lost/${sessionId}`, {}, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+        return { data: response.data, message: response.data.message };
+    } catch (error) {
+        let errorMessage = "Server is down";
+        if (error.response?.data?.message) {
+            errorMessage = error.response.data.message;
+        } else if (error.message) {
+            errorMessage = error.message;
+        }
+        return { error: errorMessage, data: -1 };
     }
 };
 
