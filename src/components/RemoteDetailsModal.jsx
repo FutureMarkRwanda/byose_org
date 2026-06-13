@@ -43,13 +43,13 @@ export default function RemoteDetailsModal({
                     gradientType: "linear",
                     gradientColor1, gradientColor2,
                     gradientOnEyes: true,
-                    logo: "https://www.byose.info/assets/icons/blueLogo.svg",
+                    logo: "https://res.cloudinary.com/ddsojj7zo/image/upload/v1740752483/Branding%20Logo/li6zzanqqokxl4rbsr6g.svg",
                     logoMode: "default",
                     file: "svg", size: 1000, download: "imageUrl"
                 }
             };
 
-            const url = presence_server + "/get-qrCode";
+            const url = presence_server + "/api/admin/get-qrCode";
             const res = await getImageData(url, payload, "");
             if (res?.error || res?.data === -1 || !res?.data) {
                 setQrError(res?.error || "Failed to generate QR");

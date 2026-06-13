@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Users, Cpu, DollarSign, ArrowRight, Tv, Film, MessageSquare, PenSquare } from "lucide-react";
+import { Users, Cpu, DollarSign, ArrowRight, Tv, Film, MessageSquare, PenSquare, MapPin, Radio, Bell } from "lucide-react";
 import { useAuth } from "../../context/AuthContext.jsx";
 
 const presenceEyeCards = [
@@ -26,6 +26,30 @@ const presenceEyeCards = [
     icon: DollarSign,
     to: "/dashboard/presence-eye-buttons/revenue",
     accent: "bg-amber-50 text-amber-700 ring-amber-100",
+  },
+  {
+    title: "Update Location",
+    description:
+      "Update device locations and manage geographical data.",
+    icon: MapPin,
+    to: "/dashboard/presence-eye-buttons/location",
+    accent: "bg-rose-50 text-rose-700 ring-rose-100",
+  },
+  {
+    title: "Broadcasters",
+    description:
+      "Manage broadcasting channels and streaming configurations.",
+    icon: Radio,
+    to: "/dashboard/presence-eye-buttons/broadcasters",
+    accent: "bg-violet-50 text-violet-700 ring-violet-100",
+  },
+  {
+    title: "Notification Centre",
+    description:
+      "View and manage system notifications and alerts.",
+    icon: Bell,
+    to: "/dashboard/presence-eye-buttons/notification-centre",
+    accent: "bg-orange-50 text-orange-700 ring-orange-100",
   },
 ];
 

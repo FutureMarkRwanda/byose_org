@@ -20,6 +20,7 @@ import { fetchData, returnToken } from "../../utils/helper.js";
 import { presence_server } from "../../config/server_api.js";
 import { useNotification } from "../../context/NotificationContext.jsx";
 import RemoteDetailsModal from "../../components/RemoteDetailsModal.jsx";
+import AddRemoteModal from "../../components/AddRemoteModal.jsx";
 
 // ── Pin Icons ─────────────────────────────────────────────────────────────────
 const makePinIcon = (color) => L.divIcon({
@@ -288,6 +289,7 @@ export default function DeviceInsights() {
   const [selectedRemote, setSelectedRemote] = useState(null);
   const [statusDialog, setStatusDialog]     = useState(null);
   const [highlightedRow, setHighlightedRow] = useState(null);
+  const [showAddRemote, setShowAddRemote]   = useState(false);
 
   // ── Map-specific filters (separate from table filters) ────────────────────
   const [mapOnlineFilter, setMapOnlineFilter] = useState(""); // "" | "true" | "false"
@@ -505,14 +507,23 @@ export default function DeviceInsights() {
               Operational intelligence from your deployed hardware fleet.
             </p>
           </div>
-          <button
-            onClick={() => { loadGlobalData(); loadTableData(filters); }}
-            disabled={loading || tableLoading}
-            className="inline-flex items-center gap-2 bg-white border border-slate-200 text-slate-600 hover:border-[#195C51] hover:text-[#195C51] px-3 py-2 rounded-lg text-xs font-semibold transition-all shadow-sm disabled:opacity-50"
-          >
-            <RefreshCw className={`w-3.5 h-3.5 ${(loading || tableLoading) ? "animate-spin" : ""}`} />
-            Refresh
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setShowAddRemote(true)}
+              className="inline-flex items-center gap-2 bg-[#195C51] text-white hover:bg-[#0E3A32] px-3 py-2 rounded-lg text-xs font-semibold transition-all shadow-sm"
+            >
+              <Package className="w-3.5 h-3.5" />
+              Add Remote
+            </button>
+            <button
+              onClick={() => { loadGlobalData(); loadTableData(filters); }}
+              disabled={loading || tableLoading}
+              className="inline-flex items-center gap-2 bg-white border border-slate-200 text-slate-600 hover:border-[#195C51] hover:text-[#195C51] px-3 py-2 rounded-lg text-xs font-semibold transition-all shadow-sm disabled:opacity-50"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${(loading || tableLoading) ? "animate-spin" : ""}`} />
+              Refresh
+            </button>
+          </div>
         </div>
 
         {/* ── Role Scope Selector ─────────────────────────────────────────── */}
@@ -1462,6 +1473,16 @@ export default function DeviceInsights() {
           }}
         />
       )}
+
+      {/* ── Add Remote Modal ─────────────────────────────────────────────────── */}
+      <AddRemoteModal
+        isOpen={showAddRemote}
+        onClose={() => setShowAddRemote(false)}
+        onCreated={() => {
+          loadGlobalData();
+          loadTableData(filters);
+        }}
+      />
     </div>
   );
 }

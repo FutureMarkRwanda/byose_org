@@ -92,7 +92,7 @@ export function Sidenav({ routes }) {
         {/* Header Section */}
         <div className="h-16 flex items-center px-6 border-b border-slate-200 relative shrink-0">
           <Link
-            to="/"
+            to="/dashboard"
             className="flex items-center gap-3 font-semibold text-slate-900 tracking-tight"
             onClick={() => setOpenSidenav(dispatch, false)}
           >

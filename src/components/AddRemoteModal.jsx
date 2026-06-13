@@ -9,7 +9,8 @@ const AddRemoteModal = ({ isOpen, onClose, onCreated }) => {
     const [hasHardware, setHasHardware] = useState(false);
     const [powered, setPowered] = useState('BYOSE Tech');
     const [manufacture, setManufacture] = useState('BYOSE Tech Labs');
-    const [version, setVersion] = useState('2.0.0');
+    const [version, setVersion] = useState('6.4.0');
+    const [modelType, setModelType] = useState('lite');
     const [buttons, setButtons] = useState([{ buttonType: 'push' }]);
     const [loading, setLoading] = useState(false);
 
@@ -34,9 +35,10 @@ const AddRemoteModal = ({ isOpen, onClose, onCreated }) => {
             powered,
             manufacture,
             version,
+            modelType,
             buttons
         };
-            const { error } = await sendData(`${presence_server}/buttons`, payload, returnToken());
+            const { error } = await sendData(`${presence_server}/api/admin/remotes`, payload, returnToken());
 
             if (error) {
                 alert(error);
@@ -82,11 +84,16 @@ const AddRemoteModal = ({ isOpen, onClose, onCreated }) => {
                                    className="w-full bg-[#F5F5F5] border-none rounded-2xl p-4 text-sm font-bold outline-none focus:ring-2 focus:ring-[#195C51]/10" />
                         </div>
                         <div className="space-y-2">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Model Type (max)</label>
+                            <input type="text" value={modelType} onChange={(e) => setModelType(e.target.value)} required placeholder="lite"
+                                   className="w-full bg-[#F5F5F5] border-none rounded-2xl p-4 text-sm font-bold outline-none focus:ring-2 focus:ring-[#195C51]/10" />
+                        </div>
+                        <div className="space-y-2">
                             <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Has State</label>
-                            <select value={hasHardware} onChange={(e) => setHasHardware(e.target.value === 'true')}
+                            <select value={hasHardware} onChange={(e) => setHasHardware(e.target.value === 'false')}
                                     className="w-full bg-[#F5F5F5] border-none rounded-2xl p-4 text-sm outline-none cursor-pointer">
-                                <option value={true}>No</option>
                                 <option value={false}>Yes</option>
+                                <option value={true}>No</option>
                             </select>
                         </div>
                     </div>
