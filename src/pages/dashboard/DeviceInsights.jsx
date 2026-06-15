@@ -335,7 +335,8 @@ export default function DeviceInsights() {
       if (mapOnlineFilter !== "") p.set("isOnline", mapOnlineFilter);
       const res = await fetchData(
         `${presence_server}/api/admin/analytics-remotes?${p.toString()}`,
-        token
+        token,
+        showNotification
       );
       if (res.data?.success) {
         setAllRemotes(res.data.remotes || []);
@@ -354,7 +355,8 @@ export default function DeviceInsights() {
       const qs = buildQuery(f);
       const res = await fetchData(
         `${presence_server}/api/admin/analytics-remotes?${qs}`,
-        token
+        token,
+        showNotification
       );
       if (res.data?.success) {
         setRemotes(res.data.remotes || []);
@@ -375,7 +377,7 @@ export default function DeviceInsights() {
     try {
       const { from, to } = trendRange;
       const url = `${presence_server}/api/admin/analytics-remotes/status-trends?from=${from.toISOString()}&to=${to.toISOString()}`;
-      const res = await fetchData(url, token);
+      const res = await fetchData(url, token, showNotification);
       if (res.data?.data) setTrendData(res.data.data);
     } catch { /* silent */ }
     setTrendLoading(false);

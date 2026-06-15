@@ -1,11 +1,33 @@
 import {jwtDecode} from "jwt-decode";
 import axios from "axios";
 
-export async function fetchData(url) {
+// Global error notification handler
+let globalErrorNotificationHandler = null;
+
+export const setGlobalErrorHandler = (handler) => {
+    globalErrorNotificationHandler = handler;
+};
+
+export const getGlobalErrorHandler = () => {
+    return globalErrorNotificationHandler;
+};
+
+export async function fetchData(url, tokenOrNotification, showNotification) {
+    // Handle backward compatibility: if second param is a function, it's showNotification
+    let token = null;
+    let notificationFn = null;
+    
+    if (typeof tokenOrNotification === 'function') {
+        notificationFn = tokenOrNotification;
+    } else {
+        token = tokenOrNotification;
+        notificationFn = showNotification;
+    }
+    
     try {
         const response = await axios.get(url, {
             headers: {
-                Authorization: `Bearer ${returnToken()}`,
+                Authorization: `Bearer ${token || returnToken()}`,
             },
         });
         return {data: response.data, message: response.data.message};
@@ -18,15 +40,32 @@ export async function fetchData(url) {
             errorMessage = error.message;
         }
 
+        if (notificationFn) {
+            notificationFn(errorMessage, "error");
+        } else if (globalErrorNotificationHandler) {
+            globalErrorNotificationHandler(errorMessage, "error");
+        }
+
         return {error: errorMessage, data: -1};
     }
 }
 
-export async function sendData(url, data) {
+export async function sendData(url, data, tokenOrNotification, showNotification) {
+    // Handle backward compatibility: if third param is a function, it's showNotification
+    let token = null;
+    let notificationFn = null;
+    
+    if (typeof tokenOrNotification === 'function') {
+        notificationFn = tokenOrNotification;
+    } else {
+        token = tokenOrNotification;
+        notificationFn = showNotification;
+    }
+    
     try {
         const response = await axios.post(url, data, {
             headers: {
-                Authorization: `Bearer ${returnToken()}`,
+                Authorization: `Bearer ${token || returnToken()}`,
             },
         });
         return {data: response.data, message: response.data.message};
@@ -39,16 +78,33 @@ export async function sendData(url, data) {
             errorMessage = error.message;
         }
 
+        if (notificationFn) {
+            notificationFn(errorMessage, "error");
+        } else if (globalErrorNotificationHandler) {
+            globalErrorNotificationHandler(errorMessage, "error");
+        }
+
         return {error: errorMessage, data: -1};
     }
 }
 
 
-export async function updateData(url, data) {
+export async function updateData(url, data, tokenOrNotification, showNotification) {
+    // Handle backward compatibility: if third param is a function, it's showNotification
+    let token = null;
+    let notificationFn = null;
+    
+    if (typeof tokenOrNotification === 'function') {
+        notificationFn = tokenOrNotification;
+    } else {
+        token = tokenOrNotification;
+        notificationFn = showNotification;
+    }
+    
     try {
         const response = await axios.put(url, data, {
             headers: {
-                Authorization: `Bearer ${returnToken()}`,
+                Authorization: `Bearer ${token || returnToken()}`,
             },
         });
         return {data: response.data, message: response.data.message};
@@ -61,15 +117,32 @@ export async function updateData(url, data) {
             errorMessage = error.message;
         }
 
+        if (notificationFn) {
+            notificationFn(errorMessage, "error");
+        } else if (globalErrorNotificationHandler) {
+            globalErrorNotificationHandler(errorMessage, "error");
+        }
+
         return {error: errorMessage, data: -1};
     }
 }
 
-export async function deleteData(url) {
+export async function deleteData(url, tokenOrNotification, showNotification) {
+    // Handle backward compatibility: if second param is a function, it's showNotification
+    let token = null;
+    let notificationFn = null;
+    
+    if (typeof tokenOrNotification === 'function') {
+        notificationFn = tokenOrNotification;
+    } else {
+        token = tokenOrNotification;
+        notificationFn = showNotification;
+    }
+    
     try {
         const response = await axios.delete(url, {
             headers: {
-                Authorization: `Bearer ${returnToken()}`,
+                Authorization: `Bearer ${token || returnToken()}`,
             },
         });
 
@@ -83,15 +156,32 @@ export async function deleteData(url) {
             errorMessage = error.message;
         }
 
+        if (notificationFn) {
+            notificationFn(errorMessage, "error");
+        } else if (globalErrorNotificationHandler) {
+            globalErrorNotificationHandler(errorMessage, "error");
+        }
+
         return {error: errorMessage, data: -1};
     }
 }
 
-export async function patchData(url, data) {
+export async function patchData(url, data, tokenOrNotification, showNotification) {
+    // Handle backward compatibility: if third param is a function, it's showNotification
+    let token = null;
+    let notificationFn = null;
+    
+    if (typeof tokenOrNotification === 'function') {
+        notificationFn = tokenOrNotification;
+    } else {
+        token = tokenOrNotification;
+        notificationFn = showNotification;
+    }
+    
     try {
         const response = await axios.patch(url, data, {
             headers: {
-                Authorization: `Bearer ${returnToken()}`,
+                Authorization: `Bearer ${token || returnToken()}`,
             },
         });
 
@@ -103,6 +193,12 @@ export async function patchData(url, data) {
             errorMessage = error.response.data.message;
         } else if (error.message) {
             errorMessage = error.message;
+        }
+
+        if (notificationFn) {
+            notificationFn(errorMessage, "error");
+        } else if (globalErrorNotificationHandler) {
+            globalErrorNotificationHandler(errorMessage, "error");
         }
 
         return {error: errorMessage, data: -1};
