@@ -4,6 +4,7 @@ import {
     X, User, Wifi, Activity, Share2, Settings, Smartphone,
     ChevronDown, ChevronUp, Zap, Calendar, RefreshCw,
     Star, BadgeCheck, ExternalLink, AlertCircle, CreditCard,
+    Plus, Clock, CheckCircle2, XCircle,
 } from 'lucide-react';
 import {
     BarChart, Bar, XAxis, YAxis, CartesianGrid,
@@ -440,6 +441,16 @@ export default function UserInspectModal({userId, onClose, timeRange}) {
     const [data, setData] = useState(null);
     const [tab, setTab] = useState('overview'); // 'overview' | 'devices' | 'sessions' | 'subscriptions' | 'sharing'
 
+    // Subscription management state
+    const [showGrantModal, setShowGrantModal] = useState(false);
+    const [showExtendModal, setShowExtendModal] = useState(false);
+    const [selectedSubscription, setSelectedSubscription] = useState(null);
+    const [grantForm, setGrantForm] = useState({ planId: '', durationMonths: 12, country: 'RW', reason: '' });
+    const [extendForm, setExtendForm] = useState({ extendDays: 30, reason: '' });
+    const [subscriptionActionLoading, setSubscriptionActionLoading] = useState(false);
+    const [subscriptionActionError, setSubscriptionActionError] = useState(null);
+    const [plans, setPlans] = useState([]);
+
     const load = useCallback(async () => {
         if (!userId) return;
         setLoading(true);
@@ -460,9 +471,102 @@ export default function UserInspectModal({userId, onClose, timeRange}) {
         setLoading(false);
     }, [userId, timeRange, token]);
 
+    // Load available plans for grant modal
+    const loadPlans = useCallback(async () => {
+        try {
+            const res = await fetchData(`${presence_server}/api/plans?active=true`, token);
+            if (res.data?.plans) {
+                setPlans(res.data.plans);
+            }
+        } catch (err) {
+            console.error('Failed to load plans', err);
+        }
+    }, [token]);
+
     useEffect(() => {
         load();
     }, [load]);
+
+    useEffect(() => {
+        if (showGrantModal) {
+            loadPlans();
+        }
+    }, [showGrantModal, loadPlans]);
+
+    // Handle grant subscription
+    const handleGrantSubscription = async () => {
+        if (!grantForm.planId || !grantForm.durationMonths) {
+            setSubscriptionActionError('Plan and duration are required');
+            return;
+        }
+
+        setSubscriptionActionLoading(true);
+        setSubscriptionActionError(null);
+
+        try {
+            const res = await fetchData(
+                `${presence_server}/api/subscriptions/admin/grant`,
+                token,
+                'POST',
+                {
+                    userId: userId,
+                    planId: grantForm.planId,
+                    durationMonths: parseInt(grantForm.durationMonths),
+                    country: grantForm.country,
+                    reason: grantForm.reason,
+                }
+            );
+
+            if (res.data?.code === 'SUBSCRIPTION_GRANTED') {
+                setShowGrantModal(false);
+                setGrantForm({ planId: '', durationMonths: 12, country: 'RW', reason: '' });
+                load(); // Reload user data
+            } else {
+                setSubscriptionActionError(res.data?.message || 'Failed to grant subscription');
+            }
+        } catch (err) {
+            setSubscriptionActionError(err.message || 'Failed to grant subscription');
+        }
+
+        setSubscriptionActionLoading(false);
+    };
+
+    // Handle extend subscription
+    const handleExtendSubscription = async () => {
+        if (!selectedSubscription || !extendForm.extendDays) {
+            setSubscriptionActionError('Subscription and extension days are required');
+            return;
+        }
+
+        setSubscriptionActionLoading(true);
+        setSubscriptionActionError(null);
+
+        try {
+            const res = await fetchData(
+                `${presence_server}/api/subscriptions/admin/extend`,
+                token,
+                'POST',
+                {
+                    subscriptionId: selectedSubscription,
+                    extendDays: parseInt(extendForm.extendDays),
+                    reason: extendForm.reason,
+                }
+            );
+
+            if (res.data?.code === 'SUBSCRIPTION_EXTENDED') {
+                setShowExtendModal(false);
+                setExtendForm({ extendDays: 30, reason: '' });
+                setSelectedSubscription(null);
+                load(); // Reload user data
+            } else {
+                setSubscriptionActionError(res.data?.message || 'Failed to extend subscription');
+            }
+        } catch (err) {
+            setSubscriptionActionError(err.message || 'Failed to extend subscription');
+        }
+
+        setSubscriptionActionLoading(false);
+    };
 
     // Close on Escape
     useEffect(() => {
@@ -763,10 +867,19 @@ export default function UserInspectModal({userId, onClose, timeRange}) {
                             {/* ── Subscriptions Tab ─────────────────────────────────── */}
                             {tab === 'subscriptions' && (
                                 <div className="space-y-3">
-                                    <div className="grid grid-cols-2 gap-2">
-                                        <MiniCard label="Total subs" value={subs?.total}/>
-                                        <MiniCard label="Active subs" value={subs?.active}
-                                                  accent={subs?.active > 0 ? 'green' : 'slate'}/>
+                                    <div className="flex items-center justify-between">
+                                        <div className="grid grid-cols-2 gap-2">
+                                            <MiniCard label="Total subs" value={subs?.total}/>
+                                            <MiniCard label="Active subs" value={subs?.active}
+                                                      accent={subs?.active > 0 ? 'green' : 'slate'}/>
+                                        </div>
+                                        <button
+                                            onClick={() => setShowGrantModal(true)}
+                                            className="inline-flex items-center gap-2 bg-[#195C51] text-white hover:bg-[#0E3A32] px-3 py-2 rounded-lg text-xs font-semibold shadow-sm transition-colors"
+                                        >
+                                            <Plus className="w-3.5 h-3.5" />
+                                            Grant Subscription
+                                        </button>
                                     </div>
                                     {subs?.activeDetails?.length > 0 && (
                                         <div>
@@ -777,8 +890,20 @@ export default function UserInspectModal({userId, onClose, timeRange}) {
                                                      className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 mb-2 space-y-2">
                                                     <div className="flex items-center justify-between">
                                                         <p className="font-bold text-emerald-900">{sub.planName || sub.plan?.name || 'Active Plan'}</p>
-                                                        <span
-                                                            className="text-[9px] font-black uppercase bg-emerald-200 text-emerald-800 px-2 py-0.5 rounded-full">{sub.status}</span>
+                                                        <div className="flex items-center gap-2">
+                                                            <span
+                                                                className="text-[9px] font-black uppercase bg-emerald-200 text-emerald-800 px-2 py-0.5 rounded-full">{sub.status}</span>
+                                                            <button
+                                                                onClick={() => {
+                                                                    setSelectedSubscription(sub.id || sub._id);
+                                                                    setShowExtendModal(true);
+                                                                }}
+                                                                className="inline-flex items-center gap-1 bg-white border border-emerald-300 text-emerald-700 hover:bg-emerald-100 px-2 py-1 rounded-lg text-[10px] font-semibold transition-colors"
+                                                            >
+                                                                <Clock className="w-3 h-3" />
+                                                                Extend
+                                                            </button>
+                                                        </div>
                                                     </div>
                                                     <div className="grid grid-cols-2 gap-x-4 text-[10px]">
                                                         {sub.amount != null && <KV label="Amount"
@@ -915,6 +1040,143 @@ export default function UserInspectModal({userId, onClose, timeRange}) {
                     </button>
                 </div>
             </div>
+
+            {/* ── Grant Subscription Modal ─────────────────────────────────────── */}
+            {showGrantModal && (
+                <div className="fixed inset-0 z-[60] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
+                        <div className="bg-[#195C51] px-6 py-4 flex items-center justify-between">
+                            <h3 className="text-white font-bold text-lg">Grant Subscription</h3>
+                            <button onClick={() => setShowGrantModal(false)} className="text-white/80 hover:text-white">
+                                <X className="w-5 h-5" />
+                            </button>
+                        </div>
+                        <div className="p-6 space-y-4">
+                            {subscriptionActionError && (
+                                <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-700">
+                                    {subscriptionActionError}
+                                </div>
+                            )}
+                            <div>
+                                <label className="text-xs font-bold uppercase text-slate-500 mb-1 block">Plan</label>
+                                <select
+                                    value={grantForm.planId}
+                                    onChange={(e) => setGrantForm(prev => ({ ...prev, planId: e.target.value }))}
+                                    className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#195C51] focus:border-transparent"
+                                >
+                                    <option value="">Select a plan</option>
+                                    {plans.map(plan => (
+                                        <option key={plan._id || plan.id} value={plan._id || plan.id}>
+                                            {plan.name} - ${plan.pricing?.RW?.pricePerMonth || plan.pricePerMonth || 'N/A'}/month
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div>
+                                <label className="text-xs font-bold uppercase text-slate-500 mb-1 block">Duration (months)</label>
+                                <input
+                                    type="number"
+                                    value={grantForm.durationMonths}
+                                    onChange={(e) => setGrantForm(prev => ({ ...prev, durationMonths: e.target.value }))}
+                                    min="1"
+                                    max="120"
+                                    className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#195C51] focus:border-transparent"
+                                />
+                            </div>
+                            <div>
+                                <label className="text-xs font-bold uppercase text-slate-500 mb-1 block">Country</label>
+                                <input
+                                    type="text"
+                                    value={grantForm.country}
+                                    onChange={(e) => setGrantForm(prev => ({ ...prev, country: e.target.value }))}
+                                    className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#195C51] focus:border-transparent font-mono"
+                                />
+                            </div>
+                            <div>
+                                <label className="text-xs font-bold uppercase text-slate-500 mb-1 block">Reason (optional)</label>
+                                <textarea
+                                    value={grantForm.reason}
+                                    onChange={(e) => setGrantForm(prev => ({ ...prev, reason: e.target.value }))}
+                                    rows="2"
+                                    className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#195C51] focus:border-transparent resize-none"
+                                />
+                            </div>
+                            <div className="flex gap-3 pt-2">
+                                <button
+                                    onClick={() => setShowGrantModal(false)}
+                                    className="flex-1 px-4 py-2 border border-slate-200 text-slate-700 hover:bg-slate-50 rounded-lg text-sm font-semibold transition-colors"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={handleGrantSubscription}
+                                    disabled={subscriptionActionLoading}
+                                    className="flex-1 px-4 py-2 bg-[#195C51] text-white hover:bg-[#0E3A32] rounded-lg text-sm font-semibold transition-colors disabled:opacity-50"
+                                >
+                                    {subscriptionActionLoading ? 'Granting...' : 'Grant Subscription'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* ── Extend Subscription Modal ─────────────────────────────────────── */}
+            {showExtendModal && (
+                <div className="fixed inset-0 z-[60] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
+                        <div className="bg-[#195C51] px-6 py-4 flex items-center justify-between">
+                            <h3 className="text-white font-bold text-lg">Extend Subscription</h3>
+                            <button onClick={() => setShowExtendModal(false)} className="text-white/80 hover:text-white">
+                                <X className="w-5 h-5" />
+                            </button>
+                        </div>
+                        <div className="p-6 space-y-4">
+                            {subscriptionActionError && (
+                                <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-700">
+                                    {subscriptionActionError}
+                                </div>
+                            )}
+                            <div>
+                                <label className="text-xs font-bold uppercase text-slate-500 mb-1 block">Extension Days</label>
+                                <input
+                                    type="number"
+                                    value={extendForm.extendDays}
+                                    onChange={(e) => setExtendForm(prev => ({ ...prev, extendDays: e.target.value }))}
+                                    min="1"
+                                    max="3650"
+                                    className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#195C51] focus:border-transparent"
+                                />
+                                <p className="text-[10px] text-slate-400 mt-1">Max 3650 days (10 years)</p>
+                            </div>
+                            <div>
+                                <label className="text-xs font-bold uppercase text-slate-500 mb-1 block">Reason (optional)</label>
+                                <textarea
+                                    value={extendForm.reason}
+                                    onChange={(e) => setExtendForm(prev => ({ ...prev, reason: e.target.value }))}
+                                    rows="2"
+                                    className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#195C51] focus:border-transparent resize-none"
+                                />
+                            </div>
+                            <div className="flex gap-3 pt-2">
+                                <button
+                                    onClick={() => setShowExtendModal(false)}
+                                    className="flex-1 px-4 py-2 border border-slate-200 text-slate-700 hover:bg-slate-50 rounded-lg text-sm font-semibold transition-colors"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={handleExtendSubscription}
+                                    disabled={subscriptionActionLoading}
+                                    className="flex-1 px-4 py-2 bg-[#195C51] text-white hover:bg-[#0E3A32] rounded-lg text-sm font-semibold transition-colors disabled:opacity-50"
+                                >
+                                    {subscriptionActionLoading ? 'Extending...' : 'Extend Subscription'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

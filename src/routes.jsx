@@ -8,6 +8,7 @@ import CustomerInsights from "./pages/dashboard/CustomerInsights.jsx";
 import RemoteUsageHistory from "./pages/dashboard/RemoteUsageHistory.jsx";
 import DeviceInsights from "./pages/dashboard/DeviceInsights.jsx";
 import RevenueInsights from "./pages/dashboard/RevenueInsights.jsx";
+import AuditLogs from "./pages/dashboard/AuditLogs.jsx";
 
 // auth imports
 import SignIn from "./pages/auth/Sign-in.jsx";
@@ -20,6 +21,7 @@ import {
   ArrowRightOnRectangleIcon,
   KeyIcon,
   UserIcon,
+  ShieldCheckIcon,
 } from "@heroicons/react/24/outline";
 import NotificationCentre from "./pages/dashboard/NotificationCentre.jsx";
 
@@ -90,6 +92,11 @@ export const routes = [
             name: "Notification Centre",
             path: "presence-eye-buttons/notification-centre",
             element: <NotificationCentre/>,
+          },
+          {
+            name: "Audit Logs",
+            path: "presence-eye-buttons/audit-logs",
+            element: <AuditLogs />,
           },
           {
             name: "Remote History",
