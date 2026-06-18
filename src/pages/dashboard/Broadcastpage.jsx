@@ -475,7 +475,7 @@ function AudienceSidebar() {
                             {opt === "ALL" ? "All Users" : "Selected"}
                         </button>
                     ))}
-                </div>
+                </div>c
             </div>
 
             {audienceType === "ALL" && (
