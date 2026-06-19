@@ -445,7 +445,7 @@ export default function UserInspectModal({userId, onClose, timeRange}) {
     const [showGrantModal, setShowGrantModal] = useState(false);
     const [showExtendModal, setShowExtendModal] = useState(false);
     const [selectedSubscription, setSelectedSubscription] = useState(null);
-    const [grantForm, setGrantForm] = useState({ planId: '', durationMonths: 12, country: 'RW', reason: '' });
+    const [grantForm, setGrantForm] = useState({ planId: '', durationMonths: 2, country: 'RW', reason: '' });
     const [extendForm, setExtendForm] = useState({ extendDays: 30, reason: '' });
     const [subscriptionActionLoading, setSubscriptionActionLoading] = useState(false);
     const [subscriptionActionError, setSubscriptionActionError] = useState(null);
@@ -474,7 +474,7 @@ export default function UserInspectModal({userId, onClose, timeRange}) {
     // Load available plans for grant modal
     const loadPlans = useCallback(async () => {
         try {
-            const res = await fetchData(`${presence_server}/api/plans?active=true`, token);
+            const res = await fetchData(`${presence_server}/api/admin/subscriptions/plans?isActive=true`);
             if (res.data?.plans) {
                 setPlans(res.data.plans);
             }
@@ -504,10 +504,8 @@ export default function UserInspectModal({userId, onClose, timeRange}) {
         setSubscriptionActionError(null);
 
         try {
-            const res = await fetchData(
+            const res = await sendData(
                 `${presence_server}/api/admin/subscriptions/grant`,
-                token,
-                'POST',
                 {
                     userId: userId,
                     planId: grantForm.planId,
@@ -1065,7 +1063,7 @@ export default function UserInspectModal({userId, onClose, timeRange}) {
                                     <option value="">Select a plan</option>
                                     {plans.map(plan => (
                                         <option key={plan._id || plan.id} value={plan._id || plan.id}>
-                                            {plan.name} - ${plan.pricing?.RW?.pricePerMonth || plan.pricePerMonth || 'N/A'}/month
+                                            {plan.name} - {plan.pricing[0]?.currency|| 'RWF'} {plan.pricing[0]?.pricePerMonth|| 'N/A'}/month
                                         </option>
                                     ))}
                                 </select>
