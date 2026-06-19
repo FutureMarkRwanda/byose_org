@@ -35,14 +35,13 @@ import {
   Tooltip as RechartsTooltip, ResponsiveContainer, BarChart, Bar,
 } from 'recharts';
 import {
-  ChevronDown, ChevronRight, Activity, AlertTriangle, Trophy,
+  ChevronDown, Activity, AlertTriangle, Trophy,
   Search, CalendarDays, FileText, Printer, Download, X, Wifi,
   WifiOff, Users, Shield, Star, ChevronUp, ChevronsUpDown,
   Filter, SlidersHorizontal, RotateCcw, Globe, BadgeCheck,
   BadgeX, Zap, Share2, TrendingUp, TrendingDown, Clock, Eye,
   CheckCircle2, XCircle, AlertCircle, Minus, ArrowUpRight,
   BarChart2, Settings2, RefreshCw, ChevronLast, ChevronFirst,
-  DollarSign, UserCheck,
 } from 'lucide-react';
 import html2pdf from 'html2pdf.js';
 import { fetchData, returnToken } from '../../utils/helper.js';

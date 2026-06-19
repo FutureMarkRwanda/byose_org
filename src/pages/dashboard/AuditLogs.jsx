@@ -10,7 +10,7 @@ import {
   ChevronUp, RefreshCw, Trash2, Shield, Clock, ArrowUpDown,
   CheckCircle2, XCircle, AlertCircle, Info, Download
 } from 'lucide-react';
-import { fetchData, returnToken } from '../../utils/helper.js';
+import {deleteData, fetchData} from '../../utils/helper.js';
 import { presence_server } from '../../config/server_api.js';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -277,8 +277,6 @@ export default function AuditLogs() {
     totalPages: 1,
   });
 
-  const token = returnToken();
-
   // Load logs
   const loadLogs = useCallback(async () => {
     setLoading(true);
@@ -291,7 +289,7 @@ export default function AuditLogs() {
       params.append('page', pagination.page);
       params.append('limit', pagination.limit);
 
-      const res = await fetchData(`${presence_server}/api/admin/audit/logs?${params.toString()}`, token);
+      const res = await fetchData(`${presence_server}/api/admin/audit/logs?${params.toString()}`);
       if (res.data) {
         setLogs(res.data.logs || []);
         setPagination(res.data.pagination || pagination);
@@ -301,7 +299,7 @@ export default function AuditLogs() {
       setError('Failed to load audit logs');
     }
     setLoading(false);
-  }, [filters, pagination.page, pagination.limit, token]);
+  }, [filters, pagination.page, pagination.limit]);
 
   // Load statistics
   const loadStatistics = useCallback(async () => {
@@ -312,7 +310,7 @@ export default function AuditLogs() {
       if (filters.endDate) params.append('endDate', filters.endDate);
       if (filters.userId) params.append('userId', filters.userId);
 
-      const res = await fetchData(`${presence_server}/api/admin/audit/statistics?${params.toString()}`, token);
+      const res = await fetchData(`${presence_server}/api/admin/audit/statistics?${params.toString()}`);
       if (res.data) {
         setStatistics(res.data.statistics);
       }
@@ -320,7 +318,7 @@ export default function AuditLogs() {
       console.error('Failed to load audit statistics', err);
     }
     setStatisticsLoading(false);
-  }, [filters.startDate, filters.endDate, filters.userId, token]);
+  }, [filters.startDate, filters.endDate, filters.userId]);
 
   // Initial load
   useEffect(() => {
@@ -353,10 +351,8 @@ export default function AuditLogs() {
     if (!retentionDays || isNaN(retentionDays)) return;
 
     try {
-      const res = await fetchData(
+      const res = await deleteData(
         `${presence_server}/api/admin/audit/cleanup?retentionDays=${retentionDays}`,
-        token,
-        'DELETE'
       );
       if (res.data) {
         alert(`Deleted ${res.data.deletedCount} old audit logs`);

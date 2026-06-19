@@ -4,13 +4,13 @@ import {
     X, User, Wifi, Activity, Share2, Settings, Smartphone,
     ChevronDown, ChevronUp, Zap, Calendar, RefreshCw,
     Star, BadgeCheck, ExternalLink, AlertCircle, CreditCard,
-    Plus, Clock, CheckCircle2, XCircle,
+    Plus, Clock
 } from 'lucide-react';
 import {
     BarChart, Bar, XAxis, YAxis, CartesianGrid,
     Tooltip as RechartsTooltip, ResponsiveContainer
 } from 'recharts';
-import {fetchData, returnToken} from '../../utils/helper.js';
+import {fetchData, returnToken, sendData} from '../../utils/helper.js';
 import {presence_server} from '../../config/server_api.js';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -505,7 +505,7 @@ export default function UserInspectModal({userId, onClose, timeRange}) {
 
         try {
             const res = await fetchData(
-                `${presence_server}/api/subscriptions/admin/grant`,
+                `${presence_server}/api/admin/subscriptions/grant`,
                 token,
                 'POST',
                 {
@@ -542,10 +542,8 @@ export default function UserInspectModal({userId, onClose, timeRange}) {
         setSubscriptionActionError(null);
 
         try {
-            const res = await fetchData(
-                `${presence_server}/api/subscriptions/admin/extend`,
-                token,
-                'POST',
+            const res = await sendData(
+                `${presence_server}/api/admin/subscriptions/extend`,
                 {
                     subscriptionId: selectedSubscription,
                     extendDays: parseInt(extendForm.extendDays),
@@ -895,7 +893,7 @@ export default function UserInspectModal({userId, onClose, timeRange}) {
                                                                 className="text-[9px] font-black uppercase bg-emerald-200 text-emerald-800 px-2 py-0.5 rounded-full">{sub.status}</span>
                                                             <button
                                                                 onClick={() => {
-                                                                    setSelectedSubscription(sub.id || sub._id);
+                                                                    setSelectedSubscription(sub.subscriptionId || sub._id);
                                                                     setShowExtendModal(true);
                                                                 }}
                                                                 className="inline-flex items-center gap-1 bg-white border border-emerald-300 text-emerald-700 hover:bg-emerald-100 px-2 py-1 rounded-lg text-[10px] font-semibold transition-colors"
