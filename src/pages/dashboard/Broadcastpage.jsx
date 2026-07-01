@@ -430,7 +430,7 @@ function AudienceSidebar() {
         if (users.length) return;
         (async () => {
             setLoadingUsers(true);
-            const res = await fetchData(`${presence_server}/api/admin/users`, returnToken());
+            const res = await fetchData(`${presence_server}/api/admin/users/no-more`);
             setLoadingUsers(false);
             if (!res.error) {
                 const arr = res.data?.users || res.data?.data || res.data || [];
