@@ -179,6 +179,7 @@ const MODEL_OPTIONS = [
   { value: "pro",  label: "Pro" },
   { value: "max",  label: "Max" },
   { value: "lite", label: "Lite" },
+  { value: "camera", label: "Camera" },
 ];
 
 const STATE_OPTIONS = [
