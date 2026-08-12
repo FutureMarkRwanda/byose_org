@@ -29,17 +29,77 @@ const maskEmailLocal = (email) => {
     return `${local.slice(0, 3)}${'*'.repeat(Math.max(3, local.length - 3))}${domain}`;
 };
 
-// ─── Revenue Helper (mirrors backend logic) ───────────────────────────────────
-// Use stored totalPaid if valid, otherwise fallback to pricePerMonth × durationMonths
-const getEffectiveTotalPaid = (sub) => {
+// ─── Revenue Helpers ───────────────────────────────────────────────────────────
+// The backend (services/revenue.util.js) is the single source of truth for
+// what counts as revenue — it annotates every subscription it returns with
+// `countedAsRevenue` and `revenueAmount`. These helpers read that first and
+// only fall back to a local estimate if an older API response is missing
+// those fields, so the dashboard can never silently disagree with the
+// backend's business rules (e.g. excluding admin-granted subscriptions).
+const isCountedAsRevenue = (sub) => {
+    if (typeof sub?.countedAsRevenue === 'boolean') return sub.countedAsRevenue;
+    // Defensive fallback for older responses — mirrors the backend rule.
+    return !sub?.isTrial && sub?.paymentMethod !== 'admin_grant' &&
+        ['active', 'grace_period', 'expired', 'cancelled'].includes(sub?.status);
+};
+
+const getRevenueAmount = (sub) => {
+    if (typeof sub?.revenueAmount === 'number') return sub.revenueAmount;
+    if (!isCountedAsRevenue(sub)) return 0;
     if (sub?.pricingSnapshot?.totalPaid > 0) return sub.pricingSnapshot.totalPaid;
     const ppm = sub?.pricingSnapshot?.pricePerMonth || 0;
     const dur = sub?.durationMonths || 0;
     return ppm * dur;
 };
 
-// Statuses that represent money actually received (mirrors PAID_STATUSES on backend)
-const PAID_STATUSES = ['active', 'grace_period', 'expired', 'cancelled'];
+// ─── Date Range Helpers ────────────────────────────────────────────────────────
+// Every preset resolves to explicit, human-predictable boundaries. `to` is
+// always "today" (inclusive) for anything but "Last Year", which is a fully
+// closed historical period.
+const toISODate = (d) => {
+    const yr = d.getFullYear();
+    const mo = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${yr}-${mo}-${day}`;
+};
+
+const startOfWeek = (d) => {
+    const date = new Date(d);
+    const dow = date.getDay(); // 0 = Sunday
+    const diff = date.getDate() - dow; // week starts Sunday
+    return new Date(date.getFullYear(), date.getMonth(), diff);
+};
+
+const getDateRangeForPeriod = (period, customFrom, customTo) => {
+    const today = new Date();
+    switch (period) {
+        case 'today':
+            return { from: toISODate(today), to: toISODate(today) };
+        case 'this_week':
+            return { from: toISODate(startOfWeek(today)), to: toISODate(today) };
+        case 'this_month':
+            return { from: toISODate(new Date(today.getFullYear(), today.getMonth(), 1)), to: toISODate(today) };
+        case 'this_year':
+            return { from: toISODate(new Date(today.getFullYear(), 0, 1)), to: toISODate(today) };
+        case 'last_year':
+            return {
+                from: toISODate(new Date(today.getFullYear() - 1, 0, 1)),
+                to: toISODate(new Date(today.getFullYear() - 1, 11, 31)),
+            };
+        case 'custom':
+        default:
+            return { from: customFrom, to: customTo };
+    }
+};
+
+const PERIOD_LABELS = {
+    today: 'Today',
+    this_week: 'This Week',
+    this_month: 'This Month',
+    this_year: 'This Year',
+    last_year: 'Last Year',
+    custom: 'Custom Range',
+};
 
 // ─── UI Primitives ─────────────────────────────────────────────────────────────
 // eslint-disable-next-line react/prop-types
@@ -71,29 +131,19 @@ const StatusPill = ({ status }) => {
 const RevenueTrendChart = ({ token }) => {
     const [trendData, setTrendData]       = useState([]);
     const [loading, setLoading]           = useState(true);
-    const [timePeriod, setTimePeriod]     = useState('this_year');
+    const [timePeriod, setTimePeriod]     = useState('this_month');
     const [customFrom, setCustomFrom]     = useState('');
     const [customTo, setCustomTo]         = useState('');
-    // FIX: track collected and earned separately from the summary endpoint
+    // Collected and earned come from separate, clearly-labeled fields on
+    // the /revenue summary endpoint.
     const [summaryCollected, setSummaryCollected] = useState(null);
     const [summaryEarned, setSummaryEarned]       = useState(null);
     const [currency, setCurrency]         = useState('RWF');
 
-    const buildQuery = useCallback(() => {
-        const today = new Date();
-        let from, to;
-        if (timePeriod === 'this_month') {
-            from = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().slice(0, 10);
-            to   = today.toISOString().slice(0, 10);
-        } else if (timePeriod === 'this_year') {
-            from = new Date(today.getFullYear(), 0, 1).toISOString().slice(0, 10);
-            to   = today.toISOString().slice(0, 10);
-        } else {
-            from = customFrom;
-            to   = customTo;
-        }
-        return { from, to };
-    }, [timePeriod, customFrom, customTo]);
+    const buildQuery = useCallback(
+        () => getDateRangeForPeriod(timePeriod, customFrom, customTo),
+        [timePeriod, customFrom, customTo]
+    );
 
     const loadTrend = useCallback(async () => {
         const { from, to } = buildQuery();
@@ -140,10 +190,18 @@ const RevenueTrendChart = ({ token }) => {
     }, [loadTrend, loadSummaryTotal]);
 
     const PERIOD_OPTS = [
-        { id: 'this_month', label: 'This Month' },
-        { id: 'this_year',  label: 'This Year'  },
-        { id: 'custom',     label: 'Custom'      },
+        { id: 'today',      label: PERIOD_LABELS.today },
+        { id: 'this_week',  label: PERIOD_LABELS.this_week },
+        { id: 'this_month', label: PERIOD_LABELS.this_month },
+        { id: 'this_year',  label: PERIOD_LABELS.this_year },
+        { id: 'last_year',  label: PERIOD_LABELS.last_year },
+        { id: 'custom',     label: PERIOD_LABELS.custom },
     ];
+
+    const { from: resolvedFrom, to: resolvedTo } = buildQuery();
+    const fmtRangeLabel = (iso) => iso
+        ? new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+        : '—';
 
     const fmtRevenue = (val) => {
         if (val == null) return '—';
@@ -178,7 +236,7 @@ const RevenueTrendChart = ({ token }) => {
                     <TrendingUp className="w-5 h-5 text-[#195C51]" />
                     <div>
                         <h2 className="font-display font-semibold text-lg leading-tight">Revenue Trend</h2>
-                        <p className="text-xs text-slate-500">Collected cash vs. earned (MRR) by month</p>
+                        <p className="text-xs text-slate-500">Money actually collected vs. revenue recognized (MRR), by month</p>
                     </div>
                 </div>
 
@@ -220,30 +278,36 @@ const RevenueTrendChart = ({ token }) => {
                 </div>
             </div>
 
-            {/* FIX: Two KPI cards — collected and earned — from /revenue endpoint */}
+            {/* Explicit, unambiguous statement of the period being shown */}
+            <div className="flex items-center gap-2 text-xs text-slate-500 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2">
+                <span className="font-bold text-slate-700">{PERIOD_LABELS[timePeriod]}:</span>
+                <span>{fmtRangeLabel(resolvedFrom)} → {fmtRangeLabel(resolvedTo)}</span>
+            </div>
+
+            {/* Two KPI cards — collected and earned — both sourced from the backend /revenue endpoint */}
             <div className="grid grid-cols-2 gap-4">
                 <div className="flex items-center gap-3 py-4 px-5 bg-gradient-to-r from-[#195C51]/8 to-transparent rounded-xl border border-[#195C51]/15">
                     <Banknote className="w-8 h-8 text-[#195C51] opacity-60 shrink-0" />
                     <div>
-                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">Cash Collected</p>
+                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">Revenue Collected</p>
                         {loading ? (
                             <div className="h-7 w-28 bg-slate-100 animate-pulse rounded-md" />
                         ) : (
                             <p className="text-2xl font-bold text-[#195C51]">{fmtRevenue(summaryCollected)}</p>
                         )}
-                        <p className="text-[10px] text-slate-400 mt-0.5">Payments received in period</p>
+                        <p className="text-[10px] text-slate-400 mt-0.5">Actual cash received for payments made in this period. Excludes admin-granted &amp; trial subscriptions.</p>
                     </div>
                 </div>
                 <div className="flex items-center gap-3 py-4 px-5 bg-gradient-to-r from-blue-50 to-transparent rounded-xl border border-blue-100">
                     <BarChart2 className="w-8 h-8 text-blue-500 opacity-60 shrink-0" />
                     <div>
-                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">Earned (MRR)</p>
+                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">Revenue Earned (MRR)</p>
                         {loading ? (
                             <div className="h-7 w-28 bg-slate-100 animate-pulse rounded-md" />
                         ) : (
                             <p className="text-2xl font-bold text-blue-600">{fmtRevenue(summaryEarned)}</p>
                         )}
-                        <p className="text-[10px] text-slate-400 mt-0.5">Revenue recognized in period</p>
+                        <p className="text-[10px] text-slate-400 mt-0.5">Value of active, paid subscription-months in this period — not new cash received.</p>
                     </div>
                 </div>
             </div>
@@ -327,11 +391,11 @@ const RevenueTrendChart = ({ token }) => {
             <div className="flex gap-6 text-[10px] text-slate-500 border-t border-slate-100 pt-3">
                 <span className="flex items-center gap-1.5">
                     <span className="w-3 h-0.5 bg-[#195C51] inline-block rounded" />
-                    <strong className="text-slate-700">Collected</strong> — full payment received when subscription started
+                    <strong className="text-slate-700">Revenue Collected</strong> — actual payment received when the subscription started
                 </span>
                 <span className="flex items-center gap-1.5">
                     <span className="w-3 h-0.5 bg-blue-400 inline-block rounded border-dashed" style={{borderTop:'2px dashed #3B82F6', background:'none'}} />
-                    <strong className="text-slate-700">Earned</strong> — revenue recognized per active month (MRR)
+                    <strong className="text-slate-700">Revenue Earned</strong> — that payment spread evenly across each paid month (MRR)
                 </span>
             </div>
         </Card>
@@ -369,15 +433,16 @@ const RevenueHistoryDrawer = ({ user, onClose, token }) => {
 
     const fmtDate = (d) => d ? new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: '2-digit' }) : '—';
 
-    // FIX: chart only includes paid (non-trial, non-failed/pending/processing) subscriptions
-    // and distributes each subscription's amount across its active months
-    const paidHistory = history.filter(s => !s.isTrial && PAID_STATUSES.includes(s.status));
+    // Chart only includes subscriptions the backend has verified as revenue
+    // (real payment, not admin-granted or trial), and distributes each
+    // subscription's amount across its active months.
+    const paidHistory = history.filter(isCountedAsRevenue);
 
     // Build month-by-month distribution chart data
     const buildDistributionChart = () => {
         const byMonth = {};
         for (const s of paidHistory) {
-            const totalPaid = getEffectiveTotalPaid(s);
+            const totalPaid = getRevenueAmount(s);
             const duration  = s.durationMonths || 1;
             const perMonth  = totalPaid / duration;
             const start     = new Date(s.startDate);
@@ -399,7 +464,7 @@ const RevenueHistoryDrawer = ({ user, onClose, token }) => {
             .sort((a, b) => new Date(a.startDate) - new Date(b.startDate))
             .map(s => ({
                 period:    fmtDate(s.startDate),
-                collected: getEffectiveTotalPaid(s),
+                collected: getRevenueAmount(s),
                 status:    s.status,
                 plan:      s.plan?.name || 'Plan',
             }));
@@ -409,11 +474,11 @@ const RevenueHistoryDrawer = ({ user, onClose, token }) => {
 
     const currency = summary?.currency || history[0]?.pricingSnapshot?.currency || 'RWF';
 
-    // FIX: use summary.totalPaid from backend (already filters correctly server-side)
-    // Fallback: compute client-side with same rules as backend if summary missing
+    // Prefer summary.totalPaid, computed and verified server-side.
+    // Fallback only applies if an older API response omits it.
     const totalPaidDisplay = summary?.totalPaid != null
         ? summary.totalPaid
-        : paidHistory.reduce((sum, s) => sum + getEffectiveTotalPaid(s), 0);
+        : paidHistory.reduce((sum, s) => sum + getRevenueAmount(s), 0);
 
     const activeSubs  = history.filter(h => h.status === 'active').length;
     const firstSub    = history.slice(-1)[0];
@@ -483,7 +548,7 @@ const RevenueHistoryDrawer = ({ user, onClose, token }) => {
                                     <p className="text-2xl font-bold text-[#195C51]">
                                         {totalPaidDisplay.toLocaleString()} {currency}
                                     </p>
-                                    <p className="text-[10px] text-slate-400 mt-0.5">Excludes failed &amp; pending</p>
+                                    <p className="text-[10px] text-slate-400 mt-0.5">Real payments only — excludes failed, pending, trial &amp; admin-granted subscriptions</p>
                                 </div>
                                 <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
                                     <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">Subscriptions</p>
@@ -588,9 +653,9 @@ const RevenueHistoryDrawer = ({ user, onClose, token }) => {
                                 <div className="space-y-3">
                                     {history.map((sub, i) => {
                                         const isFirst       = i === history.length - 1;
-                                        const effectivePaid = getEffectiveTotalPaid(sub);
-                                        // FIX: show whether this subscription counted toward revenue
-                                        const countedAsRevenue = !sub.isTrial && PAID_STATUSES.includes(sub.status);
+                                        const effectivePaid = getRevenueAmount(sub);
+                                        // Backend-verified: whether this subscription counted toward revenue
+                                        const countedAsRevenue = isCountedAsRevenue(sub);
                                         return (
                                             <div
                                                 key={sub._id || i}
@@ -647,6 +712,9 @@ const RevenueHistoryDrawer = ({ user, onClose, token }) => {
                                                     )}
                                                     {sub.status === 'failed' && (
                                                         <p className="text-[10px] text-red-400 mt-1">Payment failed — not counted as revenue</p>
+                                                    )}
+                                                    {sub.paymentMethod === 'admin_grant' && (
+                                                        <p className="text-[10px] text-slate-400 mt-1">Granted by an administrator — no payment was made, not counted as revenue</p>
                                                     )}
                                                     {sub.isTrial && (
                                                         <p className="text-[10px] text-blue-400 mt-1">Trial — not counted as revenue</p>
@@ -893,8 +961,8 @@ export default function RevenueInsights() {
                                         const user = sub.user || {};
                                         const fullName = `${user.firstName || ''} ${user.lastName || ''}`.trim();
                                         // FIX: use effective amount in table too
-                                        const effectivePaid    = getEffectiveTotalPaid(sub);
-                                        const countedAsRevenue = !sub.isTrial && PAID_STATUSES.includes(sub.status);
+                                        const effectivePaid    = getRevenueAmount(sub);
+                                        const countedAsRevenue = isCountedAsRevenue(sub);
                                         return (
                                             <tr key={sub._id} className="hover:bg-slate-50 transition-colors group">
                                                 <td className="px-6 py-4">
