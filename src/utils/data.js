@@ -308,11 +308,12 @@ Innocent’s leadership in technology is characterized by his commitment to inno
         role:"Co-Founder, B-Skills | Head of Research & Development" ,
         images: [
             "https://res.cloudinary.com/de5pz88gm/image/upload/v1789120474/Projects/porto/WhatsApp_Image_2026-09-11_at_10.04.29_AM_mibwtg.jpg"
-        ]
+        ],
+        link: "kelly-muhire"
     },
     {
         id: 1151,
-        name:"",
+        name:" Leonce Gisagara Hirwa",
         role:"Co-Founder, B-Skills | Chief Innovation Officer",
         images:[
             "https://res.cloudinary.com/de5pz88gm/image/upload/v1789119662/Projects/porto/WhatsApp_Image_2026-09-11_at_10.03.07_AM_iliywz.jpg"
