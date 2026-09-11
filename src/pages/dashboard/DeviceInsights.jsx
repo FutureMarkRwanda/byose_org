@@ -5,9 +5,9 @@ import {
   LineChart, Line, XAxis, YAxis, CartesianGrid,
   Tooltip as RechartsTooltip, ResponsiveContainer, Legend
 } from "recharts";
-import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import DeploymentMap from "../../components/map/DeploymentMap.jsx";
 import {
   MapPin, Activity, Settings, Search, Wifi, WifiOff, Box, Package,
   ChevronLeft, ChevronRight, Eye, EyeOff, X, History, Crosshair,
@@ -21,45 +21,6 @@ import { presence_server } from "../../config/server_api.js";
 import { useNotification } from "../../context/NotificationContext.jsx";
 import RemoteDetailsModal from "../../components/RemoteDetailsModal.jsx";
 import AddRemoteModal from "../../components/AddRemoteModal.jsx";
-
-// ── Pin Icons ─────────────────────────────────────────────────────────────────
-const makePinIcon = (color) => L.divIcon({
-  className: "presence-pin",
-  html: `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="40" viewBox="0 0 28 40">
-    <defs><filter id="ds" x="-50%" y="-50%" width="200%" height="200%">
-      <feDropShadow dx="0" dy="1.5" stdDeviation="1.2" flood-opacity="0.35"/>
-    </filter></defs>
-    <path d="M14 0C6.3 0 0 6.3 0 14c0 10.5 14 26 14 26s14-15.5 14-26c0-7.7-6.3-14-14-14z"
-          fill="${color}" filter="url(#ds)"/>
-    <circle cx="14" cy="14" r="5" fill="white"/>
-  </svg>`,
-  iconSize: [28, 40], iconAnchor: [14, 40], popupAnchor: [0, -36],
-});
-const PIN_ONLINE  = makePinIcon("#10b981");
-const PIN_OFFLINE = makePinIcon("#ef4444");
-
-const MapController = ({ fitRef }) => {
-  const map = useMap();
-  useEffect(() => {
-    if (!fitRef) return;
-    const safeFit = (bounds) => {
-      if (!bounds || !bounds.isValid()) return;
-      // Guard: ensure the map pane is mounted before calling fitBounds
-      try {
-        const pane = map.getPane("mapPane");
-        if (!pane || !pane._leaflet_pos === undefined) return;
-        map.fitBounds(bounds, { padding: [40, 40], maxZoom: 14 });
-      } catch (_) {
-        // map not ready yet — retry after next paint
-        requestAnimationFrame(() => {
-          try { map.fitBounds(bounds, { padding: [40, 40], maxZoom: 14 }); } catch (_2) {}
-        });
-      }
-    };
-    fitRef.current = safeFit;
-  }, [fitRef, map]);
-  return null;
-};
 
 // ── UI Primitives ─────────────────────────────────────────────────────────────
 const Card = ({ children, className = "" }) => (
@@ -888,101 +849,77 @@ export default function DeviceInsights() {
         </div>
 
         <div className={`w-full bg-slate-100 relative z-0 ${mapFullscreen ? "flex-1" : "h-[480px]"}`}>
-          {loading ? (
-            <div className="flex h-full items-center justify-center"><Spinner /></div>
-          ) : mapLocations.length === 0 ? (
-            <div className="flex h-full flex-col items-center justify-center text-slate-400 text-sm">
-              <MapPin className="w-8 h-8 mb-2 opacity-30" />
-              No deployed devices have GPS coordinates yet.
-            </div>
-          ) : (
-            <MapContainer
-              center={[-1.9441, 30.0619]}
-              zoom={12}
-              style={{ height: "100%", width: "100%", zIndex: 1 }}
-              scrollWheelZoom
-            >
-              <MapController fitRef={fitRef} />
-              <TileLayer
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
-                url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
-              />
-              {mapLocations.map((device) => (
-                <Marker
-                  key={device.id}
-                  position={[device.location.lat, device.location.lng]}
-                  icon={device.connectivity?.isOnline ? PIN_ONLINE : PIN_OFFLINE}
-                  eventHandlers={{ click: () => handleFindInInventory(device.serialNumber) }}
-                >
-                  <Popup className="rounded-xl overflow-hidden shadow-xl border-none">
-                    <div className="p-1.5 space-y-2 font-sans min-w-[200px]">
-                      <div className="flex justify-between items-center border-b border-slate-100 pb-2">
-                        <span className="font-mono text-xs font-bold text-slate-900">{device.serialNumber}</span>
-                        <Badge variant={device.connectivity?.isOnline ? "success" : "destructive"}>
-                          {device.connectivity?.isOnline ? "Online" : "Offline"}
-                        </Badge>
-                      </div>
-                      <div className="space-y-0.5">
-                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Label / Model</p>
-                        <p className="text-sm font-medium text-slate-800">
-                          {device.labelName || "Unnamed"}{" "}
-                          <span className="text-slate-400 text-xs">({device.modelType})</span>
-                        </p>
-                      </div>
-                      <div className="space-y-0.5">
-                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Owner</p>
-                        <PrivacyNameToggle fullName={device.owner?.name} />
-                      </div>
-                      {device.connectivity && (
-                        <div className="bg-slate-50 rounded-lg p-2 border border-slate-100 text-[10px] space-y-1">
-                          <p className="font-black uppercase tracking-widest text-slate-400 mb-1">Connectivity</p>
-                          <div className="flex justify-between">
-                            <span className="text-slate-500">Uptime</span>
-                            <span className="font-semibold text-slate-700">{device.connectivity.totalUptime || "—"}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-slate-500">Incidents</span>
-                            <span className="font-semibold text-slate-700">{device.connectivity.offlineIncidents ?? "—"}</span>
-                          </div>
-                          {device.connectivity.lastOnlineAt && (
-                            <div className="flex justify-between">
-                              <span className="text-slate-500">Last seen</span>
-                              <span className="font-semibold text-slate-700">
-                                {new Date(device.connectivity.lastOnlineAt).toLocaleDateString()}
-                              </span>
-                            </div>
-                          )}
-                        </div>
-                      )}
-                      {device.location?.address && (
-                        <div className="bg-slate-50 p-2 rounded-lg border border-slate-100">
-                          <p className="text-xs font-semibold text-slate-700 leading-tight">{device.location.address}</p>
-                          <div className="flex items-center gap-1 text-[10px] text-slate-500 font-mono mt-1">
-                            <MapPin size={10} className="text-[#195C51]" />
-                            {device.location.lat.toFixed(5)}, {device.location.lng.toFixed(5)}
-                          </div>
-                        </div>
-                      )}
-                      <div className="flex gap-1.5 pt-1">
-                        <button
-                          onClick={() => handleFindInInventory(device.serialNumber)}
-                          className="flex-1 bg-white border border-slate-200 text-slate-700 hover:border-[#195C51] hover:text-[#195C51] px-2 py-1.5 rounded-md text-[10px] font-bold uppercase tracking-wider transition-all"
-                        >
-                          Find in table
-                        </button>
-                        <button
-                          onClick={() => goToUsageHistory(device.serialNumber)}
-                          className="flex-1 bg-[#195C51] text-white hover:bg-[#0E3A32] px-2 py-1.5 rounded-md text-[10px] font-bold uppercase tracking-wider transition-all inline-flex items-center justify-center gap-1"
-                        >
-                          <History className="w-3 h-3" /> Usage
-                        </button>
-                      </div>
+          <DeploymentMap
+            locations={mapLocations}
+            fitRef={fitRef}
+            loading={loading}
+            onMarkerClick={(device) => handleFindInInventory(device.serialNumber)}
+            renderPopup={(device) => (
+              <div className="p-1.5 space-y-2 font-sans min-w-[200px]">
+                <div className="flex justify-between items-center border-b border-slate-100 pb-2">
+                  <span className="font-mono text-xs font-bold text-slate-900">{device.serialNumber}</span>
+                  <Badge variant={device.connectivity?.isOnline ? "success" : "destructive"}>
+                    {device.connectivity?.isOnline ? "Online" : "Offline"}
+                  </Badge>
+                </div>
+                <div className="space-y-0.5">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Label / Model</p>
+                  <p className="text-sm font-medium text-slate-800">
+                    {device.labelName || "Unnamed"}{" "}
+                    <span className="text-slate-400 text-xs">({device.modelType})</span>
+                  </p>
+                </div>
+                <div className="space-y-0.5">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Owner</p>
+                  <PrivacyNameToggle fullName={device.owner?.name} />
+                </div>
+                {device.connectivity && (
+                  <div className="bg-slate-50 rounded-lg p-2 border border-slate-100 text-[10px] space-y-1">
+                    <p className="font-black uppercase tracking-widest text-slate-400 mb-1">Connectivity</p>
+                    <div className="flex justify-between">
+                      <span className="text-slate-500">Uptime</span>
+                      <span className="font-semibold text-slate-700">{device.connectivity.totalUptime || "—"}</span>
                     </div>
-                  </Popup>
-                </Marker>
-              ))}
-            </MapContainer>
-          )}
+                    <div className="flex justify-between">
+                      <span className="text-slate-500">Incidents</span>
+                      <span className="font-semibold text-slate-700">{device.connectivity.offlineIncidents ?? "—"}</span>
+                    </div>
+                    {device.connectivity.lastOnlineAt && (
+                      <div className="flex justify-between">
+                        <span className="text-slate-500">Last seen</span>
+                        <span className="font-semibold text-slate-700">
+                          {new Date(device.connectivity.lastOnlineAt).toLocaleDateString()}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                )}
+                {device.location?.address && (
+                  <div className="bg-slate-50 p-2 rounded-lg border border-slate-100">
+                    <p className="text-xs font-semibold text-slate-700 leading-tight">{device.location.address}</p>
+                    <div className="flex items-center gap-1 text-[10px] text-slate-500 font-mono mt-1">
+                      <MapPin size={10} className="text-[#195C51]" />
+                      {device.location.lat.toFixed(5)}, {device.location.lng.toFixed(5)}
+                    </div>
+                  </div>
+                )}
+                <div className="flex gap-1.5 pt-1">
+                  <button
+                    onClick={() => handleFindInInventory(device.serialNumber)}
+                    className="flex-1 bg-white border border-slate-200 text-slate-700 hover:border-[#195C51] hover:text-[#195C51] px-2 py-1.5 rounded-md text-[10px] font-bold uppercase tracking-wider transition-all"
+                  >
+                    Find in table
+                  </button>
+                  <button
+                    onClick={() => goToUsageHistory(device.serialNumber)}
+                    className="flex-1 bg-[#195C51] text-white hover:bg-[#0E3A32] px-2 py-1.5 rounded-md text-[10px] font-bold uppercase tracking-wider transition-all inline-flex items-center justify-center gap-1"
+                  >
+                    <History className="w-3 h-3" /> Usage
+                  </button>
+                </div>
+              </div>
+            )}
+          />
         </div>
       </Card>
       </div>{/* end fullscreen wrapper */}
